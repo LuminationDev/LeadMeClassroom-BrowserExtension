@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Dashboard Page</title>
+</head>
+
+<body>
+    <div id="dashboard">
+        <h1>Dashboard Page</h1>
+        <p>src\pages\dashboard\dashboard.html</p>
+
+        <div>
+            <h3 id="classCodeDisplay"></h3>
+        </div>
+
+        <!-- Generating a new classroom -->
+        <div>
+            <form>
+                <label for="classroom">Name:</label><br>
+                <input type="text" id="classroomGenerator" name="classroom" value="" placeholder="Edward"><br>
+            </form> 
+
+            <button id="generatorBtn">Generate</button>
+        </div>
+
+        <!-- Launching a basic website -->
+        <div>
+            <form>
+                <label for="websiteURL">Website:</label><br>
+                <input type="text" id="website" name="websiteURL" value="" placeholder="www.lumination.com.au"><br>
+            </form> 
+
+            <button id="launchURL">Launch</button>
+        </div>
+
+        <!-- Containers to hold the webrtc connections -->
+        <div id="videoContainer" class="grid-container">
+            <div class="grid-item">
+                <video id="leader" class="xrayCapture" autoplay muted></video>
+            </div>            
+        </div>
+
+    </div>
+</body>
+
+</html>

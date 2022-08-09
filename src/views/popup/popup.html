@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Popup Page</title>
+</head>
+
+<body>
+    <div id="popup">
+        <h1>Popup Page</h1>
+        <h3>Please enter your class code</h3>
+        
+        <form id="pinCodeForm">
+            <input class="pinInput" maxlength="1" />
+            <input class="pinInput" maxlength="1" />
+            <input class="pinInput" maxlength="1" />
+            <input class="pinInput" maxlength="1" />
+        </form>
+
+        <div id="code-block" class="hidden special">
+            <button id="connectBtn">Connect</button>
+            <br />
+            <i id="resetCode">Reset </i>
+        </div>
+
+        <p id="login">Login </p>
+
+        <video class="xrayCapture" id="localVideo" autoplay muted></video>
+        <video class="xrayCapture" id="remoteVideo" autoplay></video>
+    </div>
+</body>
+
+</html>
