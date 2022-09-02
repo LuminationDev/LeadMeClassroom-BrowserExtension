@@ -129,12 +129,7 @@ var options = {
           from: 'content/content.styles.css',
           to: path.join(__dirname, 'build'),
           force: true,
-        },
-        {
-          from: 'views/templates/videoContainer.html',
-          to: path.join(__dirname, 'build'),
-          force: true,
-        },
+        }
       ],
     }),
     new HtmlWebpackPlugin({

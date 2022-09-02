@@ -1,15 +1,27 @@
-import { printLine } from './modules/print';
-import { connect } from './modules/connection';
+import { ConnectionManager } from './modules/_connectionManager';
 
-console.log('Content script works!');
-console.log('Must reload extension for modifications to take effect.');
+//Maintain a constant reference to Firebase, WebRTC, etc whilst the content script is loaded
+const MANAGER = new ConnectionManager();
 
-printLine("Using the 'printLine' function from the Print Module");
+//TODO need to check if teacher at somepoint?
+MANAGER.checkForExistingConnection();
 
 chrome.runtime.onMessage.addListener(
     function(request, sender, sendResponse) {
         if( request.message === "start" ) {
-            connect(request.code);
+            MANAGER.connect(request.code);
+        }
+
+        if (request.message == "active") {
+            let time = new Date().toLocaleTimeString();
+            console.log(request + " : " + time);
+            MANAGER.checkForExistingConnection();
+        }
+
+        if (request.message == "inactive") {
+            let time = new Date().toLocaleTimeString();
+            console.log(request + " : " + time);
+            MANAGER.disconnect();
         }
     }
 );

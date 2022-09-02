@@ -8,6 +8,7 @@
 </head>
 
 <body>
+    <!-- If there is no saved class code -->
     <div id="popup">
         <h1>Popup Page</h1>
         <h3>Please enter your class code</h3>
@@ -25,10 +26,14 @@
             <i id="resetCode">Reset </i>
         </div>
 
-        <p id="login">Login </p>
+        <p id="error"></p>
 
-        <video class="xrayCapture" id="localVideo" autoplay muted></video>
-        <video class="xrayCapture" id="remoteVideo" autoplay></video>
+        <p id="login">Login </p>
+    </div>
+
+    <!-- If there is a saved class code -->
+    <div id="endSession" class="hidden">
+        <button id="endSessionBtn">End Session</button>
     </div>
 </body>
 

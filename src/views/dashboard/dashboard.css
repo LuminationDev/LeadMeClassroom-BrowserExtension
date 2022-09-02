@@ -7,7 +7,7 @@ body {
   padding-top: 25px;
 }
 
-.xrayCapture {
+.screenshotCapture {
   background-color: #ddd;
   border-radius: 7px;
   margin: 10px 0px 0px 10px;
@@ -15,6 +15,22 @@ body {
   height: 240px;
 }
 
+
+.xrayCapture {
+  background-color: #ddd;
+  border-radius: 7px;
+  margin: 10px 0px 0px 10px;
+  width: 340px;
+  height: 340px;
+}
+
+.hidden {
+  display: none;
+}
+
 .grid-container {
   display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  grid-auto-rows: minmax(260px, auto);
 }

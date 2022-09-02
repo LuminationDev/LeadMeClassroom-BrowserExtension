@@ -5,9 +5,9 @@ import {v4 as uuidv4} from 'uuid';
  * to the firebase leader.
  */
 class Follower {
-    constructor(code, name) {
+    constructor(code, name, uniqueId=uuidv4()) {
         this.code = code;
-        this.uniqueId = uuidv4();
+        this.uniqueId = uniqueId;
         this.name = name;
     }
 
@@ -34,7 +34,11 @@ class Follower {
                 `{
                     "${this.uniqueId}": {
                         "name": "${this.name}",
-                        "currentTab": ""
+                        "currentTab": "",
+                        "screenshot": "",
+                        "request": {
+                            "message":""
+                        }
                     }
                 }`
             )

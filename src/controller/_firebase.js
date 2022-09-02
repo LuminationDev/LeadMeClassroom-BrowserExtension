@@ -1,30 +1,6 @@
+import { devConfig, prodConfig } from './_service';
 import firebase from 'firebase/compat/app';
 import 'firebase/compat/database';
-
-// Below is the configuration for production LeadMe
-// NOTE: place this into env before production.
-const prodConfig = {
-    apiKey: "AIzaSyChbyk9mh9jZrzDgpu4aYtmBSNfIeeV6nQ",
-    authDomain: "browserextension-bc94e.firebaseapp.com",
-    databaseURL: "https://browserextension-bc94e-default-rtdb.asia-southeast1.firebasedatabase.app",
-    projectId: "browserextension-bc94e",
-    storageBucket: "browserextension-bc94e.appspot.com",
-    messagingSenderId: "12541426407",
-    appId: "1:12541426407:web:7fd40f96e3b7da8c108042",
-    measurementId: "G-JY5GNBKCFY"
-};
-  
-// Below is the configuration for the testing server
-const devConfig = {
-    apiKey: "AIzaSyChbyk9mh9jZrzDgpu4aYtmBSNfIeeV6nQ",
-    authDomain: "browserextension-bc94e.firebaseapp.com",
-    databaseURL: "https://browserextension-bc94e-default-rtdb.asia-southeast1.firebasedatabase.app",
-    projectId: "browserextension-bc94e",
-    storageBucket: "browserextension-bc94e.appspot.com",
-    messagingSenderId: "12541426407",
-    appId: "1:12541426407:web:7fd40f96e3b7da8c108042",
-    measurementId: "G-JY5GNBKCFY"
-};
 
 const config = process.env.NODE_ENV === 'production' ? prodConfig : devConfig;
 
@@ -40,18 +16,6 @@ class Firebase {
 
         //Real-time database reference
         this.db = firebase.database();
-
-        // instantiate global application state object for Chrome Storage and feed in firebase data
-        // Chrome Storage will store our global state as a a JSON stringified value.
-        this.applicationState = { values: [] };
-    }
-
-    /** 
-     * updateState is a function that writes the changes to Chrome Storage
-    */ 
-    updateState = (applicationState) => {
-        chrome.storage.local.set({ state: JSON.stringify(applicationState) });
-        console.log(JSON.stringify(applicationState));
     }
 
     /**
@@ -66,24 +30,24 @@ class Firebase {
      * Attempt to find a class code matching the input, return whether the attempt was succesful or not
      */
     async checkForClassroom (inputCode) {
-        let data = {"type":"firebase"}
-
-        //Get the real time database reference
-        await this.db.ref("/classCode").child(inputCode).get().then((snapshot) => {
-            if(snapshot.exists()) {
-                data.response = true;      
-            } else {
-                data.response = false;
-                data.value = false;
-                chrome.runtime.sendMessage(data, null); 
-            }
+        return await this.db.ref("/classCode").child(inputCode).get().then((snapshot) => {
+            return snapshot.exists();
         }).catch((error) => {
-            data.response = false; 
-            data.value = false;
-            chrome.runtime.sendMessage(data, null); 
-        })
+            console.log(error);
+            return false;
+        });
+    }
 
-        return data.response;
+    /**
+     * Attempt to find a follower uuid matching the input, return whether the attempt was succesful or not
+     */
+    async checkForFollower (inputCode, inputUUID) {
+        return await this.db.ref("/classCode").child(inputCode).child("followers").child(inputUUID).get().then((snapshot) => {
+            return snapshot.exists();
+        }).catch((error) => {
+            console.log(error);
+            return false;
+        });
     }
 
     /**
@@ -92,7 +56,6 @@ class Firebase {
      */
     addFollower = (data) => {        
         this.db.ref(`/classCode/${data.getClassCode()}/followers`).update(data.getFollowerObject());
-        // this.registerListeners();
     }
 
     /**
@@ -114,10 +77,49 @@ class Firebase {
     /**
      * Register listeners on the firebase, applying different listeners depending on what type of users
      * has just connected.
-     * @param {*} user A string representing if the user is a leader or a follower.
+     * @param {*} inputCode A string representing the class a user is registered to. 
      */
-    registerListeners = (user) => {
+    registerListeners = (inputCode) => {
+        let launch = this.db.ref("/classCode").child(inputCode).child("launchURL");
+        launch.on('child_changed', (snapshot) => {
+            console.log(snapshot.val()); //new url
+            console.log(window.location.href); //current url
 
+            //TODO Use send message for active tab?
+            if(window.location.href != `https://${snapshot.val()}`) {
+                window.location = `https://${snapshot.val()}`;
+            }
+        })
+    }
+
+    /**
+     * Unregister any listners that may be active.
+     * @param {*} inputCode A string representing the class a user is registered to.  
+     */
+    unregisterListeners = (inputCode) => {
+        let launch = this.db.ref("/classCode").child(inputCode).child("launchURL");
+        launch.off('child_changed');
+    }
+
+    /**
+     * Disconnect from firebase
+     * @param {*} classCode A string representing the class a user is registered to. 
+     */
+    disconnectFirebase = (classCode) => {
+        console.log("Disconnecting firebase....");
+        let launch = this.db.ref("/classCode").child(classCode).child("launchURL");
+        launch.off('child_changed');
+        //this.db.off();
+    }
+
+    /**
+     * Upload a screen shot of the followers computer to firebase as a base 64 message under that direct follower's
+     * entry.
+     * @param {*} inputCode A string representing the class a user is registered to. 
+     * @param {*} inputUUID A string representing the unique ID of a follower.
+     */
+    sendScreenShot = (inputCode, inputUUID, base64) => {
+        this.db.ref("/classCode").child(inputCode).child("followers").child(inputUUID).child("screenshot").set(base64);
     }
 }
 

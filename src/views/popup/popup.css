@@ -42,6 +42,10 @@ body {
     visibility: hidden;
 }
 
+.hidden {
+    display: none;
+}
+
 #login {
     color: blue;
     font-weight: bold;
