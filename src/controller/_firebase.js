@@ -5,7 +5,9 @@ import 'firebase/compat/database';
 const config = process.env.NODE_ENV === 'production' ? prodConfig : devConfig;
 
 class Firebase {
-    constructor() {
+    constructor(callback) {
+        this.callback = callback;
+
         try {
             firebase.initializeApp(config);
         } catch (err) {
@@ -82,13 +84,15 @@ class Firebase {
     registerListeners = (inputCode) => {
         let launch = this.db.ref("/classCode").child(inputCode).child("launchURL");
         launch.on('child_changed', (snapshot) => {
-            console.log(snapshot.val()); //new url
-            console.log(window.location.href); //current url
+            this.callback({
+                "type" : "website", 
+                "value" : snapshot.val()
+            });
 
             //TODO Use send message for active tab?
-            if(window.location.href != `https://${snapshot.val()}`) {
-                window.location = `https://${snapshot.val()}`;
-            }
+            // if(window.location.href != `https://${snapshot.val()}`) {
+            //     window.location = `https://${snapshot.val()}`;
+            // }
         })
     }
 
@@ -109,7 +113,6 @@ class Firebase {
         console.log("Disconnecting firebase....");
         let launch = this.db.ref("/classCode").child(classCode).child("launchURL");
         launch.off('child_changed');
-        //this.db.off();
     }
 
     /**

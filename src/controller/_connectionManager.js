@@ -1,9 +1,12 @@
-import { Firebase, WebRTC } from '../../controller';
-import { Follower } from '../../models';
+import { Firebase, WebRTC } from './index';
+import { Follower } from '../models';
 
 export class ConnectionManager {
-    constructor() {
-        this.firebase = new Firebase();
+    constructor(callback) {
+        this.classCode;
+        this.uuid;
+
+        this.firebase = new Firebase(callback);
         this.webRTC;
     }
 
@@ -20,12 +23,13 @@ export class ConnectionManager {
     
         let follower = new Follower(userCode, "Placeholder");
         
-        let data = {
-            "type": "storage",
-            "code": userCode,
-            "uuid": follower.getUniqueId()
-        }
-        chrome.runtime.sendMessage(data, null);
+        chrome.storage.sync.set({ 
+            "follower": 
+            {
+                "code": userCode,
+                "uuid": follower.getUniqueId()
+            } 
+        });
 
         this.firebase.addFollower(follower);
 
@@ -42,47 +46,14 @@ export class ConnectionManager {
     }
 
     /**
-     * Contact firebase and check if a follower's UUID already exists on the system.
-     */
-    checkForExistingConnection = () => {
-        chrome.storage.sync.get("follower", async (data) => {
-            if(data == null) {
-                console.log("Nothing Saved");
-                return;
-            }
-    
-            if(data.follower == null) {
-                console.log("No Follower details found");
-                return;
-            }
-    
-            if(data.follower.code != null) {
-                //Check for the classroom
-                let success = await this.checkForClassroom(data.follower.code);
-    
-                if(!success) { 
-                    return;
-                }
-    
-                //Check for the UUID
-                success = await this.firebase.checkForFollower(data.follower.code, data.follower.uuid);
-    
-                if(!success) { 
-                    return;
-                }
-
-                this.connectionMethods(data.follower.code, data.follower.uuid);
-            }
-        });
-    }
-
-    /**
      * Register the appropriate firebase listeners for a follower, capture the current screen and setup
      * a new WebRTC peer connection.
      * @param {*} classCode 
      * @param {*} uuid 
      */
     connectionMethods = (classCode, uuid) => {
+        this.classCode = classCode;
+        this.uuid = uuid;
         this.firebase.registerListeners(classCode);
         this.captureScreen(classCode, uuid);
         this.webRTC = new WebRTC(this.firebase.db, classCode, uuid);
@@ -92,10 +63,10 @@ export class ConnectionManager {
      * Send a message to the background script to capture the current visible tab. The response is a base64
      * message that can be sent to firebase.
      */
-    captureScreen = (code, uuid) => {
+    captureScreen = () => {
         chrome.runtime.sendMessage({"type": "capture"}, async (response) => {
             console.log(response);
-            this.firebase.sendScreenShot(code, uuid, response);
+            this.firebase.sendScreenShot(this.classCode, this.uuid, response);
         });
     }
 

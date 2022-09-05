@@ -95,6 +95,10 @@ class WebRTC {
             else if (msg == "inSession") {
                 console.log("Follower already has an open session");
             }
+            else if (msg == "ended") {
+                console.log("Follower already has an open session");
+                this.pc = this.createNewPeerConnection();
+            }
         }
     };
 
@@ -142,11 +146,14 @@ class WebRTC {
     }
 
     /**
-     * 
+     * Send a message to the selected follower to reset their peer connection. Stop the 
+     * current peer connection and reset for next time.
      */
     stopFollowerStream = () => {
         console.log("Stopping webrtc connection...");
-        //this.pc = null;
+        var msg = this.database.ref("/classCode").child(this.classCode).child("followers").child(this.uuid).child("/request").push({ sender: this.uniqueId, message: "ended" });
+        msg.remove();
+        this.pc = this.createNewPeerConnection();
     }
 }
 

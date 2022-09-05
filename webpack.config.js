@@ -26,6 +26,7 @@ var options = {
   entry: {
     onboarding: './views/onboarding/onboarding.js',
     dashboard: './views/dashboard/dashboard.js',
+    assistant: './views/assistant/assistant.js',
     options: './views/options/options.js',
     popup: './views/popup/popup.js',
     controller: './controller/index.js',
@@ -142,6 +143,12 @@ var options = {
       template: 'views/dashboard/dashboard.html',
       filename: 'dashboard.html',
       chunks: ['dashboard'],
+      cache: false,
+    }),
+    new HtmlWebpackPlugin({
+      template: 'views/assistant/assistant.html',
+      filename: 'assistant.html',
+      chunks: ['assistant'],
       cache: false,
     }),
     new HtmlWebpackPlugin({

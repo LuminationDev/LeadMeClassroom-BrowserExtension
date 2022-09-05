@@ -7,26 +7,8 @@ const reset = document.getElementById('resetCode');
 const form = document.querySelector('form');
 const connect = document.getElementById('connectBtn');
 const login = document.getElementById('login');
-
 const endSession = document.getElementById("endSession");
 const endSessionBtn = document.getElementById("endSessionBtn");
-
-//==================================
-//FUNCTIONS
-//==================================
-/**
- * Check if the sync storage contains information relating to a follower, if it is present 
- * it means the user is in an active session.
- */
-// let checkForFollower = () => {
-//     chrome.storage.sync.get("follower", (data) => {
-//         if(data.follower != null && data.follower != undefined) {
-//             return true;
-//         } else {
-//             return false;
-//         }
-//     });
-// }
 
 //==================================
 //RUNTIME
@@ -64,32 +46,38 @@ reset.onclick = () => {
 connect.onclick = async () => {
     const userCode = [...inputs].map((input) => input.value).join(''); 
 
-    //Collects all the open tabs
-    // chrome.tabs.query({}, function(tabs) {
-    //     console.log(tabs);
-    // });
-
     //Querys the currently open tab and sends a message to it
     chrome.tabs.query({currentWindow: true, active: true}, function (tabs){
         
         var activeTab = tabs[0];
         chrome.tabs.sendMessage(activeTab.id, 
             {
-                "message": "start",
+                "type": "check",
                 "code": userCode
+            }, (response) => {
+                console.log(response);
+
+                if(!response) {
+                    document.getElementById("error").innerHTML = "No class found";
+                    return;
+                }
+
+                chrome.storage.sync.set({ 
+                    "follower": 
+                    {
+                        "code": userCode
+                    } 
+                });
+
+                chrome.windows.create({ 
+                    url: chrome.runtime.getURL("assistant.html"),
+                    type: "popup",
+                    state: "minimized"
+                });
+
+                window.close();
             }
         );
-
-        setTimeout(function(){
-            chrome.storage.sync.get("follower", (data) => {
-                console.log(data);
-                if(data.follower != null && data.follower != undefined) {
-                    window.close();
-                } else {
-                    document.getElementById("error").innerHTML = "No class found";
-                }
-            });
-        }, 2000);
     });
 }
 

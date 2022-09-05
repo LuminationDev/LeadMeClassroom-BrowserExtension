@@ -1,27 +1,25 @@
-import { ConnectionManager } from './modules/_connectionManager';
+import { Firebase } from '../controller';
 
-//Maintain a constant reference to Firebase, WebRTC, etc whilst the content script is loaded
-const MANAGER = new ConnectionManager();
-
-//TODO need to check if teacher at somepoint?
-MANAGER.checkForExistingConnection();
-
+/**
+ * Currently only receives messages from the popup page. Most functionality should
+ * be handled by the background script.
+ */
 chrome.runtime.onMessage.addListener(
     function(request, sender, sendResponse) {
-        if( request.message === "start" ) {
-            MANAGER.connect(request.code);
+        if( request.type === "check" ) {
+            AsyncProcessing(request.code).then(sendResponse);
         }
 
-        if (request.message == "active") {
-            let time = new Date().toLocaleTimeString();
-            console.log(request + " : " + time);
-            MANAGER.checkForExistingConnection();
-        }
-
-        if (request.message == "inactive") {
-            let time = new Date().toLocaleTimeString();
-            console.log(request + " : " + time);
-            MANAGER.disconnect();
-        }
+        return true;
     }
 );
+
+//Check if there is a class with the supplied code
+const AsyncProcessing = (code) => {
+    return new Promise(resolve => {
+        const FIREBASE = new Firebase();
+        FIREBASE.checkForClassroom(code).then((result) => {
+            resolve(result);
+        });
+    });
+}
