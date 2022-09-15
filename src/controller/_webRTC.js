@@ -2,16 +2,17 @@ class WebRTC {
     constructor(realTimeDatabase, classCode, uuid) {  
         this.classCode = classCode;
         this.uuid = uuid;
+        this.video = null;
 
         // //Determine who sent the message in firebase
         this.uniqueId = Math.floor(Math.random()*1000000000);
         this.servers = {'iceServers': [{'urls': 'stun:stun.services.mozilla.com'}, {'urls': 'stun:stun.l.google.com:19302'}]};
         this.pc = this.createNewPeerConnection();
 
+        
+
         //Real time database reference
         this.database = realTimeDatabase;
-        //Listen for video requests being sent
-        this.database.ref("/classCode").child(this.classCode).child("followers").child(this.uuid).child("/request").on('child_added', this.readMessage);
         //Listen for ice candidates being sent
         this.database.ref("/classCode").child(this.classCode).child("followers").child(this.uuid).child("/ice").on('child_added', this.readIceCandidate);
     }
@@ -23,6 +24,16 @@ class WebRTC {
         let peerConnection = new RTCPeerConnection(this.servers);
         peerConnection.onicecandidate = (event => event.candidate?this.sendIceCandidates(this.uniqueId, JSON.stringify({'ice': event.candidate})):console.log("Sent All Ice") );
         return peerConnection;
+    }
+
+    /**
+     * Set a video element for the newly created follower connection.
+     * @param {*} element A reference to a HTML video element. 
+     */
+    setVideoElement = (element) => {
+        this.video = element;
+        //Setup the video ready for the stream
+        this.setupVideo(this.video);
     }
 
     /**
@@ -71,45 +82,6 @@ class WebRTC {
             }
         }
     };
-
-    readMessage = (data) => {
-        if(data == null) {
-            return;
-        }
-        console.log(data.val());
-        
-        var msg = data.val().message;
-        var sender = data.val().sender;
-        if (sender != this.uniqueId) {
-            console.log(msg);
-            if (msg == "permission") {
-                console.log("Leader has asked follower for permission");
-                this.prepareScreen();
-            }
-            else if (msg == "granted") {
-                console.log("Follower has granted permission");
-            }
-            else if (msg == "denied") {
-                console.log("Follower has denied permission");
-            }
-            else if (msg == "inSession") {
-                console.log("Follower already has an open session");
-            }
-            else if (msg == "ended") {
-                console.log("Follower already has an open session");
-                this.pc = this.createNewPeerConnection();
-            }
-        }
-    };
-
-    /**
-     * Send a message to a follower requesting that they share the current tab.
-     * @param {*} senderId The unique id of the sending users, this stops a leader/follower replying to themselves.
-     */
-    requestVideoStream = () => {
-        var msg = this.database.ref("/classCode").child(this.classCode).child("followers").child(this.uuid).child("/request").push({ sender: this.uniqueId, message: "permission" });
-        msg.remove();
-    }
       
     /**
      * Ask to capture the current screen that is visible.
@@ -127,7 +99,8 @@ class WebRTC {
 
         //add preferCurrentTab:true, to only select the currently open tab
         navigator.mediaDevices.getDisplayMedia({audio:false, video:true})
-            .then(stream => this.pc.addStream(stream));
+            .then(stream => this.pc.addStream(stream))
+            .then(() => chrome.runtime.sendMessage({"type" : "minimize"}));
     }
 
     /**
@@ -151,9 +124,11 @@ class WebRTC {
      */
     stopFollowerStream = () => {
         console.log("Stopping webrtc connection...");
-        var msg = this.database.ref("/classCode").child(this.classCode).child("followers").child(this.uuid).child("/request").push({ sender: this.uniqueId, message: "ended" });
-        msg.remove();
+        this.pc.close();
+        this.pc = null;
         this.pc = this.createNewPeerConnection();
+        //Setup the video ready for the stream
+        this.setupVideo(this.video);
     }
 }
 

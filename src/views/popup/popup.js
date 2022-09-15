@@ -8,6 +8,7 @@ const form = document.querySelector('form');
 const connect = document.getElementById('connectBtn');
 const login = document.getElementById('login');
 const endSession = document.getElementById("endSession");
+const assistantBtn = document.getElementById('assistantBtn');
 const endSessionBtn = document.getElementById("endSessionBtn");
 
 //==================================
@@ -25,7 +26,21 @@ chrome.storage.sync.get("follower", (data) => {
 
 //Focus the inputs 
 inputs.forEach((input, key) => {
-    input.addEventListener('keyup', function () {
+    input.addEventListener('keyup', function (e) {
+        if (e.key === "Backspace") {
+            if (key === 3) {
+                codeBlock.classList.add('hidden');
+            }
+
+            if (key != 0) {
+                inputs[key - 1].focus();
+            }
+        }
+
+        if (key === 3 && e.key === "Enter") {
+            connect.click();
+        }
+
         if (input.value) {
             if (key === 3) {
                 codeBlock.classList.remove('hidden');
@@ -89,8 +104,31 @@ login.onclick = () => {
     chrome.tabs.create({ url: chrome.runtime.getURL("dashboard.html") });
 }
 
+assistantBtn.onclick = () => {
+    chrome.runtime.sendMessage({"type" : "maximize"});
+}
+
 //End a current session
 endSessionBtn.onclick = () => {
+    chrome.storage.sync.get("follower", (data) => {
+        if(data.follower != null && data.follower != undefined) {
+            //Send message to firebase about disconnection
+            chrome.tabs.query({currentWindow: true, active: true}, function (tabs){
+        
+                var activeTab = tabs[0];
+                chrome.tabs.sendMessage(activeTab.id, 
+                    {
+                        "type": "disconnect",
+                        "code": data.follower.code,
+                        "uuid": data.follower.uuid
+                    }, (response) => {
+                        console.log(response);
+                    }
+                );
+            });
+        }
+    });
+
     chrome.storage.sync.remove("follower", () => {
         console.log("Data removed");
         popup.classList.remove('hidden');

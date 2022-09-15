@@ -46,9 +46,7 @@ class Leader {
                 `{
                     "${this.code}": {
                         "name": "${this.name}",
-                        "launchURL": {
-                            "url" : ""
-                        },
+                        "request": "",
                         "followers": []
                     }
                 }`
