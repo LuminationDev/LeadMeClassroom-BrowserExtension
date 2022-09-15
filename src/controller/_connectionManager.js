@@ -1,13 +1,12 @@
 import { Firebase, WebRTC } from './index';
 import { Follower } from '../models';
+import * as REQUESTS from "../constants/_requests";
 
-export class ConnectionManager {
+class ConnectionManager {
     constructor(callback) {
-        this.classCode;
-        this.uuid;
-
         this.firebase = new Firebase(callback);
         this.webRTC;
+        this.follower;
     }
 
     /**
@@ -21,19 +20,20 @@ export class ConnectionManager {
             console.log("Class not found");
         }
     
-        let follower = new Follower(userCode, "Placeholder");
+        this.follower = new Follower(userCode, "Placeholder");
+        let uuid = this.follower.getUniqueId();
         
         chrome.storage.sync.set({ 
             "follower": 
             {
                 "code": userCode,
-                "uuid": follower.getUniqueId()
+                "uuid": uuid
             } 
         });
 
-        this.firebase.addFollower(follower);
+        this.firebase.addFollower(this.follower);
 
-        this.connectionMethods(follower.code, follower.uniqueId);
+        this.connectionMethods(this.follower.classCode, this.follower.uniqueId);
     } 
 
     /**
@@ -41,22 +41,25 @@ export class ConnectionManager {
      */
     disconnect = () => {
         if(this.webRTC != null) {
-            this.firebase.disconnectFirebase(this.webRTC.classCode);
+            this.firebase.unregisterListeners(this.follower.classCode, this.follower.uniqueId);
         }
+    }
+
+    /**
+     * Send a message to firebase that a follower has disconnected.
+     */
+    disconnectFollower = () => {
+        this.firebase.removeFollower(this.follower.classCode, this.follower.uniqueId);
     }
 
     /**
      * Register the appropriate firebase listeners for a follower, capture the current screen and setup
      * a new WebRTC peer connection.
-     * @param {*} classCode 
-     * @param {*} uuid 
      */
-    connectionMethods = (classCode, uuid) => {
-        this.classCode = classCode;
-        this.uuid = uuid;
-        this.firebase.registerListeners(classCode);
-        this.captureScreen(classCode, uuid);
-        this.webRTC = new WebRTC(this.firebase.db, classCode, uuid);
+    connectionMethods = () => {
+        this.firebase.registerListeners(this.follower.classCode, this.follower.uniqueId);
+        this.captureScreen(this.follower.classCode, this.follower.uniqueId);
+        this.webRTC = new WebRTC(this.firebase.db, this.follower.classCode, this.follower.uniqueId);
     }
 
     /**
@@ -64,9 +67,8 @@ export class ConnectionManager {
      * message that can be sent to firebase.
      */
     captureScreen = () => {
-        chrome.runtime.sendMessage({"type": "capture"}, async (response) => {
-            console.log(response);
-            this.firebase.sendScreenShot(this.classCode, this.uuid, response);
+        chrome.runtime.sendMessage({"type": REQUESTS.CAPTURE}, async (response) => {
+            this.firebase.sendScreenShot(this.follower.classCode, this.follower.uniqueId, response);
         });
     }
 
@@ -87,3 +89,5 @@ export class ConnectionManager {
         this.webRTC.prepareScreen();
     }
 }
+
+export default ConnectionManager;

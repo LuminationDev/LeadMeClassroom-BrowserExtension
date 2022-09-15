@@ -1,27 +1,39 @@
 import './assistant.css';
 import { ConnectionManager } from '../../controller';
+import * as REQUESTS from "../../constants/_requests";
 
 /**
  * Listens for actions, runs a function depending on the type
  * of action passed.
  */
-const assistantListener = (value) => {
-    console.log(value);
+const assistantListener = (data) => {
+    if(data == null) {
+        return;
+    }
 
-    switch (value.type) {
-        case "website":
-            console.log("Launch a website");
-            //Send the message to the currently active tab
-            chrome.runtime.sendMessage(value);
+    console.log(data);
+
+    switch (data.type) {
+        case REQUESTS.MONITORPERMISSION:
+            console.log("Leader has asked follower for permission");
+            chrome.runtime.sendMessage({"type" : "maximize"});
+            setTimeout(MANAGER.webRTC.prepareScreen, 1000);
             break;
 
-        case "monitor":
-            console.log("Request monitoring");
+        case REQUESTS.MONITORENDED:
+            MANAGER.webRTC.stopFollowerStream();
             break;
 
-        case "capture":
+        case REQUESTS.CAPTURE:
             console.log("Updating screenshot");
             MANAGER.captureScreen();
+            break;
+
+        case REQUESTS.YOUTUBE:
+        case REQUESTS.MUTETAB:           
+        case REQUESTS.UNMUTETAB:  
+        case REQUESTS.WEBSITE:
+            chrome.runtime.sendMessage(data);
             break;
 
         default:
@@ -52,7 +64,13 @@ chrome.storage.sync.get("follower", async (data) => {
 //End a current session
 const endSessionBtn = document.getElementById("endSessionBtn");
 endSessionBtn.onclick = () => {
+    //Send message to firebase that follower has disconnected
+    MANAGER.disconnectFollower();
+
     chrome.storage.sync.remove("follower", () => {
         console.log("Data removed");
     });
+
+    window.open("", "_self");
+    window.close();
 }

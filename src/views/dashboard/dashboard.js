@@ -1,6 +1,8 @@
 import './dashboard.css';
+import * as REQUESTS from "../../constants/_requests";
 import { Firebase, WebRTC} from '../../controller';
 import { Leader } from '../../models';
+import Disconnect from '../../assets/img/disconnect.png';
 
 //Initialise the firebase
 let firebase = new Firebase();
@@ -8,9 +10,6 @@ let leader = null;
 
 //Initialise webrtc
 const webRTCPeers = [];
-
-//Follower list
-const activeFollowers = [];
 
 //Register a new classroom
 const generateClassRoomBtn = document.getElementById('generatorBtn');
@@ -21,35 +20,25 @@ generateClassRoomBtn.onclick = () => {
     classCodeDisplay.innerHTML = leader.getClassCode();
 
     firebase.connectAsLeader(leader);
-    
-    //Listen for any followers being added
-    firebase.db.ref(`/classCode/${leader.getClassCode()}/followers`).on('child_added', snapshot => {
-        activeFollowers.push({
-            id: snapshot.key,
-            value: snapshot.val()
-        });
-        
-        //Create a new follower box each time a follower connects
-        console.log("Follower added");
-        newFollowerListener(snapshot.key);
-    });    
+    firebase.classRoomListeners(leader.getClassCode(), newFollower, followerDisconnected);
+}
+
+//Notify the leader that a follower has disconnected
+let followerDisconnected = (id) => {
+    console.log(id);
+    if(document.getElementById(id) != null) {
+        // document.getElementById(id).childNodes[0].src = "disconnect.png";
+        document.getElementById(id).childNodes[0].src = Disconnect;
+    }
 }
 
 //add listener for new follower
-let newFollowerListener = (id) => {
-    firebase.db.ref(`/classCode/${leader.getClassCode()}/followers/${id}`).on('child_changed', snapshot => {
-        console.log(snapshot.val());
-
-        if(snapshot.val().message != null) {
-            return;
-        }
-
-        if(document.getElementById(id) != null) {
-            document.getElementById(id).childNodes[0].src = snapshot.val();
-        } else {
-            addNewFollowerArea(snapshot.val(), id);
-        }
-    });
+let newFollower = (capture, id) => {
+    if(document.getElementById(id) != null) {
+        document.getElementById(id).childNodes[0].src = capture;
+    } else {
+        addNewFollowerArea(capture, id);
+    }
 }
 
 /**
@@ -61,6 +50,10 @@ let addNewFollowerArea = (base64, UUID) => {
     let webRTC = new WebRTC(firebase.db, leader.getClassCode(), UUID)
     webRTCPeers.push(webRTC);
 
+    //Create the video holder
+    let video = createNewVideoHolder();
+    webRTC.setVideoElement(video);
+
     let area = document.getElementById("followerContainer");
 
     let container = document.createElement("div");
@@ -71,11 +64,19 @@ let addNewFollowerArea = (base64, UUID) => {
     //Create the image holder
     let img = createNewImageHolder(base64);
 
-    //Create the video holder
-    let video = createNewVideoHolder(webRTC);
-
     //Create the monitor button
-    let button = createMonitorButtonHolder(webRTC);
+    let monitorButton = createMonitorButtonHolder(UUID);
+
+    //Create a mute button
+    let muteButton = createMuteButtonHolder(UUID);
+
+    //Create a mute all button
+    let muteAllButton = createMuteAllButtonHolder(UUID);
+
+    //Create video controls
+    let playButton = createVideoButtonHolder(UUID, "Play", REQUESTS.YOUTUBE, REQUESTS.VIDEOPLAY);
+    let pauseButton = createVideoButtonHolder(UUID, "Pause", REQUESTS.YOUTUBE, REQUESTS.VIDEOPAUSE);
+    let stopButton = createVideoButtonHolder(UUID, "Stop", REQUESTS.YOUTUBE, REQUESTS.VIDEOSTOP);
 
     div.append(img, video);
 
@@ -88,6 +89,7 @@ let addNewFollowerArea = (base64, UUID) => {
 
             //stop video call if exists
             webRTC.stopFollowerStream();
+            firebase.requestIndividualAction(leader.getClassCode(), UUID, { type: REQUESTS.MONITORENDED });
         } else {
             video.classList.remove("hidden");
             img.classList += " hidden";
@@ -98,7 +100,7 @@ let addNewFollowerArea = (base64, UUID) => {
     }
 
     //Add the button on after so it is not included in the onclick
-    container.append(div, button);
+    container.append(div, monitorButton, muteButton, muteAllButton, playButton, pauseButton, stopButton);
     area.appendChild(container);
 }
 
@@ -120,14 +122,12 @@ let createNewImageHolder = (base64) => {
  * @param {*} id A uuid representing a student entry on firebase 
  * @returns 
  */
-let createNewVideoHolder = (webRTC) => {
+let createNewVideoHolder = () => {
     let video = document.createElement("video");
     video.classList += "xrayCapture hidden";
 
     video.muted = true;
     video.autoplay = true;
-
-    webRTC.setupVideo(video);
 
     return video;
 }
@@ -136,13 +136,75 @@ let createNewVideoHolder = (webRTC) => {
  * Create a button that requests the a follower to share their screen.
  * @returns 
  */
-let createMonitorButtonHolder = (webRTC) => {
+let createMonitorButtonHolder = (UUID) => {
     let button = document.createElement("button");
     button.innerText = "Request Monitor";
 
     button.onclick = () => {
         console.log("Sending webRTC permission message to firebase");
-        webRTC.requestVideoStream();
+        firebase.requestIndividualAction(leader.getClassCode(), UUID, { type: REQUESTS.MONITORPERMISSION });
+    }
+
+    return button;
+}
+
+/**
+ * Create a button that requests the active tab of a follower is muted.
+ * @returns 
+ */
+let createMuteButtonHolder = (UUID) => {
+    let button = document.createElement("button");
+    button.innerText = "Mute Tab";
+
+    button.onclick = () => {
+        if(button.innerHTML == "Mute Tab") {
+            button.innerHTML = "Unmute Tab";
+            console.log("Sending mute request to Firebase");
+            firebase.requestIndividualAction(leader.getClassCode(), UUID, { type: REQUESTS.MUTETAB, tabs: REQUESTS.SINGLETAB });
+        } else {
+            button.innerHTML = "Mute Tab";
+            console.log("Sending unmute request to Firebase");
+            firebase.requestIndividualAction(leader.getClassCode(), UUID, { type: REQUESTS.UNMUTETAB, tabs: REQUESTS.SINGLETAB });
+        }
+    }
+
+    return button;
+}
+
+/**
+ * Create a button that requests the active tab of a follower is muted.
+ * @returns 
+ */
+ let createVideoButtonHolder = (UUID, text, type, action) => {
+    let button = document.createElement("button");
+    button.innerText = text;
+
+    button.onclick = () => {
+        console.log(`Sending ${text} request to Firebase`);
+        firebase.requestIndividualAction(leader.getClassCode(), UUID, { type: type, action: action });
+    }
+
+    return button;
+}
+
+/**
+ * Create a button that requests the active tab of a follower is muted.
+ * @returns 
+ */
+ let createMuteAllButtonHolder = (UUID) => {
+    let button = document.createElement("button");
+    button.innerText = "Mute All Tabs";
+
+    button.onclick = () => {
+        if(button.innerHTML == "Mute All Tabs") {
+            button.innerHTML = "Unmute All Tabs";
+            console.log("Sending mute request to Firebase");
+            firebase.requestIndividualAction(leader.getClassCode(), UUID, { type: REQUESTS.MUTETAB, tabs: REQUESTS.MULTITAB });
+        } else {
+            button.innerHTML = "Mute All Tabs";
+            console.log("Sending unmute request to Firebase");
+            firebase.requestIndividualAction(leader.getClassCode(), UUID, { type: REQUESTS.UNMUTETAB, tabs: REQUESTS.MULTITAB });
+        }
     }
 
     return button;
@@ -152,5 +214,5 @@ let createMonitorButtonHolder = (webRTC) => {
 const launchURL = document.getElementById('launchURL');
 const website = document.getElementById('website');
 launchURL.onclick = () => {
-    firebase.doUpdate(leader.getClassCode(), {"launchURL" : {"url" : website.value}});
+    firebase.requestAction(leader.getClassCode(), {type: REQUESTS.WEBSITE, value: website.value});
 }
