@@ -7,6 +7,8 @@ export const CAPTURE = "capture";
 
 export const WEBSITE = "website";
 
+export const ASSISTANT_MATCH_URL = "chrome-extension://*/assistant.html";
+
 //Tab controls
 export const MAXIMIZE = "maximize";
 

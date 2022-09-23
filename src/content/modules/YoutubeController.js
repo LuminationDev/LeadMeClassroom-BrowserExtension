@@ -1,6 +1,9 @@
 //Page to control a youtube page
+import Controller from './AbstractController'
+
 class YoutubeController extends Controller {
     constructor() {
+        super();
         //Currently the easiest way to get the video element, only the main video has this class
         let video = document.getElementsByClassName("video-stream");
         this.player = video[0];

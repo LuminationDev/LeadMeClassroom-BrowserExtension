@@ -1,4 +1,5 @@
 import './popup.css';
+import { Firebase } from '../../controller'
 
 const popup = document.getElementById("popup");
 const inputs = document.querySelectorAll('input');
@@ -63,28 +64,17 @@ connect.onclick = async () => {
 
     //Querys the currently open tab and sends a message to it
     chrome.tabs.query({currentWindow: true, active: true}, function (tabs){
-        
-        var activeTab = tabs[0];
-        chrome.tabs.sendMessage(activeTab.id, 
-            {
-                "type": "check",
-                "code": userCode
-            }, (response) => {
-                console.log(response);
-
-                if(!response) {
-                    document.getElementById("error").innerHTML = "No class found";
-                    return;
-                }
-
-                chrome.storage.sync.set({ 
-                    "follower": 
-                    {
-                        "code": userCode
-                    } 
+        const firebase = new Firebase();
+        firebase.checkForClassroom(userCode).then((result) => {
+            if (result) {
+                chrome.storage.sync.set({
+                    "follower":
+                        {
+                            "code": userCode
+                        }
                 });
 
-                chrome.windows.create({ 
+                chrome.windows.create({
                     url: chrome.runtime.getURL("assistant.html"),
                     type: "popup",
                     state: "minimized"
@@ -92,7 +82,7 @@ connect.onclick = async () => {
 
                 window.close();
             }
-        );
+        });
     });
 }
 
