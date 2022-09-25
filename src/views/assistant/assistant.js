@@ -46,6 +46,9 @@ const assistantListener = (data) => {
 chrome.runtime.onMessage.addListener(
     function(request, sender, sendResponse) {
         console.log(request);
+        if (sender.tab && sender.tab.url.contains("assistant.html")) {
+            return;
+        }
         assistantListener(request);
         return true;
     }
