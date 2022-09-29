@@ -21,15 +21,35 @@ const endSessionBtn = document.getElementById("endSessionBtn");
 
 const firebase = new Firebase();
 
-//Check if a session is in progress - i.e. if there is a saved class code
-chrome.storage.sync.get("follower", (data) => {
-    if(data.follower != null && data.follower != undefined) {
-        popup.classList.add('hidden');
-        endSession.classList.remove('hidden');
+/**
+ * Check if a session is in progress - i.e. if there is a saved class code. This
+ * can only proceed if the storage permission has been enabled. It cannot be requested
+ * here as it requires a User gesture.
+ */
+chrome.permissions.contains({
+    permissions: ["storage"]
+}, (granted) => {
+    if (granted) {
+        checkForFollower();
     } else {
-        console.log("Nothing saved");
+        console.log("Storage permission is not enabled.");
     }
 });
+
+/**
+ * Try to get any 'follower' details from the chrome synchronized storage, if they
+ * are present it means the browser is currently in a session.
+ */
+function checkForFollower() {
+    chrome.storage.sync.get("follower", (data) => {
+        if (data.follower != null && data.follower != undefined) {
+            popup.classList.add('hidden');
+            endSession.classList.remove('hidden');
+        } else {
+            console.log("Nothing saved");
+        }
+    });
+}
 
 //Focus the inputs 
 inputs.forEach((input, key) => {
@@ -64,19 +84,48 @@ reset.onclick = () => {
     codeBlock.classList.add('hidden');
 };
 
-//Connect to the classroom
+/**
+ * Connect to the classroom, when user tries to connect the extension prompts for
+ * the additional permissions (if not already granted). If theses are denied then 
+ * the user cannot join the classroom. Permissions can be enabled/disabled in the 
+ * options menu.
+ */
 connect.onclick = async () => {
-    const userCode = [...inputs].map((input) => input.value).join(''); 
+    //This request must be from a user action, cannot perform on load.
+    chrome.permissions.request({
+        permissions: [
+            "storage",
+            "tabs",
+            "scripting",
+            "activeTab",
+            "identity"
+        ]
+    }, (granted) => {
+        console.log(granted);
+
+        // The callback argument will be true if the user granted the permissions.
+        if (granted) {
+            console.log("Permissions have been enabled");
+            connectToClass();
+        } else {
+            console.log("Permissions have been denied");
+            document.getElementById("error").innerHTML = "Permissions have been denied";
+        }
+    });
+}
+
+function connectToClass() {
+    const userCode = [...inputs].map((input) => input.value).join('');
 
     //Querys the currently open tab and sends a message to it
-    chrome.tabs.query({currentWindow: true, active: true}, function (tabs){
+    chrome.tabs.query({ currentWindow: true, active: true }, function (tabs) {
         firebase.checkForClassroom(userCode).then((result) => {
             if (result) {
                 chrome.storage.sync.set({
                     "follower":
-                        {
-                            "code": userCode
-                        }
+                    {
+                        "code": userCode
+                    }
                 });
 
                 chrome.windows.create({
@@ -134,18 +183,18 @@ setPersistence(getAuth(), browserLocalPersistence).then(() => {
 })
 
 assistantBtn.onclick = () => {
-    chrome.runtime.sendMessage({"type" : "maximize"});
+    chrome.runtime.sendMessage({ "type": "maximize" });
 }
 
 //End a current session
 endSessionBtn.onclick = () => {
     chrome.storage.sync.get("follower", (data) => {
-        if(data.follower != null && data.follower != undefined) {
+        if (data.follower != null && data.follower != undefined) {
             //Send message to firebase about disconnection
-            chrome.tabs.query({currentWindow: true, active: true}, function (tabs){
-        
+            chrome.tabs.query({ currentWindow: true, active: true }, function (tabs) {
+
                 var activeTab = tabs[0];
-                chrome.tabs.sendMessage(activeTab.id, 
+                chrome.tabs.sendMessage(activeTab.id,
                     {
                         "type": "disconnect",
                         "code": data.follower.code,

@@ -14,21 +14,21 @@ chrome.runtime.onInstalled.addListener((reason) => {
 
 //Listen for when a tab becomes inactive
 chrome.tabs.onActivated.addListener((activeInfo) => {
-    checkStorage();
+    checkStoragePermission(checkStorage);
 });
 
 //Listen for when a tab url changes
-chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
+chrome.tabs.onUpdated.addListener(function (tabId, changeInfo, tab) {
     console.log(changeInfo);
 
-    if(changeInfo.url == null) {
+    if (changeInfo.url == null) {
         return;
     }
 
     // read changeInfo data and do something with it as long as it isnt the assistant page
     if (!changeInfo.url.includes("assistant")) {
         // do something here
-        checkStorage();
+        checkStoragePermission(checkStorage);
     }
 });
 
@@ -37,7 +37,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     console.log("BACKGROUND REQUEST");
     console.log(request);
 
-    switch(request.type) {
+    switch (request.type) {
         case REQUESTS.CAPTURE:
             chrome.tabs.captureVisibleTab({ quality: 1 }, (result) => {
                 sendResponse(result);
@@ -79,16 +79,33 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 //===========================================
 //FUNCTIONS
 //===========================================
+
+/**
+ * Check if the storage permission has been enabled before trying to
+ * access the chrome sync or local storage
+ */
+const checkStoragePermission = (callback) => {
+    chrome.permissions.contains({
+        permissions: ["storage"]
+    }, (granted) => {
+        if (granted) {
+            callback();
+        } else {
+            console.log("Storage permission is not enabled.");
+        }
+    });
+}
+
 /**
  * Check if a follower has been saved by the popup.js script.
  */
 const checkStorage = () => {
     chrome.storage.sync.get("follower", async (data) => {
-        if(data == null) {
+        if (data == null) {
             return;
-        }    
+        }
 
-        if(data.follower == null) {
+        if (data.follower == null) {
             return;
         }
 
@@ -102,10 +119,10 @@ const checkStorage = () => {
  */
 const captureScreen = () => {
     //Minor delay to let the screen load
-    setTimeout(function(){ 
+    setTimeout(function () {
         //Send a message to the assistant page
         chrome.tabs.query({ url: REQUESTS.ASSISTANT_MATCH_URL }, ([tab]) => {
-            chrome.tabs.sendMessage(tab.id, {"type" : REQUESTS.CAPTURE});
+            chrome.tabs.sendMessage(tab.id, { "type": REQUESTS.CAPTURE });
         });
     }, 500);
 }
@@ -117,11 +134,11 @@ const captureScreen = () => {
  * @param {*} message 
  */
 const updateTabURL = (message) => {
-    setTimeout(function(){ 
-        chrome.tabs.query({currentWindow: true, active: true}, function(tabs) {
+    setTimeout(function () {
+        chrome.tabs.query({ currentWindow: true, active: true }, function (tabs) {
             const activeTab = tabs[0];
             // chrome.tabs.sendMessage(activeTab.id, message);
-            chrome.tabs.update(activeTab.id, {url: `https://${message.value}`});
+            chrome.tabs.update(activeTab.id, { url: `https://${message.value}` });
             chrome.windows.update(activeTab.windowId, { state: 'maximized', focused: true });
         });
     }, 3000);
@@ -153,13 +170,13 @@ const minimize = () => {
  * Mute the currently active tab or all tabs.
  */
 const muteTab = (request) => {
-    if(request.tabs === REQUESTS.SINGLETAB) {
-        chrome.tabs.query({currentWindow: true, active: true}, function(tabs) {
+    if (request.tabs === REQUESTS.SINGLETAB) {
+        chrome.tabs.query({ currentWindow: true, active: true }, function (tabs) {
             chrome.tabs.update(tabs[0].id, { muted: true });
         });
     } else if (request.tabs === REQUESTS.MULTITAB) {
         console.log("MULTITAB MUTE");
-        chrome.tabs.query({}, function(tabs) {
+        chrome.tabs.query({}, function (tabs) {
             console.log(tabs);
             tabs.forEach(tab => {
                 console.log(tab);
@@ -173,12 +190,12 @@ const muteTab = (request) => {
  * Unmute the currently active tab or all tabs.
  */
 const unmuteTab = (request) => {
-    if(request.tabs === REQUESTS.SINGLETAB) {
-        chrome.tabs.query({currentWindow: true, active: true}, function(tabs) {
+    if (request.tabs === REQUESTS.SINGLETAB) {
+        chrome.tabs.query({ currentWindow: true, active: true }, function (tabs) {
             chrome.tabs.update(tabs[0].id, { muted: false });
         });
     } else if (request.tabs === REQUESTS.MULTITAB) {
-        chrome.tabs.query({}, function(tabs) {
+        chrome.tabs.query({}, function (tabs) {
             tabs.forEach(tab => {
                 chrome.tabs.update(tab.id, { muted: false });
             });
@@ -190,7 +207,7 @@ const unmuteTab = (request) => {
  * Send a youtube action to the active tab.
  */
 const youtubeAction = (request) => {
-    chrome.tabs.query({currentWindow: true, active: true}, function(tabs) {
+    chrome.tabs.query({ currentWindow: true, active: true }, function (tabs) {
         console.log(tabs);
         const activeTab = tabs[0];
         chrome.tabs.sendMessage(activeTab.id, request);

@@ -10,7 +10,67 @@
 <body>
   <div id="options">
     <h1>Options Page</h1>
-    <p>src\pages\options\options.html</p>
+  </div>
+
+  <div id="permissions">
+    <hr>
+    <div class="permissionHolder">
+      <h2>Storage</h2>
+      <label class="switch">
+        <input name="permissionChange" id="storage" type="checkbox">
+        <span class="slider round"></span>
+      </label>
+    </div>
+
+    <p class="description">Grants access to the browsers local and synchronised storage. It can directly access data
+      that is saved within a browsers storage.</p>
+
+    <hr>
+    <div class="permissionHolder">
+      <h2>Tabs</h2>
+      <label class="switch">
+        <input name="permissionChange" id="tabs" type="checkbox">
+        <span class="slider round"></span>
+      </label>
+    </div>
+
+    <p class="description">Grants access to privileged fields within an active or inactive opened Tab.</p>
+
+
+    <hr>
+    <div class="permissionHolder">
+      <h2>Scripting</h2>
+      <label class="switch">
+        <input name="permissionChange" id="scripting" type="checkbox">
+        <span class="slider round"></span>
+      </label>
+    </div>
+
+    <p class="description">Grants the ability for the extension to inject JavaScript and CSS into websites.</p>
+
+    <hr>
+    <div class="permissionHolder">
+      <h2>Active Tab</h2>
+      <label class="switch">
+        <input name="permissionChange" id="activeTab" type="checkbox">
+        <span class="slider round"></span>
+      </label>
+    </div>
+
+    <p class="description">Grants a Leader temporary control access to a currently active tab. Access to the tab lasts
+      while the follower is logged into the extension.</p>
+
+    <hr>
+    <div class="permissionHolder">
+      <h2>Identity</h2>
+      <label class="switch">
+        <input name="permissionChange" id="identity" type="checkbox">
+        <span class="slider round"></span>
+      </label>
+    </div>
+
+    <p class="description">Grants the ability to access saved OAuth2 access tokens.</p>
+
   </div>
 </body>
 

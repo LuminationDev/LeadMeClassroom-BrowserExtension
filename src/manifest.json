@@ -3,16 +3,16 @@
   "name": "LeadMe Web",
   "description": "Chrome extension using manifest v3",
   "version": "0.0.1",
-  "permissions": [
-      "storage",
-      "tabs",
-      "scripting",
-      "activeTab",
-      "identity"
+  "optional_permissions": [
+    "storage",
+    "tabs",
+    "scripting",
+    "activeTab",
+    "identity"
   ],
   "host_permissions": [
-      "*://*/*",
-      "<all_urls>"
+    "*://*/*",
+    "<all_urls>"
   ],
   "options_page": "options.html",
   "action": {
@@ -22,20 +22,37 @@
   "icons": {
     "128": "icon-128.png"
   },
-  "background": { 
+  "background": {
     "service_worker": "background.bundle.js"
   },
   "content_scripts": [
     {
-      "matches": ["http://*/*", "https://*/*", "<all_urls>"],
-      "js": ["contentScript.bundle.js"],
-      "css": ["content.styles.css"]
+      "matches": [
+        "http://*/*",
+        "https://*/*",
+        "<all_urls>"
+      ],
+      "js": [
+        "contentScript.bundle.js"
+      ],
+      "css": [
+        "content.styles.css"
+      ]
     }
   ],
   "web_accessible_resources": [
     {
-      "resources": ["content.styles.css", "icon-128.png", "icon-34.png", "disconnect.png"],
-      "matches": ["http://*/*", "https://*/*", "<all_urls>"]
+      "resources": [
+        "content.styles.css",
+        "icon-128.png",
+        "icon-34.png",
+        "disconnect.png"
+      ],
+      "matches": [
+        "http://*/*",
+        "https://*/*",
+        "<all_urls>"
+      ]
     }
   ]
 }
