@@ -104,12 +104,8 @@ const captureScreen = () => {
     //Minor delay to let the screen load
     setTimeout(function(){ 
         //Send a message to the assistant page
-        chrome.tabs.query({}, function(tabs) {
-            tabs.forEach(tab => {
-                if(tab.url.includes("chrome") && tab.url.includes("assistant")) {
-                    chrome.tabs.sendMessage(tab.id, {"type" : REQUESTS.CAPTURE});
-                }
-            });
+        chrome.tabs.query({ url: REQUESTS.ASSISTANT_MATCH_URL }, ([tab]) => {
+            chrome.tabs.sendMessage(tab.id, {"type" : REQUESTS.CAPTURE});
         });
     }, 500);
 }
@@ -126,6 +122,7 @@ const updateTabURL = (message) => {
             const activeTab = tabs[0];
             // chrome.tabs.sendMessage(activeTab.id, message);
             chrome.tabs.update(activeTab.id, {url: `https://${message.value}`});
+            chrome.windows.update(activeTab.windowId, { state: 'maximized', focused: true });
         });
     }, 3000);
 }
@@ -136,12 +133,8 @@ const updateTabURL = (message) => {
  */
 const maximize = () => {
     //Send a message to the assistant page
-    chrome.tabs.query({}, function(tabs) {
-        tabs.forEach(tab => {
-            if(tab.url.includes("chrome") && tab.url.includes("assistant")) {
-                chrome.windows.update(tab.windowId, { state: 'maximized' });
-            }
-        });
+    chrome.tabs.query({ url: REQUESTS.ASSISTANT_MATCH_URL }, ([tab]) => {
+        chrome.windows.update(tab.windowId, { state: 'maximized' });
     });
 }
 
@@ -151,12 +144,8 @@ const maximize = () => {
  */
 const minimize = () => {
     //Send a message to the assistant page
-    chrome.tabs.query({}, function(tabs) {
-        tabs.forEach(tab => {
-            if(tab.url.includes("chrome") && tab.url.includes("assistant")) {
-                chrome.windows.update(tab.windowId, { state: 'minimized' });
-            }
-        });
+    chrome.tabs.query({ url: REQUESTS.ASSISTANT_MATCH_URL }, ([tab]) => {
+        chrome.windows.update(tab.windowId, { state: 'minimized' });
     });
 }
 
