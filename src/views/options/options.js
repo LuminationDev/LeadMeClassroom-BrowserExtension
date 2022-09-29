@@ -43,15 +43,3 @@ function enablePermission(target) {
         }
     });
 }
-
-//CAN ASK FOR OPTIONAL PERMISSIONS in manifest "optional_permissions": []
-// chrome.permissions.request({
-//     permissions: ['tabs']
-//   }, (granted) => {
-//     // The callback argument will be true if the user granted the permissions.
-//     if (granted) {
-//       doSomething();
-//     } else {
-//       doSomethingElse();
-//     }
-//   });
