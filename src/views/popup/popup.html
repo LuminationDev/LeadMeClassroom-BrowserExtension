@@ -10,10 +10,10 @@
 <body>
     <!-- If there is no saved class code -->
     <div id="popup">
-        <h1>Popup Page</h1>
+        <h1 class="text-3xl">Popup Page</h1>
         <h3>Please enter your class code</h3>
         
-        <form id="pinCodeForm">
+        <form class="flex justify-center">
             <input class="pinInput" maxlength="1" />
             <input class="pinInput" maxlength="1" />
             <input class="pinInput" maxlength="1" />
@@ -28,7 +28,9 @@
 
         <p id="error"></p>
 
-        <p id="login">Login </p>
+        <p id="login" class="hidden">Login </p>
+        <p id="logout" class="hidden">Logout </p>
+        <div id="firebaseui-auth-container" class="firebase-auth"/>
     </div>
 
     <!-- If there is a saved class code -->

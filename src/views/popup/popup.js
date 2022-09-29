@@ -1,5 +1,8 @@
+import '../../main.css'
 import './popup.css';
 import { Firebase } from '../../controller'
+import { auth } from 'firebaseui';
+import { getAuth, setPersistence, browserLocalPersistence, signOut, EmailAuthProvider } from 'firebase/auth'
 
 const popup = document.getElementById("popup");
 const inputs = document.querySelectorAll('input');
@@ -15,6 +18,9 @@ const endSessionBtn = document.getElementById("endSessionBtn");
 //==================================
 //RUNTIME
 //==================================
+
+const firebase = new Firebase();
+
 //Check if a session is in progress - i.e. if there is a saved class code
 chrome.storage.sync.get("follower", (data) => {
     if(data.follower != null && data.follower != undefined) {
@@ -64,7 +70,6 @@ connect.onclick = async () => {
 
     //Querys the currently open tab and sends a message to it
     chrome.tabs.query({currentWindow: true, active: true}, function (tabs){
-        const firebase = new Firebase();
         firebase.checkForClassroom(userCode).then((result) => {
             if (result) {
                 chrome.storage.sync.set({
@@ -86,13 +91,47 @@ connect.onclick = async () => {
     });
 }
 
-//Login a leader to an account
-login.onclick = () => {
-    //Show login prompt here
-
-    //Then go to the dashboard
-    chrome.tabs.create({ url: chrome.runtime.getURL("dashboard.html") });
+function setupLogin() {
+    var ui = new auth.AuthUI(getAuth())
+    login.innerText = "Login"
+    login.onclick = () => {
+        ui.start('#firebaseui-auth-container', {
+            signInOptions: [
+                EmailAuthProvider.PROVIDER_ID
+            ],
+            callbacks: {
+                signInFailure(error) {
+                    const errorTag2 = document.getElementById("error");
+                    errorTag2.innerText = error;
+                    return false;
+                },
+                signInSuccessWithAuthResult(authResult, redirectUrl) {
+                    chrome.tabs.create({ url: chrome.runtime.getURL("dashboard.html") });
+                    return false;
+                }
+            }
+        });
+    }
 }
+
+setPersistence(getAuth(), browserLocalPersistence).then(() => {
+    if (getAuth().currentUser) {
+        login.innerText = "Go to dashboard"
+        login.onclick = () => {
+            chrome.tabs.create({ url: chrome.runtime.getURL("dashboard.html") });
+        }
+        logout.classList.remove('hidden')
+        logout.onclick = () => {
+            signOut(getAuth()).then(() => {
+                setupLogin()
+                logout.classList.add('hidden')
+            })
+        }
+    } else {
+        setupLogin()
+    }
+    login.classList.remove('hidden')
+})
 
 assistantBtn.onclick = () => {
     chrome.runtime.sendMessage({"type" : "maximize"});

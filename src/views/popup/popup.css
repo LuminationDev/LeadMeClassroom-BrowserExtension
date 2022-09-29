@@ -9,11 +9,6 @@ body {
     padding-top: 25px;
 }
 
-#pinCodeForm {
-    display: flex;
-    justify-content: center;
-}
-
 .pinInput {
     margin: 0 0.5rem;
     padding: 0.5rem;
@@ -59,4 +54,7 @@ body {
     margin: 10px 0px 0px 10px;
     width: 40px;
     height: 40px;
+}
+
+.firebase-auth {
 }
