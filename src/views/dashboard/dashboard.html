@@ -2,9 +2,9 @@
 <html lang="en">
 
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Dashboard Page</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Dashboard Page</title>
 </head>
 
 <body>
@@ -17,13 +17,18 @@
         </div>
 
         <!-- Generating a new classroom -->
-        <div>
+        <div id="startSessionArea">
             <form>
                 <label for="classroom">Name:</label><br>
                 <input type="text" id="classroomGenerator" name="classroom" value="" placeholder="Edward"><br>
-            </form> 
+            </form>
 
             <button id="generatorBtn">Generate</button>
+        </div>
+
+        <!-- Ending a current session -->
+        <div class="hidden" id="endSessionArea">
+            <button id="endSessionBtn">End Session</button>
         </div>
 
         <!-- Launching a basic website -->
@@ -31,7 +36,7 @@
             <form>
                 <label for="websiteURL">Website:</label><br>
                 <input type="text" id="website" name="websiteURL" value="" placeholder="www.lumination.com.au"><br>
-            </form> 
+            </form>
 
             <button id="launchURL">Launch</button>
         </div>
