@@ -1,4 +1,6 @@
 //General controls
+export const ENDSESSION = "end_session";
+
 export const MONITORPERMISSION = "video_permission";
 
 export const MONITORENDED = "video_ended";

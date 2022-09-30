@@ -32,6 +32,16 @@ chrome.tabs.onUpdated.addListener(function (tabId, changeInfo, tab) {
     }
 });
 
+//Listen for changes in the chrome storage
+// chrome.storage.onChanged.addListener(function (changes, namespace) {
+//     for (let [key, { oldValue, newValue }] of Object.entries(changes)) {
+//         console.log(
+//             `Storage key "${key}" in namespace "${namespace}" changed.`,
+//             `Old value was "${oldValue}", new value is "${newValue}".`
+//         );
+//     }
+// });
+
 //Listen for messages that are sent from content scripts and the assistant.js
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     console.log("BACKGROUND REQUEST");
@@ -49,11 +59,11 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
             break;
 
         case REQUESTS.MAXIMIZE:
-            maximize(request);
+            maximize();
             break;
 
         case REQUESTS.MINIMIZE:
-            minimize(request);
+            minimize();
             break;
 
         case REQUESTS.MUTETAB:

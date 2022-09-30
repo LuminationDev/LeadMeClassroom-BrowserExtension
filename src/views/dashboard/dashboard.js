@@ -1,6 +1,6 @@
 import './dashboard.css';
 import * as REQUESTS from "../../constants/_requests";
-import { Firebase, WebRTC} from '../../controller';
+import { Firebase, WebRTC } from '../../controller';
 import { Leader } from '../../models';
 import Disconnect from '../../assets/img/disconnect.png';
 
@@ -11,30 +11,51 @@ let leader = null;
 //Initialise webrtc
 const webRTCPeers = [];
 
-//Register a new classroom
-const generateClassRoomBtn = document.getElementById('generatorBtn');
+const startSessionArea = document.getElementById('startSessionArea');
 const leaderName = document.getElementById('classroomGenerator');
 const classCodeDisplay = document.getElementById('classCodeDisplay');
+const endSessionArea = document.getElementById('endSessionArea');
+
+//End a current session
+const endSessionBtn = document.getElementById('endSessionBtn');
+endSessionBtn.onclick = () => {
+    //Notify followers a session is ending and delete database class entry
+    firebase.requestAction(leader.getClassCode(), { type: REQUESTS.ENDSESSION, value: null });
+    firebase.removeClass(leader.getClassCode());
+
+    //Remove all generated follower containers
+    document.getElementById("followerContainer").replaceChildren();
+
+    //Reset html
+    classCodeDisplay.innerHTML = null;
+    startSessionArea.classList.remove("hidden");
+    endSessionArea.classList.add("hidden");
+}
+
+//Register a new classroom
+const generateClassRoomBtn = document.getElementById('generatorBtn');
 generateClassRoomBtn.onclick = () => {
     leader = new Leader(leaderName.value);
     classCodeDisplay.innerHTML = leader.getClassCode();
 
     firebase.connectAsLeader(leader);
     firebase.classRoomListeners(leader.getClassCode(), newFollower, followerDisconnected);
+
+    startSessionArea.classList.add("hidden");
+    endSessionArea.classList.remove("hidden");
 }
 
 //Notify the leader that a follower has disconnected
 let followerDisconnected = (id) => {
     console.log(id);
-    if(document.getElementById(id) != null) {
-        // document.getElementById(id).childNodes[0].src = "disconnect.png";
+    if (document.getElementById(id) != null) {
         document.getElementById(id).childNodes[0].src = Disconnect;
     }
 }
 
 //add listener for new follower
 let newFollower = (capture, id) => {
-    if(document.getElementById(id) != null) {
+    if (document.getElementById(id) != null) {
         document.getElementById(id).childNodes[0].src = capture;
     } else {
         addNewFollowerArea(capture, id);
@@ -83,7 +104,7 @@ let addNewFollowerArea = (base64, UUID) => {
     div.onclick = () => {
         //TODO Request must have been successful first
 
-        if(img.classList.contains("hidden")) {
+        if (img.classList.contains("hidden")) {
             img.classList.remove("hidden");
             video.classList += " hidden";
 
@@ -157,7 +178,7 @@ let createMuteButtonHolder = (UUID) => {
     button.innerText = "Mute Tab";
 
     button.onclick = () => {
-        if(button.innerHTML == "Mute Tab") {
+        if (button.innerHTML == "Mute Tab") {
             button.innerHTML = "Unmute Tab";
             console.log("Sending mute request to Firebase");
             firebase.requestIndividualAction(leader.getClassCode(), UUID, { type: REQUESTS.MUTETAB, tabs: REQUESTS.SINGLETAB });
@@ -175,7 +196,7 @@ let createMuteButtonHolder = (UUID) => {
  * Create a button that requests the active tab of a follower is muted.
  * @returns 
  */
- let createVideoButtonHolder = (UUID, text, type, action) => {
+let createVideoButtonHolder = (UUID, text, type, action) => {
     let button = document.createElement("button");
     button.innerText = text;
 
@@ -191,12 +212,12 @@ let createMuteButtonHolder = (UUID) => {
  * Create a button that requests the active tab of a follower is muted.
  * @returns 
  */
- let createMuteAllButtonHolder = (UUID) => {
+let createMuteAllButtonHolder = (UUID) => {
     let button = document.createElement("button");
     button.innerText = "Mute All Tabs";
 
     button.onclick = () => {
-        if(button.innerHTML == "Mute All Tabs") {
+        if (button.innerHTML == "Mute All Tabs") {
             button.innerHTML = "Unmute All Tabs";
             console.log("Sending mute request to Firebase");
             firebase.requestIndividualAction(leader.getClassCode(), UUID, { type: REQUESTS.MUTETAB, tabs: REQUESTS.MULTITAB });
@@ -214,5 +235,5 @@ let createMuteButtonHolder = (UUID) => {
 const launchURL = document.getElementById('launchURL');
 const website = document.getElementById('website');
 launchURL.onclick = () => {
-    firebase.requestAction(leader.getClassCode(), {type: REQUESTS.WEBSITE, value: website.value});
+    firebase.requestAction(leader.getClassCode(), { type: REQUESTS.WEBSITE });
 }

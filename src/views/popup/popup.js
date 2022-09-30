@@ -47,6 +47,8 @@ function checkForFollower() {
             endSession.classList.remove('hidden');
         } else {
             console.log("Nothing saved");
+            popup.classList.remove('hidden');
+            endSession.classList.add('hidden');
         }
     });
 }

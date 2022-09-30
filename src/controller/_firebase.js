@@ -35,10 +35,10 @@ class Firebase {
      */
     classRoomListeners = (classCode, newFollower, followerDisconnected) => {
         //Listen for any followers being added
-        this.db.ref(`/classCode/${classCode}/followers`).on('child_added', snapshot => { 
+        this.db.ref(`/classCode/${classCode}/followers`).on('child_added', snapshot => {
             this.followerListener(classCode, newFollower, snapshot.key);
         });
-        
+
         this.db.ref(`/classCode/${classCode}/followers`).on('child_removed', snapshot => {
             console.log("Follower removed");
             console.log(snapshot.val());
@@ -52,8 +52,8 @@ class Firebase {
     followerListener = (classCode, newFollower, id) => {
         this.db.ref(`/classCode/${classCode}/followers/${id}`).on('child_changed', snapshot => {
             console.log(snapshot.val());
-    
-            if(snapshot.val().message != null) {
+
+            if (snapshot.val().message != null) {
                 return;
             }
 
@@ -66,7 +66,7 @@ class Firebase {
     /**
      * Attempt to find a class code matching the input, return whether the attempt was succesful or not
      */
-    async checkForClassroom (inputCode) {
+    async checkForClassroom(inputCode) {
         return await this.db.ref("/classCode").child(inputCode).get().then((snapshot) => {
             return snapshot.exists();
         }).catch((error) => {
@@ -78,7 +78,7 @@ class Firebase {
     /**
      * Attempt to find a follower uuid matching the input, return whether the attempt was succesful or not
      */
-    async checkForFollower (inputCode, inputUUID) {
+    async checkForFollower(inputCode, inputUUID) {
         return await this.db.ref("/classCode").child(inputCode).child("followers").child(inputUUID).get().then((snapshot) => {
             return snapshot.exists();
         }).catch((error) => {
@@ -91,7 +91,7 @@ class Firebase {
      * Add a follower object to the classrooms followers array.
      * @param {*} data A Follower object.
      */
-    addFollower = (data) => {        
+    addFollower = (data) => {
         this.db.ref(`/classCode/${data.getClassCode()}/followers`).update(data.getFollowerObject());
     }
 
@@ -100,7 +100,7 @@ class Firebase {
      * @param {*} classCode 
      * @param {*} uuid 
      */
-    async removeFollower (classCode, uuid) {
+    async removeFollower(classCode, uuid) {
         return await this.db.ref(`/classCode/${classCode}/followers/${uuid}`).remove().then(() => {
             return true;
         }).catch((error) => {
@@ -121,7 +121,7 @@ class Firebase {
      * Sent from a leader, push an action request to all followers. This could be a video_permission, muteTab etc..
      * @param {*} type 
      */
-     requestAction = (classCode, type) => {
+    requestAction = (classCode, type) => {
         var msg = this.db.ref("classCode").child(classCode).child("/request").push(type);
         msg.remove();
     }
@@ -152,7 +152,7 @@ class Firebase {
      * Unregister any listners that may be active.
      * @param {*} inputCode A string representing the class a user is registered to.  
      */
-    unregisterListeners = (inputCode) => {
+    unregisterListeners = (inputCode, uuid) => {
         this.db.ref("classCode").child(inputCode).child("request").off("child_changed");
         this.db.ref("classCode").child(inputCode).child("followers").child(uuid).child("request").off("child_changed");
     }
@@ -165,6 +165,22 @@ class Firebase {
      */
     sendScreenShot = (inputCode, inputUUID, base64) => {
         this.db.ref("classCode").child(inputCode).child("followers").child(inputUUID).child("screenshot").set(base64);
+    }
+
+    /**
+     * Remove the entrity of a class entry, at the end of a session the details of the connects will be erased.
+     * @param {*} classCode 
+     */
+    removeClass = (classCode) => {
+        var classRef = this.db.ref("classCode").child(classCode);
+
+        classRef.remove()
+            .then(function () {
+                console.log("Remove succeeded.")
+            })
+            .catch(function (error) {
+                console.log("Remove failed: " + error.message)
+            });
     }
 }
 
