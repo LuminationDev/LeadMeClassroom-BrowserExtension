@@ -16,31 +16,31 @@ class ConnectionManager {
     connect = async (userCode) => {
         let success = await this.checkForClassroom(userCode);
 
-        if(!success) {
+        if (!success) {
             console.log("Class not found");
         }
-    
+
         this.follower = new Follower(userCode, "Placeholder");
         let uuid = this.follower.getUniqueId();
-        
-        chrome.storage.sync.set({ 
-            "follower": 
+
+        chrome.storage.sync.set({
+            "follower":
             {
                 "code": userCode,
                 "uuid": uuid
-            } 
+            }
         });
 
         this.firebase.addFollower(this.follower);
 
         this.connectionMethods(this.follower.classCode, this.follower.uniqueId);
-    } 
+    }
 
     /**
      * Remove the connection to firebase. Used when signing out or tab becomes inactive.
      */
     disconnect = () => {
-        if(this.webRTC != null) {
+        if (this.webRTC != null) {
             this.firebase.unregisterListeners(this.follower.classCode, this.follower.uniqueId);
         }
     }
@@ -67,9 +67,18 @@ class ConnectionManager {
      * message that can be sent to firebase.
      */
     captureScreen = () => {
-        chrome.runtime.sendMessage({"type": REQUESTS.CAPTURE}, async (response) => {
-            this.firebase.sendScreenShot(this.follower.classCode, this.follower.uniqueId, response);
+        chrome.runtime.sendMessage({ "type": REQUESTS.CAPTURE }, async (response) => {
+            this.firebase.sendScreenShot(this.follower.classCode, this.follower.uniqueId, { type: REQUESTS.CAPTURE, message: response });
         });
+    }
+
+    /**
+     * Send a response back to a leader when a particular event occurs, i.e accepted/denied monitoring.
+     * @param {*} action 
+     */
+    sendResponse = (action) => {
+        action.timeStamp = Date.now(); //Add a time stamp so that the response is always 'different' and the leader picks up it is a different message.
+        this.firebase.sendResponse(this.follower.classCode, this.follower.uniqueId, action);
     }
 
     /**

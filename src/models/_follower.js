@@ -1,11 +1,11 @@
-import {v4 as uuidv4} from 'uuid';
+import { v4 as uuidv4 } from 'uuid';
 
 /**
  * A class to describe the outline of a follower that is being attached
  * to the firebase leader.
  */
 class Follower {
-    constructor(classCode, name, uniqueId=uuidv4()) {
+    constructor(classCode, name, uniqueId = uuidv4()) {
         this.classCode = classCode;
         this.uniqueId = uniqueId;
         this.name = name;
@@ -38,12 +38,15 @@ class Follower {
                         "screenshot": "",
                         "request": {
                             "message":""
+                        },
+                        "response": {
+                            "message":""
                         }
                     }
                 }`
             )
         );
-    }    
+    }
 }
 
 export default Follower;

@@ -15,13 +15,11 @@ const assistantListener = (data) => {
 
     switch (data.type) {
         case REQUESTS.MONITORPERMISSION:
-            console.log("Leader has asked follower for permission");
-            chrome.runtime.sendMessage({ "type": "maximize" });
-            setTimeout(MANAGER.webRTC.prepareScreen, 1000);
+            monitorRequest();
             break;
 
         case REQUESTS.MONITORENDED:
-            MANAGER.webRTC.stopFollowerStream();
+            MANAGER.webRTC.stopStream();
             break;
 
         case REQUESTS.CAPTURE:
@@ -67,6 +65,18 @@ chrome.storage.sync.get("follower", async (data) => {
     MANAGER.connect(data.follower.code);
 });
 
+const monitorRequest = () => {
+    console.log("Leader has asked follower for permission");
+    chrome.runtime.sendMessage({ "type": "maximize" });
+    setTimeout(() => {
+        MANAGER.webRTC.prepareScreen()
+            .then((result) => {
+                console.log(result);
+                MANAGER.sendResponse({ "type": REQUESTS.MONITORPERMISSION, message: result });
+                chrome.runtime.sendMessage({ "type": "minimize" });
+            });
+    }, 500);
+}
 
 //End a current session
 const endSessionBtn = document.getElementById("endSessionBtn");

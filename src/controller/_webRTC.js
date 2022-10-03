@@ -1,15 +1,15 @@
 class WebRTC {
-    constructor(realTimeDatabase, classCode, uuid) {  
+    constructor(realTimeDatabase, classCode, uuid) {
         this.classCode = classCode;
         this.uuid = uuid;
         this.video = null;
 
         // //Determine who sent the message in firebase
-        this.uniqueId = Math.floor(Math.random()*1000000000);
-        this.servers = {'iceServers': [{'urls': 'stun:stun.services.mozilla.com'}, {'urls': 'stun:stun.l.google.com:19302'}]};
+        this.uniqueId = Math.floor(Math.random() * 1000000000);
+        this.servers = { 'iceServers': [{ 'urls': 'stun:stun.services.mozilla.com' }, { 'urls': 'stun:stun.l.google.com:19302' }] };
         this.pc = this.createNewPeerConnection();
+        this.stream = null; //Track the current stream 
 
-        
 
         //Real time database reference
         this.database = realTimeDatabase;
@@ -22,7 +22,7 @@ class WebRTC {
      */
     createNewPeerConnection = () => {
         let peerConnection = new RTCPeerConnection(this.servers);
-        peerConnection.onicecandidate = (event => event.candidate?this.sendIceCandidates(this.uniqueId, JSON.stringify({'ice': event.candidate})):console.log("Sent All Ice") );
+        peerConnection.onicecandidate = (event => event.candidate ? this.sendIceCandidates(this.uniqueId, JSON.stringify({ 'ice': event.candidate })) : console.log("Sent All Ice"));
         return peerConnection;
     }
 
@@ -53,18 +53,18 @@ class WebRTC {
         var msg = this.database.ref("/classCode").child(this.classCode).child("followers").child(this.uuid).child("/ice").push({ sender: senderId, message: data });
         msg.remove();
     }
-    
+
     /**
      * Read the ice specific part of a followers database entry.
      * @param {*} data An Ice Candidate object
      * @returns Null if there is no new data.
      */
     readIceCandidate = (data) => {
-        if(data == null) {
+        if (data == null) {
             return;
         }
         console.log(data.val());
-        
+
         var msg = JSON.parse(data.val().message);
         var sender = data.val().sender;
         if (sender != this.uniqueId) {
@@ -75,14 +75,14 @@ class WebRTC {
                 this.pc.setRemoteDescription(new RTCSessionDescription(msg.sdp))
                     .then(() => this.pc.createAnswer())
                     .then(answer => this.pc.setLocalDescription(answer))
-                    .then(() => this.sendIceCandidates(this.uniqueId, JSON.stringify({'sdp': this.pc.localDescription})));
+                    .then(() => this.sendIceCandidates(this.uniqueId, JSON.stringify({ 'sdp': this.pc.localDescription })));
             }
             else if (msg.sdp.type == "answer") {
                 this.pc.setRemoteDescription(new RTCSessionDescription(msg.sdp));
             }
         }
     };
-      
+
     /**
      * Ask to capture the current screen that is visible.
      */
@@ -98,24 +98,41 @@ class WebRTC {
         //     .then(stream => this.pc.addStream(stream));
 
         //add preferCurrentTab:true, to only select the currently open tab
-        navigator.mediaDevices.getDisplayMedia({audio:false, video:true})
-            .then(stream => this.pc.addStream(stream))
-            .then(() => chrome.runtime.sendMessage({"type" : "minimize"}));
+
+        return navigator.mediaDevices.getDisplayMedia({ audio: false, video: true })
+            .then(stream => {
+                this.stream = stream;
+                this.pc.addStream(stream);
+                return "granted";
+            })
+            .catch(e => {
+                return "denied";
+            });
     }
 
     /**
      * Create an offer to send to a specific follower.
-     */   
+     */
     startFollowerStream = () => {
         //Create offer for one way connection
-        this.pc.createOffer({offerToReceiveVideo: true})
-            .then(offer => this.pc.setLocalDescription(offer) )
-            .then(() => this.sendIceCandidates(this.uniqueId, JSON.stringify({'sdp': this.pc.localDescription})) );
+        this.pc.createOffer({ offerToReceiveVideo: true })
+            .then(offer => this.pc.setLocalDescription(offer))
+            .then(() => this.sendIceCandidates(this.uniqueId, JSON.stringify({ 'sdp': this.pc.localDescription })));
 
         //Below starts up the two way connection
         // this.pc.createOffer()
         //     .then(offer => this.pc.setLocalDescription(offer) )
         //     .then(() => this.sendIceCandidates(this.uniqueId, JSON.stringify({'sdp': this.pc.localDescription})) );
+    }
+
+    /**
+     * Close any tracks that a follower has open to a WebRTC connection.
+     */
+    stopTracks = () => {
+        this.stream.getTracks().forEach(track => track.stop());
+        this.stream = null;
+
+        this.stopFollowerStream();
     }
 
     /**
@@ -126,8 +143,9 @@ class WebRTC {
         console.log("Stopping webrtc connection...");
         this.pc.close();
         this.pc = null;
+
+        //Setup the video ready for the next stream
         this.pc = this.createNewPeerConnection();
-        //Setup the video ready for the stream
         this.setupVideo(this.video);
     }
 }
