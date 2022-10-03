@@ -9,7 +9,10 @@ let firebase = new Firebase();
 let leader = null;
 
 //Initialise webrtc
-const webRTCPeers = [];
+const webRTCPeers = {};
+
+//Selected followers
+const selectedFollowers = [];
 
 const startSessionArea = document.getElementById('startSessionArea');
 const leaderName = document.getElementById('classroomGenerator');
@@ -20,7 +23,7 @@ const endSessionArea = document.getElementById('endSessionArea');
 const endSessionBtn = document.getElementById('endSessionBtn');
 endSessionBtn.onclick = () => {
     //Notify followers a session is ending and delete database class entry
-    firebase.requestAction(leader.getClassCode(), { type: REQUESTS.ENDSESSION, value: null });
+    firebase.requestAction(leader.getClassCode(), { type: REQUESTS.ENDSESSION });
     firebase.removeClass(leader.getClassCode());
 
     //Remove all generated follower containers
@@ -39,7 +42,7 @@ generateClassRoomBtn.onclick = () => {
     classCodeDisplay.innerHTML = leader.getClassCode();
 
     firebase.connectAsLeader(leader);
-    firebase.classRoomListeners(leader.getClassCode(), newFollower, followerDisconnected);
+    firebase.classRoomListeners(leader.getClassCode(), followerReponse, followerDisconnected);
 
     startSessionArea.classList.add("hidden");
     endSessionArea.classList.remove("hidden");
@@ -49,14 +52,47 @@ generateClassRoomBtn.onclick = () => {
 let followerDisconnected = (id) => {
     console.log(id);
     if (document.getElementById(id) != null) {
-        document.getElementById(id).childNodes[0].src = Disconnect;
+        document.getElementById(`image_${id}`).src = Disconnect;
     }
 }
 
-//add listener for new follower
-let newFollower = (capture, id) => {
+//Notify the leader a follower has responded to a request
+let followerReponse = (response, id) => {
+    switch (response.type) {
+        case REQUESTS.CAPTURE:
+            updateFollower(response.message, id);
+            break;
+
+        case REQUESTS.MONITORPERMISSION:
+            monitorRequestResponse(response.message, id);
+            break;
+        default:
+            console.log("Unknown command");
+    }
+}
+
+//Notify the leader a follower has responded to the monitor request
+let monitorRequestResponse = (message, id) => {
+    console.log(message);
+    console.log(id);
+
+    if (message === "granted") {
+        document.getElementById(`video_${id}`).classList.remove("hidden");
+        document.getElementById(`image_${id}`).classList += " hidden";
+
+        //start video call with the followers ID reference
+        webRTCPeers[id].startFollowerStream();
+    } else {
+        console.log("User has denied the monitor request");
+        document.getElementById(`monitor_${id}`).innerText = "Request Monitor";
+    }
+}
+
+//add new follower or update an existing one
+let updateFollower = (capture, id) => {
+    console.log(id);
     if (document.getElementById(id) != null) {
-        document.getElementById(id).childNodes[0].src = capture;
+        document.getElementById(`image_${id}`).src = capture;
     } else {
         addNewFollowerArea(capture, id);
     }
@@ -69,24 +105,25 @@ let newFollower = (capture, id) => {
 let addNewFollowerArea = (base64, UUID) => {
     //Create a new peer connection for this follower
     let webRTC = new WebRTC(firebase.db, leader.getClassCode(), UUID)
-    webRTCPeers.push(webRTC);
+    webRTCPeers[UUID] = webRTC;
 
     //Create the video holder
-    let video = createNewVideoHolder();
+    let video = createNewVideoHolder(UUID);
     webRTC.setVideoElement(video);
 
     let area = document.getElementById("followerContainer");
 
     let container = document.createElement("div");
+
     let div = document.createElement("div");
     div.classList += "grid-item";
     div.id = UUID;
 
     //Create the image holder
-    let img = createNewImageHolder(base64);
+    let img = createNewImageHolder(UUID, base64);
 
     //Create the monitor button
-    let monitorButton = createMonitorButtonHolder(UUID);
+    let monitorButton = createMonitorButtonHolder(UUID, webRTC);
 
     //Create a mute button
     let muteButton = createMuteButtonHolder(UUID);
@@ -101,22 +138,16 @@ let addNewFollowerArea = (base64, UUID) => {
 
     div.append(img, video);
 
-    div.onclick = () => {
-        //TODO Request must have been successful first
+    container.onclick = () => {
+        const index = selectedFollowers.indexOf(UUID);
 
-        if (img.classList.contains("hidden")) {
-            img.classList.remove("hidden");
-            video.classList += " hidden";
-
-            //stop video call if exists
-            webRTC.stopFollowerStream();
-            firebase.requestIndividualAction(leader.getClassCode(), UUID, { type: REQUESTS.MONITORENDED });
-        } else {
-            video.classList.remove("hidden");
-            img.classList += " hidden";
-
-            //start video call
-            webRTC.startFollowerStream();
+        if (index === -1) {
+            selectedFollowers.push(UUID);
+            container.classList.add("selectedFollower");
+        }
+        else {
+            selectedFollowers.splice(index, 1);
+            container.classList.remove("selectedFollower");
         }
     }
 
@@ -130,8 +161,9 @@ let addNewFollowerArea = (base64, UUID) => {
  * @param {*} base64 
  * @returns 
  */
-let createNewImageHolder = (base64) => {
+let createNewImageHolder = (UUID, base64) => {
     let img = new Image();
+    img.id = `image_${UUID}`; //track which follower this belongs to
     img.classList += "screenshotCapture";
     img.src = base64;
 
@@ -143,8 +175,9 @@ let createNewImageHolder = (base64) => {
  * @param {*} id A uuid representing a student entry on firebase 
  * @returns 
  */
-let createNewVideoHolder = () => {
+let createNewVideoHolder = (UUID) => {
     let video = document.createElement("video");
+    video.id = `video_${UUID}`; //track which follower this belongs to
     video.classList += "xrayCapture hidden";
 
     video.muted = true;
@@ -157,13 +190,23 @@ let createNewVideoHolder = () => {
  * Create a button that requests the a follower to share their screen.
  * @returns 
  */
-let createMonitorButtonHolder = (UUID) => {
+let createMonitorButtonHolder = (UUID, webRTC) => {
     let button = document.createElement("button");
+    button.id = `monitor_${UUID}`; //track which follower this button belongs to
     button.innerText = "Request Monitor";
 
     button.onclick = () => {
-        console.log("Sending webRTC permission message to firebase");
-        firebase.requestIndividualAction(leader.getClassCode(), UUID, { type: REQUESTS.MONITORPERMISSION });
+        if (button.innerText === "Request Monitor") {
+            button.innerText = "Stop Monitor";
+            console.log("Sending webRTC permission message to firebase");
+            firebase.requestIndividualAction(leader.getClassCode(), UUID, { type: REQUESTS.MONITORPERMISSION });
+        } else if (button.innerText === "Stop Monitor") {
+            document.getElementById(`video_${UUID}`).classList.add("hidden");
+            document.getElementById(`image_${UUID}`).classList.remove("hidden");
+            button.innerText = "Request Monitor";
+            webRTC.stopFollowerStream(); //stop video call if exists
+            firebase.requestIndividualAction(leader.getClassCode(), UUID, { type: REQUESTS.MONITORENDED });
+        }
     }
 
     return button;
@@ -235,5 +278,21 @@ let createMuteAllButtonHolder = (UUID) => {
 const launchURL = document.getElementById('launchURL');
 const website = document.getElementById('website');
 launchURL.onclick = () => {
-    firebase.requestAction(leader.getClassCode(), { type: REQUESTS.WEBSITE });
+    let action = { type: REQUESTS.WEBSITE, value: website.value };
+
+    if (selectedFollowers.length === 0) {
+        firebase.requestAction(leader.getClassCode(), action);
+    } else {
+        sendToSelected(action)
+    }
+}
+
+/**
+ * Send an action to all selected followers.
+ * @param {*} action 
+ */
+const sendToSelected = (action) => {
+    selectedFollowers.forEach(follower => {
+        firebase.requestIndividualAction(leader.getClassCode(), follower, action);
+    });
 }

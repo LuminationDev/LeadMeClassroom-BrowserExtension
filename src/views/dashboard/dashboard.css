@@ -37,3 +37,8 @@ body {
   gap: 10px;
   grid-auto-rows: minmax(260px, auto);
 }
+
+.selectedFollower {
+  border: 2px solid gray;
+  border-radius: 20px;
+}

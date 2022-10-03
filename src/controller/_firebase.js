@@ -33,15 +33,15 @@ class Firebase {
      * @param {*} newFollowerListener 
      * @param {*} followerDisconnected 
      */
-    classRoomListeners = (classCode, newFollower, followerDisconnected) => {
+    classRoomListeners = (classCode, followerReponse, followerDisconnected) => {
         //Listen for any followers being added
         this.db.ref(`/classCode/${classCode}/followers`).on('child_added', snapshot => {
-            this.followerListener(classCode, newFollower, snapshot.key);
+            this.followerListener(classCode, followerReponse, snapshot.key);
         });
 
         this.db.ref(`/classCode/${classCode}/followers`).on('child_removed', snapshot => {
-            console.log("Follower removed");
-            console.log(snapshot.val());
+            // console.log("Follower removed");
+            // console.log(snapshot.val());
             followerDisconnected(snapshot.key);
         });
     }
@@ -49,17 +49,17 @@ class Firebase {
     /**
      * Add a listener to an individual follower entry
      */
-    followerListener = (classCode, newFollower, id) => {
+    followerListener = (classCode, followerReponse, id) => {
         this.db.ref(`/classCode/${classCode}/followers/${id}`).on('child_changed', snapshot => {
-            console.log(snapshot.val());
+            //Only shows what has changed, not the whole child!
+            // console.log(snapshot.val());
 
-            if (snapshot.val().message != null) {
+            if (snapshot.val().type == null) {
                 return;
             }
 
-            //Create a new follower box each time a follower connects
-            console.log("Follower added");
-            newFollower(snapshot.val(), id);
+            console.log("Follower response");
+            followerReponse(snapshot.val(), id);
         });
     }
 
@@ -133,6 +133,14 @@ class Firebase {
     requestIndividualAction = (classCode, uuid, type) => {
         var msg = this.db.ref("classCode").child(classCode).child("followers").child(uuid).child("/request").push(type);
         msg.remove();
+    }
+
+    /**
+     * Sent from a follower, push an action response to the leader. This could be a video_permission, off task notification etc..
+     * @param {*} type 
+     */
+    sendResponse = (classCode, uuid, action) => {
+        this.db.ref("classCode").child(classCode).child("followers").child(uuid).child("/response").set(action);
     }
 
     /**
