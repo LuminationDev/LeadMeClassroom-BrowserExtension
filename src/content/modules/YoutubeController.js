@@ -1,4 +1,4 @@
-//Page to control a youtube page
+//Page to control a YouTube page
 import Controller from './AbstractController'
 
 class YoutubeController extends Controller {
