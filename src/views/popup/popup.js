@@ -3,6 +3,7 @@ import './popup.css';
 import { Firebase } from '../../controller'
 import { auth } from 'firebaseui';
 import { getAuth, setPersistence, browserLocalPersistence, signOut, EmailAuthProvider } from 'firebase/auth'
+import { closeAssistant } from '../assistant/assistant'
 
 const popup = document.getElementById("popup");
 const inputs = document.querySelectorAll('input');
@@ -42,7 +43,7 @@ chrome.permissions.contains({
  */
 function checkForFollower() {
     chrome.storage.sync.get("follower", (data) => {
-        if (data.follower != null && data.follower != undefined) {
+        if (data.follower !== null && data.follower !== undefined) {
             popup.classList.add('hidden');
             endSession.classList.remove('hidden');
         } else {
@@ -61,7 +62,7 @@ inputs.forEach((input, key) => {
                 codeBlock.classList.add('hidden');
             }
 
-            if (key != 0) {
+            if (key !== 0) {
                 inputs[key - 1].focus();
             }
         }
@@ -119,7 +120,7 @@ connect.onclick = async () => {
 function connectToClass() {
     const userCode = [...inputs].map((input) => input.value).join('');
 
-    //Querys the currently open tab and sends a message to it
+    //Queries the currently open tab and sends a message to it
     chrome.tabs.query({ currentWindow: true, active: true }, function (tabs) {
         firebase.checkForClassroom(userCode).then((result) => {
             if (result) {
@@ -191,7 +192,7 @@ assistantBtn.onclick = () => {
 //End a current session
 endSessionBtn.onclick = () => {
     chrome.storage.sync.get("follower", (data) => {
-        if (data.follower != null && data.follower != undefined) {
+        if (data.follower !== null && data.follower !== undefined) {
             //Send message to firebase about disconnection
             chrome.tabs.query({ currentWindow: true, active: true }, function (tabs) {
 
@@ -214,4 +215,6 @@ endSessionBtn.onclick = () => {
         popup.classList.remove('hidden');
         endSession.classList.add('hidden');
     });
+
+    closeAssistant()
 }

@@ -1,7 +1,7 @@
 import { Firebase } from '../controller';
 import YoutubeController from "./modules/YoutubeController";
 
-//If on a youtube page create the controller
+//If on a YouTube page create the controller
 const youtubeController = location.href.includes("youtube") ? new YoutubeController() : null;
 
 /**

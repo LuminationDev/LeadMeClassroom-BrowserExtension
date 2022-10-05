@@ -2,7 +2,7 @@ import './dashboard.css';
 import * as REQUESTS from "../../constants/_requests";
 import { Firebase, WebRTC } from '../../controller';
 import { Leader } from '../../models';
-import Disconnect from '../../assets/img/disconnect.png';
+import Disconnect from '../../../../vite-extension-test/test/src/assets/disconnect.png';
 
 //Initialise the firebase
 let firebase = new Firebase();

@@ -99,8 +99,7 @@ const endSession = () => {
         console.log("Data removed");
     });
 
-    window.open("", "_self");
-    window.close();
+    closeAssistant()
 }
 
 /**
@@ -121,4 +120,12 @@ const sessionEndedByLeader = () => {
             endSession();
         }
     }, 1000);
+}
+
+export const closeAssistant = () => {
+    chrome.tabs.query({ url: REQUESTS.ASSISTANT_MATCH_URL }, ([tab]) => {
+        if (tab) {
+            chrome.tabs.remove(tab.id);
+        }
+    });
 }
