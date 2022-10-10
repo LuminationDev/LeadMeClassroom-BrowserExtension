@@ -4,6 +4,7 @@ import { onMounted, ref } from 'vue'
 import { auth } from 'firebaseui';
 import { getAuth, setPersistence, browserLocalPersistence, signOut, EmailAuthProvider } from '@firebase/auth'
 import { Firebase } from '../controller'
+import * as REQUESTS from "../constants/_requests";
 
 const firebase = new Firebase();
 
@@ -96,8 +97,12 @@ function handleEndSessionClick () {
 
   chrome.storage.sync.remove("follower", () => {
     console.log("Data removed");
-    popup.classList.remove('hidden');
-    endSession.classList.add('hidden');
+  });
+
+  chrome.tabs.query({ url: REQUESTS.ASSISTANT_MATCH_URL }, ([tab]) => {
+    if (tab) {
+      chrome.tabs.remove(tab.id);
+    }
   });
 }
 
