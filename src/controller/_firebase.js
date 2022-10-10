@@ -49,7 +49,7 @@ class Firebase {
     /**
      * Add a listener to an individual follower entry
      */
-    followerListener = (classCode, followerReponse, id) => {
+    followerListener = (classCode, followerResponse, id) => {
         this.db.ref(`/classCode/${classCode}/followers/${id}`).on('child_changed', snapshot => {
             //Only shows what has changed, not the whole child!
             // console.log(snapshot.val());
@@ -59,7 +59,7 @@ class Firebase {
             }
 
             console.log("Follower response");
-            followerReponse(snapshot.val(), id);
+            followerResponse(snapshot.val(), id);
         });
     }
 

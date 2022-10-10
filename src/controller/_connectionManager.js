@@ -1,5 +1,6 @@
-import { Firebase, WebRTC } from './index';
-import { Follower } from '../models';
+import Firebase from './_firebase';
+import WebRTC from './_webRTC';
+import Follower from '/src/models/_follower'
 import * as REQUESTS from "../constants/_requests";
 
 class ConnectionManager {
