@@ -1,8 +1,12 @@
 {
   "manifest_version": 3,
   "name": "LeadMe Web",
-  "description": "Chrome extension using manifest v3",
-  "version": "0.0.1",
+  "version": "1.0.0",
+  "action": {
+    "default_popup": "src/popup/index.html",
+    "default_icon": "src/assets/img/icon-34.png"
+  },
+  "options_page": "src/pages/options/options.html",
   "optional_permissions": [
     "storage",
     "tabs",
@@ -14,16 +18,11 @@
     "*://*/*",
     "<all_urls>"
   ],
-  "options_page": "options.html",
-  "action": {
-    "default_popup": "popup.html",
-    "default_icon": "icon-34.png"
-  },
   "icons": {
-    "128": "icon-128.png"
+    "128": "src/assets/img/icon-128.png"
   },
   "background": {
-    "service_worker": "background.bundle.js"
+    "service_worker": "src/background/background.js"
   },
   "content_scripts": [
     {
@@ -33,20 +32,22 @@
         "<all_urls>"
       ],
       "js": [
-        "contentScript.bundle.js"
+        "src/content/index.js"
       ],
       "css": [
-        "content.styles.css"
+        "src/content/content.styles.css"
       ]
     }
   ],
   "web_accessible_resources": [
     {
       "resources": [
-        "content.styles.css",
-        "icon-128.png",
-        "icon-34.png",
-        "disconnect.png"
+        "src/content/content.styles.css",
+        "src/assets/img/icon-128.png",
+        "src/assets/img/icon-34.png",
+        "src/assets/img/disconnect.png",
+        "src/pages/assistant/assistant.html",
+        "src/pages/dashboard/dashboard.html"
       ],
       "matches": [
         "http://*/*",

@@ -1,45 +1,28 @@
 {
-  "name": "webpack-chrome-extension-v3",
-  "version": "1.0.0",
-  "description": "webpack with chrome extension v3",
+  "name": "test",
+  "private": true,
+  "version": "0.0.0",
   "scripts": {
-    "start": "node utils/webserver.js",
-    "watch": "webpack --watch",
-    "watch:dev": "webpack --watch --mode development",
-    "build": "webpack"
-  },
-  "author": "Jeevan Lal",
-  "repository": {
-    "type": "git",
-    "url": "#"
-  },
-  "license": "MIT",
-  "devDependencies": {
-    "autoprefixer": "^10.4.12",
-    "babel-loader": "^8.2.2",
-    "babel-minify": "^0.2.0",
-    "clean-webpack-plugin": "^4.0.0-alpha.0",
-    "copy-webpack-plugin": "^9.0.1",
-    "css-loader": "^6.2.0",
-    "file-loader": "^6.2.0",
-    "fs-extra": "^10.0.0",
-    "html-loader": "^2.1.2",
-    "html-webpack-plugin": "^5.3.2",
-    "postcss": "^8.4.16",
-    "postcss-loader": "^7.0.1",
-    "sass": "^1.37.5",
-    "sass-loader": "^12.1.0",
-    "source-map-loader": "^3.0.0",
-    "style-loader": "^3.2.1",
-    "tailwindcss": "^3.1.8",
-    "webpack": "^5.48.0",
-    "webpack-cli": "^4.7.2",
-    "webpack-dev-server": "^4.11.1"
+    "dev": "vite",
+    "build": "vue-tsc --noEmit && vite build",
+    "preview": "vite preview"
   },
   "dependencies": {
-    "firebase": "^9.9.1",
+    "@crxjs/vite-plugin": "^1.0.14",
+    "@types/chrome": "^0.0.197",
+    "firebase": "^9.10.0",
     "firebaseui": "^6.0.1",
-    "mv3-hot-reload": "^0.2.7",
-    "uuid": "^8.3.2"
+    "uuid": "^9.0.0",
+    "vue": "^3.2.25"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-vue": "^2.3.4",
+    "autoprefixer": "^10.4.12",
+    "postcss": "^8.4.17",
+    "postcss-loader": "^7.0.1",
+    "tailwindcss": "^3.1.8",
+    "typescript": "^4.5.4",
+    "vite": "^2.9.15",
+    "vue-tsc": "^0.34.7"
   }
 }
