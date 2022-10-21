@@ -7,8 +7,10 @@
     "default_icon": "src/assets/img/icon-34.png"
   },
   "options_page": "src/pages/options/options.html",
+  "permissions": [
+    "storage"
+  ],
   "optional_permissions": [
-    "storage",
     "tabs",
     "scripting",
     "activeTab",
