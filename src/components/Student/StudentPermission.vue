@@ -1,13 +1,23 @@
 <script setup>
+defineProps({
+  checked: {
+    type: Boolean,
+    required: true,
+  },
 
+  name: {
+    type: String,
+    required: true,
+  },
+});
 </script>
 
 <template>
   <div class="text-left">
     <div class="flex justify-between mb-2">
       <slot name="title"></slot>
-      <label for="green-toggle" class="inline-flex relative items-center cursor-pointer">
-        <input type="checkbox" value="" id="green-toggle" class="sr-only peer" checked>
+      <label :for="name" class="inline-flex relative items-center cursor-pointer">
+        <input type="checkbox" :id="name" v-model="checked" @input="$emit('update', $event.target.checked)" class="sr-only peer">
         <div
             class="w-11 h-6 bg-gray-200 rounded-full peer
                 dark:bg-gray-700

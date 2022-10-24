@@ -16,7 +16,7 @@ let popupPinia = usePopupStore();
         <div class="w-full border-b border-gray-separator"></div>
       </div>
       <div class="relative flex justify-center">
-        <span class="bg-panel-background px-2 pb-1 text-sm text-separator-grey">or</span>
+        <span class="bg-panel-background px-2 pb-0.5 text-sm text-gray-separator">or</span>
       </div>
     </div>
 

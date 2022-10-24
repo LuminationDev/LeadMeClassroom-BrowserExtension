@@ -1,22 +1,21 @@
 <script setup>
-import PopupSecondaryButton from "@/components/Buttons/PopupSecondaryButton.vue";
-import LoginTextInput from "./LoginTextInput.vue";
-
 import { usePopupStore } from "@/stores/popupStore.ts";
-import {onMounted} from "vue";
+import {onMounted, onUpdated} from "vue";
 let popupPinia = usePopupStore();
 
-onMounted(() => popupPinia.handleLogin());
+onMounted(() => {
+  popupPinia.handleLogin();
+
+  //todo don't like this
+  setTimeout(() => {
+    document.getElementById("ui-sign-in-email-input").placeholder = "Email";
+  }, 500);
+});
 </script>
 
 <template>
   <div class="mt-9 pb-7">
-<!--    <LoginTextInput class="mb-2" placeholder="Email"/>-->
-<!--    <LoginTextInput class="mb-3" placeholder="Password"/>-->
-
     <div id="firebaseui-auth-container" class="firebase-auth"></div>
-
-<!--    <PopupSecondaryButton>Log in</PopupSecondaryButton>-->
 
     <p
         class="text-left mt-5 mb-14 text-gray-separator cursor-pointer underline underline-offset-1"
@@ -44,6 +43,10 @@ onMounted(() => popupPinia.handleLogin());
 
 .mdl-button {
   @apply mb-2
+}
+
+.firebaseui-form-links {
+  @apply mb-3;
 }
 
 .firebaseui-link, firebaseui-id-secondary-link {

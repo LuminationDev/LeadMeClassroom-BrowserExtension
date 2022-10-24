@@ -15,7 +15,7 @@ import TeacherPopupSession from "@/components/Teacher/TeacherPopupSession.vue";
 import TeacherPopupFooter from "@/components/Teacher/TeacherPopupFooter.vue";
 
 import { usePopupStore } from "@/stores/popupStore.ts";
-import {onBeforeMount, onMounted} from "vue";
+import { onBeforeMount } from "vue";
 let popupPinia = usePopupStore();
 
 onBeforeMount(() => popupPinia.onOpen());

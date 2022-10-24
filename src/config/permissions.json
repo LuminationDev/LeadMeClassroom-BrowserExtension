@@ -1,0 +1,27 @@
+[
+    {
+      "tag": "storage",
+      "title": "Storage",
+      "description": "Grants access to the browsers local and synchronised storage. It can directly access data that is saved within a browsers storage."
+    },
+    {
+      "tag": "tabs",
+      "title": "Tabs",
+      "description": "Grants access to privileged fields within an active or inactive opened Tab."
+    },
+    {
+      "tag": "scripting",
+      "title": "Scripting",
+      "description": "Grants the ability for the extension to inject JavaScript and CSS into websites."
+    },
+    {
+      "tag": "activeTab",
+      "title": "Active Tab",
+      "description": "Grants a Leader temporary control access to a currently active tab. Access to the tab lasts while the follower is logged into the extension."
+    },
+    {
+      "tag": "identity",
+      "title": "Identity",
+      "description": "Grants the ability to access saved OAuth2 access tokens."
+    }
+]

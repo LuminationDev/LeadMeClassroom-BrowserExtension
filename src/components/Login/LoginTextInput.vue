@@ -17,5 +17,6 @@ defineProps({
     @focus="'focused = true'"
     type="text"
     :placeholder='placeholder'
+    @input="$emit('update', $event.target.value)"
   />
 </template>

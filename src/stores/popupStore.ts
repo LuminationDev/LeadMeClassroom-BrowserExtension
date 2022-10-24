@@ -1,7 +1,14 @@
 //Store example using pinia
 import { defineStore } from "pinia";
 import { auth } from 'firebaseui';
-import { getAuth, setPersistence, browserLocalPersistence, signOut, EmailAuthProvider } from '@firebase/auth'
+import {
+    getAuth,
+    setPersistence,
+    browserLocalPersistence,
+    signOut,
+    EmailAuthProvider,
+    createUserWithEmailAndPassword
+} from '@firebase/auth'
 // @ts-ignore
 import { Firebase } from "@/controller";
 // @ts-ignore
@@ -15,7 +22,10 @@ export let usePopupStore = defineStore("popup", {
     state: () => {
         return {
             view: "login",
+            username: null,
             codeValues: ({input1: "", input2: "", input3: "", input4: "" }),
+            classError: "",
+            signupError: "",
         };
     },
 
@@ -43,12 +53,30 @@ export let usePopupStore = defineStore("popup", {
             });
 
             setPersistence(getAuth(), browserLocalPersistence).then(() => {
-                if (getAuth().currentUser) {
-                    this.view = "sessionTeacher"
-                } else {
-                    this.view = "login"
-                }
+                (getAuth().currentUser) ? this.view = "sessionTeacher" : this.view = "login";
             });
+        },
+
+        handleSignup(email: string, password: string) {
+            if (getAuth().currentUser) {
+                chrome.tabs.create({ url: chrome.runtime.getURL("src/pages/dashboard/dashboard.html") })
+                    .then(result => console.log(result));
+            } else {
+                const auth = getAuth();
+                createUserWithEmailAndPassword(auth, email, password)
+                    .then((userCredential) => {
+                        // Signed in
+                        this.changeView('loginTeacher');
+
+                    })
+                    .catch((error) => {
+                        const errorCode = error.code;
+                        console.log(errorCode);
+
+                        const errorMessage = error.message;
+                        this.signupError = errorMessage;
+                    });
+            }
         },
 
         /**
@@ -63,13 +91,12 @@ export let usePopupStore = defineStore("popup", {
                 let ui = new auth.AuthUI(getAuth())
                 ui.start('#firebaseui-auth-container', {
                     signInOptions: [
-                        EmailAuthProvider.PROVIDER_ID
+                        EmailAuthProvider.PROVIDER_ID,
                     ],
                     callbacks: {
                         // @ts-ignore
                         signInFailure(error) {
                             console.log(error);
-                            //errorMessage.value = error
                             return false;
                         },
                         signInSuccessWithAuthResult: function (authResult, redirectUrl) {
@@ -96,20 +123,16 @@ export let usePopupStore = defineStore("popup", {
          */
         checkForFollower() {
             chrome.storage.sync.get("follower", (data) => {
-                console.log(data)
-                if (data.follower != null) {
-                    this.view = "sessionStudent"
-                } else {
-                    this.view = "login"
-                }
+                console.log(data);
+                (data.follower != null) ? this.view = "sessionStudent" : this.view = "login";
             });
         },
 
         /**
-         * Handle the automatic movement between the input for the codes
+         * Check that all the inputs are valid
          */
-        handleInput() {
-
+        checkCodeInput() {
+            return Object.values(this.codeValues).every(value => !!value);
         },
 
         /**
@@ -132,8 +155,7 @@ export let usePopupStore = defineStore("popup", {
                     console.log("Permissions have been enabled");
                     this.connectToClass();
                 } else {
-                    console.log("Permissions have been denied");
-                    // errorMessage.value = "Permissions have been denied"
+                    this.classError = "Permissions have been denied.";
                 }
             });
         },
@@ -144,10 +166,9 @@ export let usePopupStore = defineStore("popup", {
          */
         connectToClass() {
             const userCode = this.codeValues.input1 + this.codeValues.input2 + this.codeValues.input3 + this.codeValues.input4
-            console.log(userCode);
-            console.log(this.codeValues);
 
             //Queries the currently open tab and sends a message to it
+            let success = false;
             chrome.tabs.query({ currentWindow: true, active: true }, function (tabs: any) {
                 firebase.checkForClassroom(userCode).then((result?: any) => {
                     if (result) {
@@ -164,12 +185,21 @@ export let usePopupStore = defineStore("popup", {
                             state: "minimized"
                         }).then(result => console.log(result));
 
+                        success = true;
+
                         //TODO Close the popup window or go to the student session?
                         window.close();
                         // this.view = 'sessionStudent';
+                    } else {
+                        //TODO
+                        success = false;
                     }
                 });
             });
+
+            if(!success) {
+                this.classError = "No Class found";
+            }
         },
 
         /**
