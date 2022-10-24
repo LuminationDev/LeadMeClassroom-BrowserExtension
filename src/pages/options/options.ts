@@ -1,4 +1,8 @@
 import { createApp } from 'vue'
+import { createPinia } from "pinia";
 import Options from './Options.vue'
 
-createApp(Options).mount('#app')
+const app = createApp(Options);
+app.use(createPinia());
+
+app.mount('#app');
