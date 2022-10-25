@@ -3,6 +3,7 @@ import { defineStore } from "pinia";
 import { auth } from 'firebaseui';
 import {
     getAuth,
+    updateProfile,
     setPersistence,
     browserLocalPersistence,
     signOut,
@@ -46,18 +47,20 @@ export let usePopupStore = defineStore("popup", {
                 permissions: ["storage"]
             }, (granted) => {
                 if (granted) {
+                    console.log("Checking for follower");
                     this.checkForFollower();
                 } else {
                     console.log("Storage permission is not enabled.");
                 }
             });
 
+            //todo this overrides the student view
             setPersistence(getAuth(), browserLocalPersistence).then(() => {
                 (getAuth().currentUser) ? this.view = "sessionTeacher" : this.view = "login";
             });
         },
 
-        handleSignup(email: string, password: string) {
+        handleSignup(name: string, email: string, password: string) {
             if (getAuth().currentUser) {
                 chrome.tabs.create({ url: chrome.runtime.getURL("src/pages/dashboard/dashboard.html") })
                     .then(result => console.log(result));
@@ -65,9 +68,13 @@ export let usePopupStore = defineStore("popup", {
                 const auth = getAuth();
                 createUserWithEmailAndPassword(auth, email, password)
                     .then((userCredential) => {
-                        // Signed in
-                        this.changeView('loginTeacher');
+                        //Set the display name of the user
+                        // @ts-ignore
+                        updateProfile(getAuth().currentUser, { displayName: name })
+                            .catch((err) => console.log(err));
 
+                        // Move to sign in
+                        this.changeView('loginTeacher');
                     })
                     .catch((error) => {
                         const errorCode = error.code;
@@ -100,6 +107,9 @@ export let usePopupStore = defineStore("popup", {
                             return false;
                         },
                         signInSuccessWithAuthResult: function (authResult, redirectUrl) {
+                            // chrome.storage.sync.set({"DisplayName": getAuth().currentUser?.displayName})
+                            //     .then(result => console.log(result));
+
                             chrome.tabs.create({url: chrome.runtime.getURL("src/pages/dashboard/dashboard.html")})
                                 .then(result => console.log(result));
                             return false;
@@ -165,7 +175,8 @@ export let usePopupStore = defineStore("popup", {
          * add the student to the class.
          */
         connectToClass() {
-            const userCode = this.codeValues.input1 + this.codeValues.input2 + this.codeValues.input3 + this.codeValues.input4
+            const userCode = this.codeValues.input1 + this.codeValues.input2 + this.codeValues.input3 + this.codeValues.input4;
+            console.log(userCode);
 
             //Queries the currently open tab and sends a message to it
             let success = false;
@@ -247,6 +258,21 @@ export let usePopupStore = defineStore("popup", {
                     if (tab.id != null) {
                         chrome.tabs.remove(tab.id).then(result => console.log(result));
                     }
+                }
+            });
+        },
+
+        //todo this only ever creates a new dashboard at this point
+        viewOrOpenDashboard() {
+            chrome.tabs.query({ url: REQUESTS.DASHBOARD_MATCH_URL }, ([tab]) => {
+                if (tab) {
+                    if (tab.id != null) {
+                        // chrome.tabs.remove(tab.id).then(result => console.log(result));
+
+                    }
+                } else {
+                    chrome.tabs.create({url: chrome.runtime.getURL("src/pages/dashboard/dashboard.html")})
+                        .then(result => console.log(result));
                 }
             });
         }

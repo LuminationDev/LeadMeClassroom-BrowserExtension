@@ -10,9 +10,6 @@ const error = ref("");
 const authorise = ref(false);
 
 function checkInputs() {
-  popupPinia.changeView('sessionStudent');
-  return;
-
   resetErrorMessages();
   if(!popupPinia.checkCodeInput()) {
     error.value = "Ensure all inputs are filled.";

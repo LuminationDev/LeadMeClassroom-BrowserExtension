@@ -1,4 +1,8 @@
 import { createApp } from 'vue'
+import { createPinia } from "pinia";
 import Dashboard from './Dashboard.vue'
 
-createApp(Dashboard).mount('#app')
+const app = createApp(Dashboard);
+app.use(createPinia());
+
+app.mount('#app');

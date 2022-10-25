@@ -8,12 +8,19 @@ let popupPinia = usePopupStore();
 
 const error = ref("");
 const termsError = ref(false);
+const name = ref("");
 const email = ref("");
 const password = ref("");
 const authorise = ref(false);
 
 function validateInputs() {
   resetErrors();
+
+  if(name.value === "") {
+    //Invalid name input
+    error.value = "Please enter a name.";
+    return;
+  }
 
   if(!validateEmail()) {
     //Invalid email address
@@ -33,7 +40,7 @@ function validateInputs() {
     return;
   }
 
-  popupPinia.handleSignup(email.value, password.value)
+  popupPinia.handleSignup(name.value, email.value, password.value)
 }
 
 function validateEmail() {
@@ -57,6 +64,7 @@ function resetErrors() {
 <template>
   <div class="mt-9 pb-7">
     <div>
+      <LoginTextInput class="mb-2" placeholder="Name" @update="newValue => name = newValue"/>
       <LoginTextInput class="mb-2" placeholder="Email" @update="newValue => email = newValue"/>
       <LoginTextInput class="mb-3" placeholder="Password" @update="newValue => password = newValue"/>
       <p class="text-red-400">{{ error }}</p>
