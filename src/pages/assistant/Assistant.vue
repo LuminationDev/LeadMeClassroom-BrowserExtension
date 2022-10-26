@@ -62,7 +62,7 @@ const MANAGER = ref(new ConnectionManager(assistantListener));
 //Start the connection manager on page load
 chrome.storage.sync.get("follower", async (data) => {
   console.log(data);
-  MANAGER.value.connect(data.follower.code);
+  MANAGER.value.connect(data.follower.code, data.follower.name);
 });
 
 const monitorRequest = () => {

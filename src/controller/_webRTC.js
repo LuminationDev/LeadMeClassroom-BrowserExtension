@@ -14,7 +14,7 @@ class WebRTC {
         //Real time database reference
         this.database = realTimeDatabase;
         //Listen for ice candidates being sent
-        this.database.ref("/classCode").child(this.classCode).child("followers").child(this.uuid).child("/ice").on('child_added', this.readIceCandidate);
+        // this.database.ref("/classCode").child(this.classCode).child("followers").child(this.uuid).child("/ice").on('child_added', this.readIceCandidate);
     }
 
     /**
