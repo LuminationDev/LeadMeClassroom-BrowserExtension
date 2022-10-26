@@ -1,6 +1,7 @@
 import { devConfig, prodConfig } from './_service';
 import firebase from 'firebase/compat/app';
 import 'firebase/compat/database';
+import {getAuth} from "@firebase/auth";
 
 const config = process.env.NODE_ENV === 'production' ? prodConfig : devConfig;
 
@@ -21,6 +22,15 @@ class Firebase {
     }
 
     /**
+     * Get the display name of the currently active user.
+     * @returns {string} A string representing a display name.
+     */
+    getDisplayName = async () => {
+        //todo this is not working yet
+        return getAuth().currentUser.displayName;
+    }
+
+    /**
      * Create a new room on the real time database
      */
     connectAsLeader = (leader) => {
@@ -30,13 +40,14 @@ class Firebase {
 
     /**
      * Add listeners for followers being added and removed to the database
-     * @param {*} newFollowerListener 
-     * @param {*} followerDisconnected 
+     * @param classCode
+     * @param followerResponse
+     * @param {*} followerDisconnected
      */
-    classRoomListeners = (classCode, followerReponse, followerDisconnected) => {
+    classRoomListeners = (classCode, followerResponse, followerDisconnected) => {
         //Listen for any followers being added
         this.db.ref(`/classCode/${classCode}/followers`).on('child_added', snapshot => {
-            this.followerListener(classCode, followerReponse, snapshot.key);
+            this.followerListener(classCode, followerResponse, snapshot.key);
         });
 
         this.db.ref(`/classCode/${classCode}/followers`).on('child_removed', snapshot => {
@@ -64,7 +75,7 @@ class Firebase {
     }
 
     /**
-     * Attempt to find a class code matching the input, return whether the attempt was succesful or not
+     * Attempt to find a class code matching the input, return whether the attempt was successful or not
      */
     async checkForClassroom(inputCode) {
         return await this.db.ref("/classCode").child(inputCode).get().then((snapshot) => {
@@ -76,7 +87,7 @@ class Firebase {
     }
 
     /**
-     * Attempt to find a follower uuid matching the input, return whether the attempt was succesful or not
+     * Attempt to find a follower uuid matching the input, return whether the attempt was successful or not
      */
     async checkForFollower(inputCode, inputUUID) {
         return await this.db.ref("/classCode").child(inputCode).child("followers").child(inputUUID).get().then((snapshot) => {
@@ -122,7 +133,7 @@ class Firebase {
      * @param {*} type 
      */
     requestAction = (classCode, type) => {
-        var msg = this.db.ref("classCode").child(classCode).child("/request").push(type);
+        const msg = this.db.ref("classCode").child(classCode).child("/request").push(type);
         msg.remove();
     }
 
@@ -131,7 +142,7 @@ class Firebase {
      * @param {*} type 
      */
     requestIndividualAction = (classCode, uuid, type) => {
-        var msg = this.db.ref("classCode").child(classCode).child("followers").child(uuid).child("/request").push(type);
+        const msg = this.db.ref("classCode").child(classCode).child("followers").child(uuid).child("/request").push(type);
         msg.remove();
     }
 
@@ -180,7 +191,7 @@ class Firebase {
      * @param {*} classCode 
      */
     removeClass = (classCode) => {
-        var classRef = this.db.ref("classCode").child(classCode);
+        const classRef = this.db.ref("classCode").child(classCode);
 
         classRef.remove()
             .then(function () {

@@ -1,16 +1,15 @@
 import { defineStore } from "pinia";
-import {ref} from "vue";
 
 export let usePermissionStore = defineStore("permission", {
     state: () => {
         return {
-            permissions: ref({
+            permissions: {
                 storage: false,
                 tabs: false,
                 scripting: false,
                 activeTab: false,
                 identity: false
-            })
+            }
         };
     },
 

@@ -11,6 +11,8 @@ export const WEBSITE = "website";
 
 export const ASSISTANT_MATCH_URL = "chrome-extension://*/*/assistant.html";
 
+export const DASHBOARD_MATCH_URL = "chrome-extension://*/*/dashboard.html";
+
 //Tab controls
 export const MAXIMIZE = "maximize";
 
