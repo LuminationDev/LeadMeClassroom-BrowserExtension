@@ -40,6 +40,17 @@ export let usePopupStore = defineStore("popup", {
         },
 
         /**
+         * Determine whether the top right icon should be visible
+         */
+        showHeaderIcon() {
+            return (
+                this.view !== 'login'
+                && this.view !== 'sessionStudent'
+                && this.view !== 'sessionTeacher'
+            );
+        },
+
+        /**
          * Check for an active user when opening the popup.
          */
         onOpen() {
@@ -176,7 +187,7 @@ export let usePopupStore = defineStore("popup", {
          */
         connectToClass() {
             const userCode = this.codeValues.input1 + this.codeValues.input2 + this.codeValues.input3 + this.codeValues.input4;
-            console.log(userCode);
+            const username = this.username;
 
             //Queries the currently open tab and sends a message to it
             let success = false;
@@ -186,7 +197,8 @@ export let usePopupStore = defineStore("popup", {
                         chrome.storage.sync.set({
                             "follower":
                                 {
-                                    "code": userCode
+                                    "code": userCode,
+                                    "name": username
                                 }
                         }).then(result => console.log(result));
 
@@ -208,6 +220,7 @@ export let usePopupStore = defineStore("popup", {
                 });
             });
 
+            //todo above is not awaited so this always triggers
             if(!success) {
                 this.classError = "No Class found";
             }

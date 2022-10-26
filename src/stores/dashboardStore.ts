@@ -9,21 +9,25 @@ import * as MODELS from '@/models/index.js';
 
 const { Leader } = MODELS.default;
 
+const firebase = new Firebase();
+const leaderName = await firebase.getDisplayName();
+
 interface followerInterface {
-  webRTC: any
-  UUID: any
-  imageBase64: string
-  monitoring: boolean
-  muted: boolean
-  muteAll: boolean
+    name: string,
+    webRTC: any
+    UUID: any
+    imageBase64: string
+    monitoring: boolean
+    muted: boolean
+    muteAll: boolean
 }
 
 export let useDashboardStore = defineStore("dashboard", {
     state: () => {
         return {
-            firebase: new Firebase(),
+            firebase: firebase,
             classCode: "",
-            leaderName: "Edward",
+            leaderName: leaderName,
             followers: <followerInterface[]>([]),
             webLink: "",
             leader: new Leader("Edward"), //load from sync storage??
@@ -59,39 +63,17 @@ export let useDashboardStore = defineStore("dashboard", {
         },
 
         /**
-         * Create a new grid item containing a video element.
-         * @param base64 A base64 string representing the initial screen capture from a student device
-         * @param {*} UUID A uuid representing a student entry on firebase
-         */
-        addNewFollowerArea(base64: string, UUID: string) {
-            console.log("addNewFollower")
-            let webRTC = new WebRTC(this.firebase.db, this.leader.getClassCode(), UUID)
-
-            console.log(webRTC)
-            let follower:followerInterface = {
-                webRTC,
-                UUID,
-                imageBase64: base64,
-                monitoring: false,
-                muted: false,
-                muteAll: false
-            }
-            console.log(follower)
-            this.followers.push(follower)
-            console.log(this.followers)
-        },
-
-        /**
          * Notify the leader a follower has responded to a request
          * @param response
+         * @param name
          * @param id
          */
-        followerResponse(response: string, id: string) {
+        followerResponse(response: string, name: string, id: string) {
             console.log(response, id)
 
             switch ((response as any).type) {
                 case REQUESTS.CAPTURE:
-                    this.updateFollower((response as any).message, id);
+                    this.updateFollower((response as any).message, name, id);
                     break;
 
                 case REQUESTS.MONITORPERMISSION:
@@ -105,17 +87,43 @@ export let useDashboardStore = defineStore("dashboard", {
         /**
          * Add new follower or update an existing one
          * @param capture
+         * @param name
          * @param id
          */
-        updateFollower(capture: string, id: string) {
+        updateFollower(capture: string, name: string, id: string) {
             console.log("updateFollower")
             let follower = this.followers.find(element => element.UUID === id)
             console.log(follower)
             if (follower) {
                 follower.imageBase64 = capture
             } else {
-                this.addNewFollowerArea(capture, id)
+                this.addNewFollowerArea(capture, name, id)
             }
+        },
+
+        /**
+         * Create a new grid item containing a video element.
+         * @param base64 A base64 string representing the initial screen capture from a student device
+         * @param username
+         * @param {*} UUID A uuid representing a student entry on firebase
+         */
+        addNewFollowerArea(base64: string, username: string, UUID: string) {
+            console.log("addNewFollower")
+            let webRTC = new WebRTC(this.firebase.db, this.leader.getClassCode(), UUID)
+
+            console.log(webRTC)
+            let follower:followerInterface = {
+                name: username,
+                webRTC,
+                UUID,
+                imageBase64: base64,
+                monitoring: false,
+                muted: false,
+                muteAll: false
+            }
+            console.log(follower)
+            this.followers.push(follower)
+            console.log(this.followers)
         },
 
         /**

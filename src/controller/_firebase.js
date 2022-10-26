@@ -1,14 +1,12 @@
 import { devConfig, prodConfig } from './_service';
 import firebase from 'firebase/compat/app';
 import 'firebase/compat/database';
-import {getAuth} from "@firebase/auth";
+import {browserLocalPersistence, getAuth, setPersistence} from "@firebase/auth";
 
 const config = process.env.NODE_ENV === 'production' ? prodConfig : devConfig;
 
 class Firebase {
-    constructor(callback) {
-        this.callback = callback;
-
+    constructor() {
         try {
             firebase.initializeApp(config);
         } catch (err) {
@@ -26,8 +24,8 @@ class Firebase {
      * @returns {string} A string representing a display name.
      */
     getDisplayName = async () => {
-        //todo this is not working yet
-        return getAuth().currentUser.displayName;
+        await setPersistence(getAuth(), browserLocalPersistence);
+        return getAuth().currentUser?.displayName;
     }
 
     /**
@@ -47,12 +45,10 @@ class Firebase {
     classRoomListeners = (classCode, followerResponse, followerDisconnected) => {
         //Listen for any followers being added
         this.db.ref(`/classCode/${classCode}/followers`).on('child_added', snapshot => {
-            this.followerListener(classCode, followerResponse, snapshot.key);
+            this.followerListener(classCode, followerResponse, snapshot.val().name, snapshot.key);
         });
 
         this.db.ref(`/classCode/${classCode}/followers`).on('child_removed', snapshot => {
-            // console.log("Follower removed");
-            // console.log(snapshot.val());
             followerDisconnected(snapshot.key);
         });
     }
@@ -60,17 +56,14 @@ class Firebase {
     /**
      * Add a listener to an individual follower entry
      */
-    followerListener = (classCode, followerResponse, id) => {
+    followerListener = (classCode, followerResponse, name, id) => {
         this.db.ref(`/classCode/${classCode}/followers/${id}`).on('child_changed', snapshot => {
-            //Only shows what has changed, not the whole child!
-            // console.log(snapshot.val());
-
             if (snapshot.val().type == null) {
                 return;
             }
 
             console.log("Follower response");
-            followerResponse(snapshot.val(), id);
+            followerResponse(snapshot.val(), name, id);
         });
     }
 
@@ -103,7 +96,8 @@ class Firebase {
      * @param {*} data A Follower object.
      */
     addFollower = (data) => {
-        this.db.ref(`/classCode/${data.getClassCode()}/followers`).update(data.getFollowerObject());
+        this.db.ref(`/classCode/${data.getClassCode()}/followers`).update(data.getFollowerObject())
+            .then(result => console.log(result));
     }
 
     /**
@@ -125,39 +119,46 @@ class Firebase {
      * @param {*} object A JSON structured object to be uploaded into the database.
      */
     generateRoom = (object) => {
-        this.db.ref(`classCode`).update(object);
+        this.db.ref(`classCode`).update(object).then(result => console.log(result));
     }
 
     /**
      * Sent from a leader, push an action request to all followers. This could be a video_permission, muteTab etc..
-     * @param {*} type 
+     * @param classCode
+     * @param {*} type
      */
     requestAction = (classCode, type) => {
         const msg = this.db.ref("classCode").child(classCode).child("/request").push(type);
-        msg.remove();
+        msg.remove().then(result => console.log(result));
     }
 
     /**
      * Sent from a leader, push an action request to a particular follower. This could be a video_permission, muteTab etc..
-     * @param {*} type 
+     * @param classCode
+     * @param uuid
+     * @param {*} type
      */
     requestIndividualAction = (classCode, uuid, type) => {
         const msg = this.db.ref("classCode").child(classCode).child("followers").child(uuid).child("/request").push(type);
-        msg.remove();
+        msg.remove().then(result => console.log(result));
     }
 
     /**
      * Sent from a follower, push an action response to the leader. This could be a video_permission, off task notification etc..
-     * @param {*} type 
+     * @param classCode
+     * @param uuid
+     * @param action
      */
     sendResponse = (classCode, uuid, action) => {
-        this.db.ref("classCode").child(classCode).child("followers").child(uuid).child("/response").set(action);
+        this.db.ref("classCode").child(classCode).child("followers").child(uuid).child("/response").set(action)
+            .then(result => console.log(result));
     }
 
     /**
      * Register listeners on the firebase, applying different listeners depending on what type of users
      * has just connected.
-     * @param {*} classCode A string representing the class a user is registered to. 
+     * @param {*} classCode A string representing the class a user is registered to.
+     * @param uuid
      */
     registerListeners = (classCode, uuid) => {
         //Listen for group actions
@@ -169,7 +170,8 @@ class Firebase {
 
     /**
      * Unregister any listners that may be active.
-     * @param {*} inputCode A string representing the class a user is registered to.  
+     * @param {*} inputCode A string representing the class a user is registered to.
+     * @param uuid
      */
     unregisterListeners = (inputCode, uuid) => {
         this.db.ref("classCode").child(inputCode).child("request").off("child_changed");
@@ -177,17 +179,19 @@ class Firebase {
     }
 
     /**
-     * Upload a screen shot of the followers computer to firebase as a base 64 message under that direct follower's
+     * Upload a screenshot of the followers computer to firebase as a base 64 message under that direct follower's
      * entry.
-     * @param {*} inputCode A string representing the class a user is registered to. 
+     * @param {*} inputCode A string representing the class a user is registered to.
      * @param {*} inputUUID A string representing the unique ID of a follower.
+     * @param base64
      */
     sendScreenShot = (inputCode, inputUUID, base64) => {
-        this.db.ref("classCode").child(inputCode).child("followers").child(inputUUID).child("screenshot").set(base64);
+        this.db.ref("classCode").child(inputCode).child("followers").child(inputUUID).child("screenshot").set(base64)
+            .then(result => console.log(result));
     }
 
     /**
-     * Remove the entrity of a class entry, at the end of a session the details of the connects will be erased.
+     * Remove the entity of a class entry, at the end of a session the details of the connects will be erased.
      * @param {*} classCode 
      */
     removeClass = (classCode) => {

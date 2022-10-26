@@ -12,24 +12,25 @@ class ConnectionManager {
 
     /**
      * Create an initial connection with the firebase.
-     * @param {*} userCode 
+     * @param {*} userCode
+     * @param name
      */
-    connect = async (userCode) => {
+    connect = async (userCode, name) => {
         let success = await this.checkForClassroom(userCode);
 
         if (!success) {
             console.log("Class not found");
         }
 
-        this.follower = new Follower(userCode, "Placeholder");
+        this.follower = new Follower(userCode, name);
         let uuid = this.follower.getUniqueId();
 
-        chrome.storage.sync.set({
+        await chrome.storage.sync.set({
             "follower":
-            {
-                "code": userCode,
-                "uuid": uuid
-            }
+                {
+                    "code": userCode,
+                    "uuid": uuid
+                }
         });
 
         this.firebase.addFollower(this.follower);
@@ -83,7 +84,7 @@ class ConnectionManager {
     }
 
     /**
-     * Check if a class room code exists on the firebase.
+     * Check if a classroom code exists on the firebase.
      * @param {*} code 
      * @returns 
      */
