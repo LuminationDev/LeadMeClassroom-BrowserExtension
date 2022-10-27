@@ -29,6 +29,14 @@ class Leader {
     }
 
     /**
+     * Override the generated code with a saved one.
+     * @param code
+     */
+    setClassCode = (code) => {
+        this.code = code;
+    }
+
+    /**
      * Generate a random character (digit or letter) code that represents the classroom.
      * @returns A 4 character string that acts as the class code.
      */
