@@ -187,8 +187,7 @@ export let usePopupStore = defineStore("popup", {
             const username = this.username;
 
             //Queries the currently open tab and sends a message to it
-            let success = false;
-            chrome.tabs.query({ currentWindow: true, active: true }, function (tabs: any) {
+            chrome.tabs.query({ currentWindow: true, active: true }, (tabs: any) => {
                 firebase.checkForClassroom(userCode).then((result?: any) => {
                     if (result) {
                         chrome.storage.sync.set({
@@ -205,22 +204,14 @@ export let usePopupStore = defineStore("popup", {
                             state: "minimized"
                         }).then(result => console.log(result));
 
-                        success = true;
-
                         //TODO Close the popup window or go to the student session?
                         window.close();
                         // this.view = 'sessionStudent';
                     } else {
-                        //TODO
-                        success = false;
+                        this.classError = "No Class found";
                     }
                 });
             });
-
-            //todo above is not awaited so this always triggers
-            if(!success) {
-                this.classError = "No Class found";
-            }
         },
 
         /**
