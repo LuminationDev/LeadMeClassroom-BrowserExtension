@@ -1,4 +1,7 @@
 import { defineStore } from "pinia";
+import { useStorage } from "../hooks/useStorage";
+const { getSyncStorage, setSyncStorage, removeSyncStorage } = useStorage();
+
 // @ts-ignore
 import * as REQUESTS from "@/constants/_requests.js";
 // @ts-ignore
@@ -8,7 +11,6 @@ import Disconnect from '@/assets/img/disconnect.png';
 import * as MODELS from '@/models/index.js';
 
 const { Leader } = MODELS.default;
-
 const firebase = new Firebase();
 const leaderName = await firebase.getDisplayName();
 
@@ -22,15 +24,26 @@ interface followerInterface {
     muteAll: boolean
 }
 
+/**
+ * When the dashboard is first loaded or if the page is refreshed check to see if there was
+ * an active class set the necessary details.
+ */
+async function onLoad() {
+    const currentClass = await getSyncStorage("CurrentClass") as string;
+    return currentClass ? currentClass : "";
+}
+
+const activeCode = await onLoad();
+
 export let useDashboardStore = defineStore("dashboard", {
     state: () => {
         return {
             firebase: firebase,
-            classCode: "",
+            classCode: activeCode,
             leaderName: leaderName,
             followers: <followerInterface[]>([]),
             webLink: "",
-            leader: new Leader("Edward"), //load from sync storage??
+            leader: new Leader(leaderName),
         }
     },
 
@@ -39,27 +52,44 @@ export let useDashboardStore = defineStore("dashboard", {
          * Generate a new class code for the current session, attaching the necessary listeners to
          * the firebase real-time database.
          */
-        generateSession() {
-            console.log('generating')
-            this.classCode = this.leader.getClassCode()
-            console.log(this.classCode)
+        async generateSession() {
+            console.log('Generating new session');
+            this.classCode = this.leader.getClassCode();
+            await setSyncStorage({"CurrentClass": this.classCode});
+            await this.attachClassListeners(false);
+        },
+
+        /**
+         * Attach listeners to the real-time database to listen for incoming students
+         */
+        attachClassListeners(active: boolean) {
+            if(this.classCode === "") {
+                return;
+            }
 
             this.firebase.connectAsLeader(this.leader);
             this.firebase.classRoomListeners(
-                this.leader.getClassCode(),
+                this.classCode,
                 this.followerResponse,
                 this.followerDisconnected
             );
+
+            if(!active) {
+                return;
+            }
+
+            this.firebase.reloadFollowers(this.classCode, this.followerResponse);
         },
 
         /**
          * Notify followers a session is ending and delete database class entry
          */
-        endSession() {
+        async endSession() {
+            this.firebase.requestAction(this.classCode, { type: REQUESTS.ENDSESSION });
+            this.firebase.removeClass(this.classCode);
             this.classCode = ""
-            this.firebase.requestAction(this.leader.getClassCode(), { type: REQUESTS.ENDSESSION });
-            this.firebase.removeClass(this.leader.getClassCode());
-            this.followers = []
+            this.followers = [];
+            await removeSyncStorage("CurrentClass");
         },
 
         /**
@@ -69,8 +99,6 @@ export let useDashboardStore = defineStore("dashboard", {
          * @param id
          */
         followerResponse(response: string, name: string, id: string) {
-            console.log(response, id)
-
             switch ((response as any).type) {
                 case REQUESTS.CAPTURE:
                     this.updateFollower((response as any).message, name, id);
@@ -79,6 +107,7 @@ export let useDashboardStore = defineStore("dashboard", {
                 case REQUESTS.MONITORPERMISSION:
                     this.monitorRequestResponse((response as any).message, id);
                     break;
+
                 default:
                     console.log("Unknown command");
             }
@@ -91,14 +120,8 @@ export let useDashboardStore = defineStore("dashboard", {
          * @param id
          */
         updateFollower(capture: string, name: string, id: string) {
-            console.log("updateFollower")
-            let follower = this.followers.find(element => element.UUID === id)
-            console.log(follower)
-            if (follower) {
-                follower.imageBase64 = capture
-            } else {
-                this.addNewFollowerArea(capture, name, id)
-            }
+            let follower = this.followers.find(element => element.UUID === id);
+            (follower) ? follower.imageBase64 = capture : this.addNewFollowerArea(capture, name, id);
         },
 
         /**
@@ -108,10 +131,8 @@ export let useDashboardStore = defineStore("dashboard", {
          * @param {*} UUID A uuid representing a student entry on firebase
          */
         addNewFollowerArea(base64: string, username: string, UUID: string) {
-            console.log("addNewFollower")
-            let webRTC = new WebRTC(this.firebase.db, this.leader.getClassCode(), UUID)
-
-            console.log(webRTC)
+            console.log("Adding new follower");
+            let webRTC = new WebRTC(this.firebase.db, this.classCode, UUID);
             let follower:followerInterface = {
                 name: username,
                 webRTC,
@@ -121,22 +142,17 @@ export let useDashboardStore = defineStore("dashboard", {
                 muted: false,
                 muteAll: false
             }
-            console.log(follower)
-            this.followers.push(follower)
-            console.log(this.followers)
+            this.followers.push(follower);
         },
 
         /**
          * Notify the leader that a follower has disconnected
-         * @param id
+         * @param UUID A string representing the unique ID of a student.
          */
-        followerDisconnected(id: string) {
-            console.log(id);
-            let follower = this.followers.find(element => element.UUID === id)
-            if (!follower) {
-                return
-            }
-            follower.imageBase64 = Disconnect
+        followerDisconnected(UUID: string) {
+            let follower = this.followers.find(element => element.UUID === UUID);
+            if (!follower) { return }
+            follower.imageBase64 = Disconnect;
         },
 
         /**
@@ -167,7 +183,7 @@ export let useDashboardStore = defineStore("dashboard", {
          */
         launchWebsite() {
             let action = { type: REQUESTS.WEBSITE, value: this.webLink };
-            this.firebase.requestAction(this.leader.getClassCode(), action);
+            this.firebase.requestAction(this.classCode, action);
         },
 
         /**
@@ -176,7 +192,7 @@ export let useDashboardStore = defineStore("dashboard", {
          * @param action
          */
         requestIndividualAction(UUID: string, action: object) {
-            this.firebase.requestIndividualAction(this.leader.getClassCode(), UUID, action);
+            this.firebase.requestIndividualAction(this.classCode, UUID, action);
         },
     },
 

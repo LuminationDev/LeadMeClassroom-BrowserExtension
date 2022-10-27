@@ -6,7 +6,9 @@ import {browserLocalPersistence, getAuth, setPersistence} from "@firebase/auth";
 const config = process.env.NODE_ENV === 'production' ? prodConfig : devConfig;
 
 class Firebase {
-    constructor() {
+    constructor(callback) {
+        this.callback = callback;
+
         try {
             firebase.initializeApp(config);
         } catch (err) {
@@ -29,11 +31,11 @@ class Firebase {
     }
 
     /**
-     * Create a new room on the real time database
+     * Update the Real Time Database with the pass object.
+     * @param {*} leader An object representing the current leader
      */
     connectAsLeader = (leader) => {
-        let classroom = leader.getClassroomObject();
-        this.generateRoom(classroom);
+        this.db.ref(`classCode`).update(leader.getClassroomObject());
     }
 
     /**
@@ -64,6 +66,20 @@ class Firebase {
 
             console.log("Follower response");
             followerResponse(snapshot.val(), name, id);
+        });
+    }
+
+    /**
+     * Run through all the student entries within the existing class entry and reattach the listeners that may have
+     * been severed when a page reload occurred, loading the students again to the dashboard as well.
+     * @param classCode
+     * @param followerResponse
+     */
+    reloadFollowers = (classCode, followerResponse) => {
+        this.db.ref(`/classCode/${classCode}/followers/`).get().then(snapshot => {
+            snapshot.forEach(entry => {
+                followerResponse(entry.val().screenshot, entry.val().name, entry.key);
+            });
         });
     }
 
@@ -115,21 +131,13 @@ class Firebase {
     }
 
     /**
-     * Update the Real Time Database with the pass object.
-     * @param {*} object A JSON structured object to be uploaded into the database.
-     */
-    generateRoom = (object) => {
-        this.db.ref(`classCode`).update(object).then(result => console.log(result));
-    }
-
-    /**
      * Sent from a leader, push an action request to all followers. This could be a video_permission, muteTab etc..
      * @param classCode
      * @param {*} type
      */
-    requestAction = (classCode, type) => {
+    requestAction = async (classCode, type) => {
         const msg = this.db.ref("classCode").child(classCode).child("/request").push(type);
-        msg.remove().then(result => console.log(result));
+        await msg.remove();
     }
 
     /**
@@ -138,9 +146,9 @@ class Firebase {
      * @param uuid
      * @param {*} type
      */
-    requestIndividualAction = (classCode, uuid, type) => {
+    requestIndividualAction = async (classCode, uuid, type) => {
         const msg = this.db.ref("classCode").child(classCode).child("followers").child(uuid).child("/request").push(type);
-        msg.remove().then(result => console.log(result));
+        await msg.remove();
     }
 
     /**
@@ -169,7 +177,7 @@ class Firebase {
     }
 
     /**
-     * Unregister any listners that may be active.
+     * Unregister any listeners that may be active.
      * @param {*} inputCode A string representing the class a user is registered to.
      * @param uuid
      */
@@ -196,14 +204,11 @@ class Firebase {
      */
     removeClass = (classCode) => {
         const classRef = this.db.ref("classCode").child(classCode);
+        this.db.ref("classCode").child(classCode).off();
 
         classRef.remove()
-            .then(function () {
-                console.log("Remove succeeded.")
-            })
-            .catch(function (error) {
-                console.log("Remove failed: " + error.message)
-            });
+            .then(function () { console.log("Remove succeeded.") })
+            .catch(function (error) { console.log("Remove failed: " + error.message) });
     }
 }
 

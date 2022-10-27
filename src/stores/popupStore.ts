@@ -64,11 +64,6 @@ export let usePopupStore = defineStore("popup", {
                     console.log("Storage permission is not enabled.");
                 }
             });
-
-            //todo this overrides the student view
-            setPersistence(getAuth(), browserLocalPersistence).then(() => {
-                (getAuth().currentUser) ? this.view = "sessionTeacher" : this.view = "login";
-            });
         },
 
         handleSignup(name: string, email: string, password: string) {
@@ -118,9 +113,6 @@ export let usePopupStore = defineStore("popup", {
                             return false;
                         },
                         signInSuccessWithAuthResult: function (authResult, redirectUrl) {
-                            // chrome.storage.sync.set({"DisplayName": getAuth().currentUser?.displayName})
-                            //     .then(result => console.log(result));
-
                             chrome.tabs.create({url: chrome.runtime.getURL("src/pages/dashboard/dashboard.html")})
                                 .then(result => console.log(result));
                             return false;
@@ -144,8 +136,13 @@ export let usePopupStore = defineStore("popup", {
          */
         checkForFollower() {
             chrome.storage.sync.get("follower", (data) => {
-                console.log(data);
-                (data.follower != null) ? this.view = "sessionStudent" : this.view = "login";
+                if(data.follower != null) {
+                    this.view = "sessionStudent"
+                } else {
+                    setPersistence(getAuth(), browserLocalPersistence).then(() => {
+                        (getAuth().currentUser) ? this.view = "sessionTeacher" : this.view = "login";
+                    });
+                }
             });
         },
 
@@ -238,7 +235,7 @@ export let usePopupStore = defineStore("popup", {
          * alerting a teacher that the student has disconnected.
          */
         handleEndSessionClick() {
-            chrome.storage.sync.get("follower", (data) => {
+            chrome.storage.sync.get("follower", async (data) => {
                 if (data.follower != null) {
                     //Send message to firebase about disconnection
                     chrome.tabs.query({ currentWindow: true, active: true }, function (tabs) {
