@@ -42,7 +42,6 @@ export let useDashboardStore = defineStore("dashboard", {
             classCode: activeCode,
             leaderName: leaderName,
             followers: <followerInterface[]>([]),
-            webLink: "",
             leader: new Leader(leaderName),
         }
     },
@@ -181,8 +180,8 @@ export let useDashboardStore = defineStore("dashboard", {
         /**
          * Set the website link in the firebase real-time database that the active students will navigate to.
          */
-        launchWebsite() {
-            let action = { type: REQUESTS.WEBSITE, value: this.webLink };
+        launchWebsite(website: string) {
+            let action = { type: REQUESTS.WEBSITE, value: website };
             this.firebase.requestAction(this.classCode, action);
         },
 
