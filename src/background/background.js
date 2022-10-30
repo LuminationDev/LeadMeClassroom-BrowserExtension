@@ -14,7 +14,6 @@ chrome.runtime.onInstalled.addListener((reason) => {
 
 //Listen for when a tab becomes inactive
 chrome.tabs.onActivated.addListener((activeInfo) => {
-    console.log("ACTIVATED");
     checkStoragePermission(checkStorage);
 });
 
