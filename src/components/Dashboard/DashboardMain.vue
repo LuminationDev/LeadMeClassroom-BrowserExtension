@@ -2,8 +2,6 @@
 import DashboardClassArea from "@/components/Dashboard/DashboardClassArea.vue";
 import DashboardSessionArea from "@/components/Dashboard/DashboardSessionArea.vue";
 import DashboardStudentArea from "@/components/Dashboard/DashboardStudentArea.vue";
-import {ref} from "vue";
-
 </script>
 
 <template>

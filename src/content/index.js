@@ -1,8 +1,25 @@
 import { Firebase } from '../controller';
 import YoutubeController from "./modules/YoutubeController";
+import ScreenController from "./modules/ScreenController";
+import {useStorage} from "@/hooks/useStorage";
+
+const { getSyncStorage } = useStorage();
 
 //If on a YouTube page create the controller
 const youtubeController = location.href.includes("youtube") ? new YoutubeController() : null;
+const screenController = new ScreenController();
+
+/**
+ * Check if the user is currently in block mode (and that they are in an active session)
+ */
+const checkBlocked = async () => {
+    const follower = await getSyncStorage("follower");
+    if(!follower) { return; }
+
+    const blocked = await getSyncStorage("blocked");
+    if(blocked) { screenController.determineAction("block"); }
+}
+await checkBlocked();
 
 /**
  * Currently only receives messages from the popup page. Most functionality should
@@ -19,12 +36,15 @@ chrome.runtime.onMessage.addListener(
                 AsyncProcessing(request, request.code, request.uuid).then(sendResponse);
                 return true;
 
+            case "screenControl":
+                console.log("Screen Controller --- setting action: " + request.action);
+                screenController.determineAction(request.action);
+                return true;
+
             case "youtube":
                 if(location.href.includes("youtube")) {
-                    setTimeout(() => {
-                        console.log("Youtube Controller --- setting action: " + request.action);
-                        youtubeController.determineAction(request.action);
-                    }, 1000);
+                    console.log("Youtube Controller --- setting action: " + request.action);
+                    youtubeController.determineAction(request.action);
                 }
                 break;
 

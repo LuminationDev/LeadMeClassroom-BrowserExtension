@@ -1,17 +1,17 @@
 //Store example using pinia
-import { defineStore } from "pinia";
-import { auth } from 'firebaseui';
+import {defineStore} from "pinia";
+import {auth} from 'firebaseui';
 import {
-    getAuth,
-    updateProfile,
-    setPersistence,
     browserLocalPersistence,
-    signOut,
+    createUserWithEmailAndPassword,
     EmailAuthProvider,
-    createUserWithEmailAndPassword
+    getAuth,
+    setPersistence,
+    signOut,
+    updateProfile
 } from '@firebase/auth'
 // @ts-ignore
-import { Firebase } from "@/controller";
+import {Firebase} from "@/controller";
 // @ts-ignore
 import * as REQUESTS from "@/constants/_requests";
 
@@ -54,6 +54,10 @@ export let usePopupStore = defineStore("popup", {
          * Check for an active user when opening the popup.
          */
         onOpen() {
+            //todo not picking up the key properly
+            //Remove the strange firebase bug from application storage
+            //removeLocalStorage("firebase:previous_websocket_failure").then(result => console.log(result));
+
             chrome.permissions.contains({
                 permissions: ["storage"]
             }, (granted) => {
@@ -66,14 +70,29 @@ export let usePopupStore = defineStore("popup", {
             });
         },
 
+        /**
+         * Create the dashboard page and pin it.
+         */
+        createDashboard() {
+            chrome.tabs.create({ pinned: true, url: chrome.runtime.getURL("src/pages/dashboard/dashboard.html") })
+                .then(result => console.log(result));
+        },
+
+        /**
+         * Sign a user up with the supplied password and email. Upon successful registration update the firebase profile
+         * with the supplied display name. This is attached to the authentication portion of firebase instead of creating
+         * a new user field.
+         * @param name
+         * @param email
+         * @param password
+         */
         handleSignup(name: string, email: string, password: string) {
             if (getAuth().currentUser) {
-                chrome.tabs.create({ url: chrome.runtime.getURL("src/pages/dashboard/dashboard.html") })
-                    .then(result => console.log(result));
+                this.createDashboard();
             } else {
                 const auth = getAuth();
                 createUserWithEmailAndPassword(auth, email, password)
-                    .then((userCredential) => {
+                    .then(() => {
                         //Set the display name of the user
                         // @ts-ignore
                         updateProfile(getAuth().currentUser, { displayName: name })
@@ -86,8 +105,7 @@ export let usePopupStore = defineStore("popup", {
                         const errorCode = error.code;
                         console.log(errorCode);
 
-                        const errorMessage = error.message;
-                        this.signupError = errorMessage;
+                        this.signupError = error.message;
                     });
             }
         },
@@ -97,9 +115,10 @@ export let usePopupStore = defineStore("popup", {
          * id.
          */
         handleLogin() {
+            //Create a temp variable to access within the callback options
+            const self = this;
             if (getAuth().currentUser) {
-                chrome.tabs.create({ url: chrome.runtime.getURL("src/pages/dashboard/dashboard.html") })
-                    .then(result => console.log(result));
+                this.createDashboard();
             } else {
                 let ui = new auth.AuthUI(getAuth())
                 ui.start('#firebaseui-auth-container', {
@@ -112,9 +131,8 @@ export let usePopupStore = defineStore("popup", {
                             console.log(error);
                             return false;
                         },
-                        signInSuccessWithAuthResult: function (authResult, redirectUrl) {
-                            chrome.tabs.create({url: chrome.runtime.getURL("src/pages/dashboard/dashboard.html")})
-                                .then(result => console.log(result));
+                        signInSuccessWithAuthResult: function () {
+                            self.createDashboard();
                             return false;
                         }
                     }
@@ -187,7 +205,7 @@ export let usePopupStore = defineStore("popup", {
             const username = this.username;
 
             //Queries the currently open tab and sends a message to it
-            chrome.tabs.query({ currentWindow: true, active: true }, (tabs: any) => {
+            chrome.tabs.query({ currentWindow: true, active: true }, () => {
                 firebase.checkForClassroom(userCode).then((result?: any) => {
                     if (result) {
                         chrome.storage.sync.set({
@@ -244,6 +262,7 @@ export let usePopupStore = defineStore("popup", {
                             );
                         }
                     });
+                    this.removeBlocked();
 
                     //Reset the popup view to the login panel
                     this.view = 'login';
@@ -263,20 +282,31 @@ export let usePopupStore = defineStore("popup", {
             });
         },
 
-        //todo this only ever creates a new dashboard at this point
+        /**
+         * Open the dashboard or switch the view to the dashboard. The dashboard does not have a URL associated with it
+         * so when it is created it is pinned. This function checks the pinned tabs and if it does not have a URL then
+         * it *should* be the dashboard page.
+         */
         viewOrOpenDashboard() {
-            chrome.tabs.query({ url: REQUESTS.DASHBOARD_MATCH_URL }, ([tab]) => {
+            chrome.tabs.query({ pinned: true }, ([tab]) => {
                 if (tab) {
-                    if (tab.id != null) {
-                        // chrome.tabs.remove(tab.id).then(result => console.log(result));
-
+                    if (tab.id != null && tab.url == null) {
+                        chrome.tabs.highlight({tabs: tab.index, windowId: tab.windowId},
+                            () => window.close());
                     }
                 } else {
-                    chrome.tabs.create({url: chrome.runtime.getURL("src/pages/dashboard/dashboard.html")})
-                        .then(result => console.log(result));
+                    this.createDashboard();
                 }
             });
-        }
+        },
+
+        /**
+         * Remove the saved block message on sign out for student
+         */
+        removeBlocked() {
+            chrome.runtime.sendMessage({type: REQUESTS.SCREENCONTROL, action: "unblock"})
+                .then(result => console.log(result));
+        },
     },
 
     //Computed properties

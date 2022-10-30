@@ -75,7 +75,7 @@ const websiteLink = ref("");
           >Cancel</button>
           <button
               class="w-52 h-11 text-white bg-modal-blue rounded-lg text-base hover:bg-navy-side-menu"
-              v-on:click="dashboardPinia.launchWebsite(websiteLink)"
+              v-on:click="dashboardPinia.launchWebsite(websiteLink); showWebsiteModal = false"
           >Share link</button>
         </footer>
       </template>
