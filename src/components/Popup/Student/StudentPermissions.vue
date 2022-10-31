@@ -1,5 +1,5 @@
 <script setup>
-import StudentPermission from "@/components/Student/StudentPermission.vue";
+import StudentPermission from "@/components/Popup/Student/StudentPermission.vue";
 import permissionData from "@/config/permissions.json";
 import { onMounted } from "vue";
 

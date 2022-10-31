@@ -1,12 +1,12 @@
 //Store example using pinia
 import {defineStore} from "pinia";
+import { useStorage } from "../hooks/useStorage";
+const { getSyncStorage, setSyncStorage, removeSyncStorage } = useStorage();
 import {auth} from 'firebaseui';
 import {
-    browserLocalPersistence,
     createUserWithEmailAndPassword,
     EmailAuthProvider,
     getAuth,
-    setPersistence,
     signOut,
     updateProfile
 } from '@firebase/auth'
@@ -17,6 +17,11 @@ import * as REQUESTS from "@/constants/_requests";
 import Follower from "../models/_follower";
 
 const firebase = new Firebase();
+
+interface followerData {
+    code: string,
+    uuid: string
+}
 
 //name - object
 export let usePopupStore = defineStore("popup", {
@@ -62,13 +67,29 @@ export let usePopupStore = defineStore("popup", {
 
             chrome.permissions.contains({
                 permissions: ["storage"]
-            }, (granted) => {
+            }, async (granted) => {
                 if (granted) {
                     console.log("Checking for follower");
-                    this.checkForFollower();
+                    await this.checkForFollower();
                 } else {
                     console.log("Storage permission is not enabled.");
                 }
+            });
+        },
+
+        /**
+         * Check if a student entry exists in local storage.
+         */
+        async checkForFollower() {
+            const follower = await getSyncStorage("follower");
+            console.log(follower);
+            if(follower != null) {
+                this.view = "sessionStudent";
+                return;
+            }
+
+            getSyncStorage("Teacher").then(result => {
+                (result) ? this.view = "sessionTeacher" : this.view = "login";
             });
         },
 
@@ -134,7 +155,8 @@ export let usePopupStore = defineStore("popup", {
                             return false;
                         },
                         signInSuccessWithAuthResult: function () {
-                            self.createDashboard();
+                            setSyncStorage({"Teacher": true})
+                                .then(() => self.createDashboard());
                             return false;
                         }
                     }
@@ -145,24 +167,21 @@ export let usePopupStore = defineStore("popup", {
         /**
          * Sign a teacher out of their currently active session.
          */
-        handleLogoutClick() {
+        async handleLogoutClick() {
+            await removeSyncStorage("Teacher");
+
             signOut(getAuth()).then(() => {
                 this.view = "login"
             });
-        },
 
-        /**
-         * Check if a student entry exists in local storage.
-         */
-        checkForFollower() {
-            chrome.storage.sync.get("follower", (data) => {
-                if(data.follower != null) {
-                    this.view = "sessionStudent"
-                } else {
-                    setPersistence(getAuth(), browserLocalPersistence).then(() => {
-                        (getAuth().currentUser) ? this.view = "sessionTeacher" : this.view = "login";
-                    });
-                }
+            //Close the dashboard if open
+            chrome.tabs.query({ pinned: true }, ([tab]) => {
+                if (!tab) { return; }
+                if (tab.url != null) { return; }
+
+                chrome.tabs.update({pinned: false}).then(() => {
+                    if (tab.id != null) { chrome.tabs.remove(tab.id); }
+                });
             });
         },
 
@@ -203,7 +222,7 @@ export let usePopupStore = defineStore("popup", {
             chrome.tabs.query({ currentWindow: true, active: true }, () => {
                 firebase.checkForClassroom(userCode).then((result?: any) => {
                     if (result) {
-                        chrome.storage.sync.set({
+                        setSyncStorage({
                             "follower":
                                 {
                                     "code": userCode,
@@ -238,41 +257,40 @@ export let usePopupStore = defineStore("popup", {
          * Handle ending a session for a student, this manages removing the details from the local storage and
          * alerting a teacher that the student has disconnected.
          */
-        handleEndSessionClick() {
-            chrome.storage.sync.get("follower", async (data) => {
-                if (data.follower != null) {
-                    //Send message to firebase about disconnection
-                    chrome.tabs.query({ currentWindow: true, active: true }, function (tabs) {
+        async handleEndSessionClick() {
+            const userData:followerData = await getSyncStorage("follower");
+            if (userData == null) { return; }
 
-                        let activeTab = tabs[0];
-                        if (activeTab.id != null) {
-                            chrome.tabs.sendMessage(activeTab.id,
-                                {
-                                    "type": "disconnect",
-                                    "code": data.follower.code,
-                                    "uuid": data.follower.getUniqueId()
-                                }, (response) => {
-                                    console.log(response);
-                                }
-                            );
-                        }
-                    });
-                    this.removeBlocked();
+            //Send message to firebase about disconnection
+            chrome.tabs.query({ currentWindow: true, active: true }, function (tabs) {
+                let activeTab = tabs[0];
+                if (activeTab.id == null) { return; }
 
-                    //Reset the popup view to the login panel
-                    this.view = 'login';
-                }
+                chrome.tabs.sendMessage(activeTab.id,
+                    {
+                        "type": "disconnect",
+                        "code": userData.code,
+                        "uuid": userData.uuid
+                    }, (response) => {
+                        console.log(response);
+                    }
+                );
             });
 
-            chrome.storage.sync.remove("follower", () => {
-                console.log("Data removed");
-            });
+            //Remove any 'blocking' div from open pages
+            this.removeBlocked();
+
+            //Reset the popup view to the login panel
+            this.view = 'login';
+
+            removeSyncStorage("follower")
+                .then(() => console.log("Data removed"));
 
             chrome.tabs.query({ url: REQUESTS.ASSISTANT_MATCH_URL }, ([tab]) => {
-                if (tab) {
-                    if (tab.id != null) {
-                        chrome.tabs.remove(tab.id).then(result => console.log(result));
-                    }
+                if (!tab) { return }
+
+                if (tab.id != null) {
+                    chrome.tabs.remove(tab.id).then(result => console.log(result));
                 }
             });
         },

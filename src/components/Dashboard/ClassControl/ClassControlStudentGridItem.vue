@@ -10,8 +10,8 @@ import * as REQUESTS from "@/constants/_requests.js";
 import { Firebase } from '@/controller';
 // @ts-ignore
 import * as MODELS from '@/models/index.js';
-import Follower from "../../models/_follower";
-import Tab from "../../models/_tab";
+import Follower from "../../../models/_follower";
+import Tab from "../../../models/_tab";
 
 
 interface tabs {

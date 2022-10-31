@@ -1,6 +1,6 @@
 <script setup>
 import { usePopupStore } from "@/stores/popupStore.ts";
-import {onMounted, onUpdated} from "vue";
+import {onMounted} from "vue";
 let popupPinia = usePopupStore();
 
 onMounted(() => {
