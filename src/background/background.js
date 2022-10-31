@@ -1,4 +1,5 @@
 import * as REQUESTS from "../constants/_requests";
+import Tab from "@/models/_tab";
 
 //===========================================
 //RUNTIME LISTENERS
@@ -15,11 +16,27 @@ chrome.runtime.onInstalled.addListener((reason) => {
 //Listen for when a tab becomes inactive
 chrome.tabs.onActivated.addListener((activeInfo) => {
     checkStoragePermission(checkStorage);
+    chrome.tabs.query({ url: REQUESTS.ASSISTANT_MATCH_URL }, ([assistantTab]) => {
+        chrome.tabs.sendMessage(assistantTab.id, { "type": REQUESTS.UPDATE_ACTIVE_TAB, tabId: activeInfo.tabId });
+    });
+
+});
+
+chrome.tabs.onRemoved.addListener((tabId, removeInfo) => {
+    checkStoragePermission(checkStorage);
+    chrome.tabs.query({ url: REQUESTS.ASSISTANT_MATCH_URL }, ([assistantTab]) => {
+        chrome.tabs.sendMessage(assistantTab.id, { "type": REQUESTS.REMOVE_TAB, tabId: tabId });
+    });
 });
 
 //Listen for when a tab url changes
-chrome.tabs.onUpdated.addListener(function (tabId, changeInfo, tab) {
-    console.log(changeInfo);
+chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
+    if (tab.url.includes("assistant.html")) {
+        return
+    }
+    chrome.tabs.query({ url: REQUESTS.ASSISTANT_MATCH_URL }, ([assistantTab]) => {
+        chrome.tabs.sendMessage(assistantTab.id, { "type": REQUESTS.UPDATE_TAB, tab: new Tab(tab.id + "", tab.title, tab.favIconUrl, tab.url) });
+    });
 
     if (changeInfo.url == null) {
         return;

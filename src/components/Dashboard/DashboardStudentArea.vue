@@ -15,7 +15,7 @@ let dashboardPinia = useDashboardStore();
       <DashboardStudentPlaceholder v-if="dashboardPinia.followers" />
 
       <!--Student Grid Item (Active student)-->
-      <DashboardStudentGridItem v-for="follower in dashboardPinia.followers" :key="follower.UUID" :follower="follower" />
+      <DashboardStudentGridItem v-for="follower in dashboardPinia.followers" :key="follower.getUniqueId()" :follower="follower" />
     </div>
   </div>
 </template>

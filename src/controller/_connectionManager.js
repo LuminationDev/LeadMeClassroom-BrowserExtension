@@ -15,20 +15,20 @@ class ConnectionManager {
      * @param {*} userCode
      * @param name
      */
-    connect = async (userCode, name) => {
-        let success = await this.checkForClassroom(userCode);
+    connect = async (follower) => {
+        this.follower = follower;
+        let success = await this.checkForClassroom(follower.classCode);
 
         if (!success) {
             console.log("Class not found");
         }
 
-        this.follower = new Follower(userCode, name);
         let uuid = this.follower.getUniqueId();
 
         await chrome.storage.sync.set({
             "follower":
                 {
-                    "code": userCode,
+                    "code": follower.classCode,
                     "uuid": uuid
                 }
         });
@@ -72,6 +72,18 @@ class ConnectionManager {
         chrome.runtime.sendMessage({ "type": REQUESTS.CAPTURE }, async (response) => {
             this.firebase.sendScreenShot(this.follower.classCode, this.follower.uniqueId, { type: REQUESTS.CAPTURE, message: response });
         });
+    }
+
+    updateTab = (tab) => {
+        this.firebase.updateTab(this.follower.classCode, this.follower.uniqueId, tab);
+    }
+
+    updateActiveTab = (tabId) => {
+        this.firebase.updateActiveTab(this.follower.classCode, this.follower.uniqueId, tabId);
+    }
+
+    removeTab = (tabId) => {
+        this.firebase.removeTab(this.follower.classCode, this.follower.uniqueId, tabId);
     }
 
     /**

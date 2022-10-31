@@ -6,21 +6,13 @@ import { Firebase, WebRTC } from '@/controller/index.js';
 import Disconnect from '@/assets/img/disconnect.png';
 // @ts-ignore
 import * as MODELS from '@/models/index.js';
+import Follower from "../models/_follower";
+import Tab from "../models/_tab";
 
 const { Leader } = MODELS.default;
 
 const firebase = new Firebase();
 const leaderName = await firebase.getDisplayName();
-
-interface followerInterface {
-    name: string,
-    webRTC: any
-    UUID: any
-    imageBase64: string
-    monitoring: boolean
-    muted: boolean
-    muteAll: boolean
-}
 
 export let useDashboardStore = defineStore("dashboard", {
     state: () => {
@@ -28,7 +20,7 @@ export let useDashboardStore = defineStore("dashboard", {
             firebase: firebase,
             classCode: "",
             leaderName: leaderName,
-            followers: <followerInterface[]>([]),
+            followers: <Follower[]>([]),
             webLink: "",
             leader: new Leader("Edward"), //load from sync storage??
         }
@@ -45,10 +37,17 @@ export let useDashboardStore = defineStore("dashboard", {
             console.log(this.classCode)
 
             this.firebase.connectAsLeader(this.leader);
-            this.firebase.classRoomListeners(
+            this.firebase.followerListeners(
                 this.leader.getClassCode(),
                 this.followerResponse,
-                this.followerDisconnected
+                this.followerDisconnected,
+                this.followerAdded
+            );
+            this.firebase.tabListeners(
+                this.leader.getClassCode(),
+                this.followerTabChanged,
+                this.followerTabRemoved,
+                this.followerTabsAdded
             );
         },
 
@@ -68,20 +67,53 @@ export let useDashboardStore = defineStore("dashboard", {
          * @param name
          * @param id
          */
-        followerResponse(response: string, name: string, id: string) {
-            console.log(response, id)
-
-            switch ((response as any).type) {
+        followerResponse(response: any, name: string, id: string, key: string) {
+            switch (response.type) {
                 case REQUESTS.CAPTURE:
-                    this.updateFollower((response as any).message, name, id);
+                    this.updateFollower(response.message, name, id);
                     break;
 
                 case REQUESTS.MONITORPERMISSION:
-                    this.monitorRequestResponse((response as any).message, id);
+                    this.monitorRequestResponse(response.message, id);
                     break;
                 default:
                     console.log("Unknown command");
             }
+        },
+
+        /**
+         * Notify the leader a follower has responded to a request
+         * @param response
+         * @param name
+         * @param id
+         */
+        followerTabChanged(response: any, followerId: string, key: string) {
+            this.updateFollowerTab(new Tab(key, response.name, response.favicon, response.url, response.lastActivated), followerId)
+        },
+
+        /**
+         * Notify the leader a follower has responded to a request
+         * @param response
+         * @param name
+         * @param id
+         */
+        followerTabRemoved(followerId: string, key: string) {
+            this.removeFollowerTab(followerId, key)
+        },
+
+        /**
+         * Notify the leader a follower has responded to a request
+         * @param response
+         * @param name
+         * @param id
+         */
+        followerTabsAdded(response: any, followerId: string) {
+            let tabs: Array<Tab> = []
+            Object.values(response).forEach((tab: any) => {
+                console.log("adding a tab", JSON.stringify(tab))
+                tabs.push(new Tab(tab.id, tab.name, tab.favicon, tab.url, tab.lastActivated))
+            })
+            this.setFollowerTabs(tabs, followerId)
         },
 
         /**
@@ -91,39 +123,64 @@ export let useDashboardStore = defineStore("dashboard", {
          * @param id
          */
         updateFollower(capture: string, name: string, id: string) {
-            console.log("updateFollower")
-            let follower = this.followers.find(element => element.UUID === id)
-            console.log(follower)
+            let follower = this.followers.find(element => element.getUniqueId() === id)
             if (follower) {
                 follower.imageBase64 = capture
-            } else {
-                this.addNewFollowerArea(capture, name, id)
             }
         },
 
         /**
-         * Create a new grid item containing a video element.
-         * @param base64 A base64 string representing the initial screen capture from a student device
-         * @param username
-         * @param {*} UUID A uuid representing a student entry on firebase
+         * Add new follower or update an existing one
+         * @param capture
+         * @param name
+         * @param id
          */
-        addNewFollowerArea(base64: string, username: string, UUID: string) {
-            console.log("addNewFollower")
-            let webRTC = new WebRTC(this.firebase.db, this.leader.getClassCode(), UUID)
-
-            console.log(webRTC)
-            let follower:followerInterface = {
-                name: username,
-                webRTC,
-                UUID,
-                imageBase64: base64,
-                monitoring: false,
-                muted: false,
-                muteAll: false
+        updateFollowerTab(tab: Tab, id: string) {
+            let follower = this.followers.find(element => element.getUniqueId() === id)
+            if (follower) {
+                follower.updateIndividualTab(tab.id, tab)
             }
-            console.log(follower)
+        },
+
+        /**
+         * Add new follower or update an existing one
+         * @param capture
+         * @param name
+         * @param id
+         */
+        removeFollowerTab(followerId: string, id: string) {
+            let follower = this.followers.find(element => element.getUniqueId() === followerId)
+            if (follower) {
+                follower.removeTab(id)
+            }
+        },
+
+        /**
+         * Add new follower or update an existing one
+         * @param capture
+         * @param name
+         * @param id
+         */
+        setFollowerTabs(tabs: Tab[], id: string) {
+            let follower = this.followers.find(element => element.getUniqueId() === id)
+            if (follower) {
+                follower.tabs = tabs
+            }
+        },
+
+        /**
+         * Notify the leader that a follower has disconnected
+         * @param id
+         */
+        followerAdded(snapshot: any, id: string) {
+            let webRTC = new WebRTC(this.firebase.db, this.leader.getClassCode(), id)
+            let follower = new Follower(this.leader.getClassCode(), snapshot.name, id)
+            follower.webRTC = webRTC
+            follower.monitoring = false
+            follower.muted = false
+            follower.muteAll = false
+            follower.tabs = snapshot.tabs
             this.followers.push(follower)
-            console.log(this.followers)
         },
 
         /**
@@ -131,8 +188,7 @@ export let useDashboardStore = defineStore("dashboard", {
          * @param id
          */
         followerDisconnected(id: string) {
-            console.log(id);
-            let follower = this.followers.find(element => element.UUID === id)
+            let follower = this.followers.find(element => element.getUniqueId() === id)
             if (!follower) {
                 return
             }
@@ -148,13 +204,13 @@ export let useDashboardStore = defineStore("dashboard", {
             console.log(message);
             console.log(id);
 
-            let follower = this.followers.find(element => element.UUID === id)
+            let follower = this.followers.find(element => element.getUniqueId() === id)
             if (!follower) {
                 return
             }
             if (message === "granted") {
                 follower.monitoring = true
-                follower.webRTC.setVideoElement(document.getElementById(`video_${follower.UUID}`))
+                follower.webRTC.setVideoElement(document.getElementById(`video_${follower.getUniqueId()}`))
                 follower.webRTC.startFollowerStream()
             } else {
                 follower.monitoring = false

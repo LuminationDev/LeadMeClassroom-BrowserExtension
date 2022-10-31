@@ -14,6 +14,7 @@ import {
 import { Firebase } from "@/controller";
 // @ts-ignore
 import * as REQUESTS from "@/constants/_requests";
+import Follower from "../models/_follower";
 
 const firebase = new Firebase();
 
@@ -24,7 +25,8 @@ export let usePopupStore = defineStore("popup", {
         return {
             view: "login",
             username: null,
-            codeValues: ({input1: "", input2: "", input3: "", input4: "" }),
+            follower: new Follower(),
+            classCode: "",
             classError: "",
             signupError: "",
         };
@@ -150,13 +152,6 @@ export let usePopupStore = defineStore("popup", {
         },
 
         /**
-         * Check that all the inputs are valid
-         */
-        checkCodeInput() {
-            return Object.values(this.codeValues).every(value => !!value);
-        },
-
-        /**
          * Begin the connection process for a student, ask for permissions to be granted at this stage.
          */
         connect() {
@@ -186,8 +181,8 @@ export let usePopupStore = defineStore("popup", {
          * add the student to the class.
          */
         connectToClass() {
-            const userCode = this.codeValues.input1 + this.codeValues.input2 + this.codeValues.input3 + this.codeValues.input4;
-            const username = this.username;
+            const userCode = this.classCode;
+            const follower = this.follower;
 
             //Queries the currently open tab and sends a message to it
             let success = false;
@@ -198,7 +193,7 @@ export let usePopupStore = defineStore("popup", {
                             "follower":
                                 {
                                     "code": userCode,
-                                    "name": username
+                                    "name": follower.name
                                 }
                         }).then(result => console.log(result));
 
@@ -249,7 +244,7 @@ export let usePopupStore = defineStore("popup", {
                                 {
                                     "type": "disconnect",
                                     "code": data.follower.code,
-                                    "uuid": data.follower.uuid
+                                    "uuid": data.follower.getUniqueId()
                                 }, (response) => {
                                     console.log(response);
                                 }
