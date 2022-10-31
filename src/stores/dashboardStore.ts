@@ -75,7 +75,7 @@ export let useDashboardStore = defineStore("dashboard", {
             }
 
             this.firebase.reloadFollowers(this.classCode, this.followerResponse);
-        }
+        },
 
         /**
          * Notify followers a session is ending and delete database class entry
