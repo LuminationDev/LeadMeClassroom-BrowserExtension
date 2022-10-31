@@ -4,7 +4,12 @@ defineProps({
     type: String,
     required: true,
   },
+  modelValue: {
+    type: String,
+    required: true
+  }
 });
+defineEmits(['update:modelValue'])
 </script>
 
 <template>
@@ -17,6 +22,7 @@ defineProps({
     @focus="'focused = true'"
     type="text"
     :placeholder='placeholder'
-    @input="$emit('update', $event.target.value)"
+    :value="modelValue"
+    @input="$emit('update:modelValue', $event.target.value)"
   />
 </template>

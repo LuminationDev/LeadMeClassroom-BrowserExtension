@@ -3,6 +3,8 @@ import '../../styles.css'
 import { onMounted, ref, computed } from 'vue'
 import { ConnectionManager } from '../../controller'
 import * as REQUESTS from '../../constants/_requests.js'
+import Tab from "../../models/_tab";
+import Follower from "../../models/_follower";
 
 const assistantListener = (data) => {
   if (data == null) {
@@ -24,6 +26,18 @@ const assistantListener = (data) => {
     case REQUESTS.CAPTURE:
       console.log("Updating screenshot");
       MANAGER.value.captureScreen();
+      break;
+
+    case REQUESTS.UPDATE_TAB:
+      MANAGER.value.updateTab(data.tab)
+      break;
+
+    case REQUESTS.UPDATE_ACTIVE_TAB:
+      MANAGER.value.updateActiveTab(data.tabId)
+      break;
+
+    case REQUESTS.REMOVE_TAB:
+      MANAGER.value.removeTab(data.tabId)
       break;
 
     case REQUESTS.ENDSESSION:
@@ -60,8 +74,18 @@ const MANAGER = ref(new ConnectionManager(assistantListener));
 
 //Start the connection manager on page load
 chrome.storage.sync.get("follower", async (data) => {
-  console.log(data);
-  MANAGER.value.connect(data.follower.code, data.follower.name);
+  let f = new Follower(data.follower.code, data.follower.name)
+  chrome.tabs.query({}, (tabs) => {
+    const tabsArr = tabs.map(tab => {
+      return new Tab(tab.id + "", tab.title, tab.favIconUrl ?? "", tab.url)
+    })
+    const tabsKeyValue = {}
+    tabsArr.forEach(tab => {
+      tabsKeyValue[tab.id] = tab
+    })
+    f.tabs = tabsKeyValue
+    MANAGER.value.connect(f);
+  })
 });
 
 const monitorRequest = () => {

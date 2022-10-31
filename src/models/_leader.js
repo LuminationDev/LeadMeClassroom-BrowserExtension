@@ -54,9 +54,36 @@ class Leader {
                 `{
                     "${this.code}": {
                         "name": "${this.name}",
-                        "request": "",
-                        "followers": []
+                        "request": ""
                     }
+                }`
+            )
+        );
+    }
+
+    /**
+     * Collect the necessary data to create a new room on the firebase database.
+     * @returns A JSON object reflecting the leader's information
+     */
+    getDefaultFollowersObject = () => {
+        return (
+            JSON.parse(
+                `{
+                    "${this.code}": {}
+                }`
+            )
+        );
+    }
+
+    /**
+     * Collect the necessary data to create a new room on the firebase database.
+     * @returns A JSON object reflecting the leader's information
+     */
+    getDefaultTabsObject = () => {
+        return (
+            JSON.parse(
+                `{
+                    "${this.code}": {}
                 }`
             )
         );

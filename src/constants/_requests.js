@@ -6,6 +6,9 @@ export const MONITORPERMISSION = "video_permission";
 export const MONITORENDED = "video_ended";
 
 export const CAPTURE = "capture";
+export const UPDATE_TAB = "updateTab";
+export const UPDATE_ACTIVE_TAB = "updateActiveTab";
+export const REMOVE_TAB = "removeTab";
 
 export const WEBSITE = "website";
 

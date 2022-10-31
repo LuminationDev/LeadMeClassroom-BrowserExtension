@@ -1,6 +1,6 @@
 <script setup>
-import LoginCodeInput from "./LoginCodeInput.vue";
 import PopupSecondaryButton from "@/components/Buttons/PopupSecondaryButton.vue";
+import VOtpInput from 'vue3-otp-input'
 import {ref} from "vue";
 
 import { usePopupStore } from "@/stores/popupStore.ts";
@@ -11,10 +11,6 @@ const authorise = ref(false);
 
 function checkInputs() {
   resetErrorMessages();
-  if(!popupPinia.checkCodeInput()) {
-    error.value = "Ensure all inputs are filled.";
-    return;
-  }
 
   if(!authorise.value) {
     error.value = "Please authorise the permissions.";
@@ -32,12 +28,15 @@ function resetErrorMessages() {
 
 <template>
   <div class="mt-9 pb-7">
-
-    <div class="mb-11 ml-3 child:mr-3">
-      <LoginCodeInput v-model="popupPinia.codeValues.input1" />
-      <LoginCodeInput v-model="popupPinia.codeValues.input2" />
-      <LoginCodeInput v-model="popupPinia.codeValues.input3" />
-      <LoginCodeInput v-model="popupPinia.codeValues.input4" />
+    <div class="flex flex-row justify-center mb-4">
+      {{ popupPinia.follower }}
+      <VOtpInput
+          class="mr-3"
+          :num-inputs="4"
+          input-type="letter-numeric"
+          input-classes="w-11 h-16 text-center font-bold text-4xl rounded-lg border-black-form-border border-2 ml-3"
+          @on-change="(code) => { popupPinia.classCode = code }"
+          separator=""/>
     </div>
 
     <label class="inline-flex items-center mb-4">

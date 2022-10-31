@@ -1,6 +1,5 @@
 <script setup>
 import DashboardMenuItem from "@/components/Dashboard/DashboardMenuItem.vue";
-import DashboardContentItems from "@/components/Dashboard/DashboardContentItems.vue";
 </script>
 
 <template>
@@ -12,7 +11,13 @@ import DashboardContentItems from "@/components/Dashboard/DashboardContentItems.
     </div>
 
     <!--Content options-->
-    <DashboardContentItems />
+    <div class="mt-28 child:mb-6">
+      <DashboardMenuItem view="dashboard">Dashboard</DashboardMenuItem>
+      <DashboardMenuItem view="students">Students</DashboardMenuItem>
+      <DashboardMenuItem view="content">Content</DashboardMenuItem>
+      <DashboardMenuItem view="account">Account</DashboardMenuItem>
+      <DashboardMenuItem view="settings">Settings</DashboardMenuItem>
+    </div>
 
     <!--Logout-->
     <DashboardMenuItem class="fixed bottom-12">Log Out</DashboardMenuItem>
