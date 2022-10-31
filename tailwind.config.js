@@ -18,6 +18,8 @@ module.exports = {
                 'gray-menu-separator': '#E8E8E833',
                 'white-menu-overlay': 'rgb(255, 255, 255, 0.2)',
                 'red-end-class': '#E95858',
+                'modal-site-background': 'rgb(0, 0, 0, .4)',
+                'modal-blue': '#3676EB',
             },
             fontFamily: {
                 'poppins': ['Poppins', 'sans-serif'],
@@ -28,6 +30,7 @@ module.exports = {
             width: {
                 'panel-width': '22rem',
                 'options-panel-width': '45rem',
+                'modal-width': '80vw',
             },
             height: {
                 'student-options-small': '3.125rem',

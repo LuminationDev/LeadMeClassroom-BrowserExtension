@@ -45,6 +45,7 @@ const assistantListener = (data) => {
       break;
 
     case REQUESTS.YOUTUBE:
+    case REQUESTS.SCREENCONTROL:
     case REQUESTS.MUTETAB:
     case REQUESTS.UNMUTETAB:
     case REQUESTS.WEBSITE:
@@ -68,9 +69,7 @@ chrome.runtime.onMessage.addListener(
     }
 );
 
-
-
-//Persistant connection to Firebase & WebRTC
+//Persistent connection to Firebase & WebRTC
 const MANAGER = ref(new ConnectionManager(assistantListener));
 
 //Start the connection manager on page load

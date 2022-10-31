@@ -67,17 +67,17 @@ class WebRTC {
 
         var msg = JSON.parse(data.val().message);
         var sender = data.val().sender;
-        if (sender != this.uniqueId) {
-            if (msg.ice != undefined) {
+        if (sender !== this.uniqueId) {
+            if (msg.ice !== undefined) {
                 this.pc.addIceCandidate(new RTCIceCandidate(msg.ice));
             }
-            else if (msg.sdp.type == "offer") {
+            else if (msg.sdp.type === "offer") {
                 this.pc.setRemoteDescription(new RTCSessionDescription(msg.sdp))
                     .then(() => this.pc.createAnswer())
                     .then(answer => this.pc.setLocalDescription(answer))
                     .then(() => this.sendIceCandidates(this.uniqueId, JSON.stringify({ 'sdp': this.pc.localDescription })));
             }
-            else if (msg.sdp.type == "answer") {
+            else if (msg.sdp.type === "answer") {
                 this.pc.setRemoteDescription(new RTCSessionDescription(msg.sdp));
             }
         }
@@ -119,7 +119,7 @@ class WebRTC {
             .then(offer => this.pc.setLocalDescription(offer))
             .then(() => this.sendIceCandidates(this.uniqueId, JSON.stringify({ 'sdp': this.pc.localDescription })));
 
-        //Below starts up the two way connection
+        //Below starts up the two-way connection
         // this.pc.createOffer()
         //     .then(offer => this.pc.setLocalDescription(offer) )
         //     .then(() => this.sendIceCandidates(this.uniqueId, JSON.stringify({'sdp': this.pc.localDescription})) );
@@ -144,7 +144,7 @@ class WebRTC {
         this.pc.close();
         this.pc = null;
 
-        //Setup the video ready for the next stream
+        //Set up the video ready for the next stream
         this.pc = this.createNewPeerConnection();
         this.setupVideo(this.video);
     }

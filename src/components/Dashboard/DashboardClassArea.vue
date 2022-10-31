@@ -1,9 +1,16 @@
 <script setup>
+import ShareWebsiteModal from "@/components/Modals/ShareWebsiteModal.vue";
+import * as REQUESTS from "@/constants/_requests";
 import {ref} from "vue";
+
 import { useDashboardStore } from "@/stores/dashboardStore.ts";
 let dashboardPinia = useDashboardStore();
 
-const locked = ref(false);
+let locked = ref(false);
+
+function screenControl(action) {
+  dashboardPinia.requestAction({ type: REQUESTS.SCREENCONTROL, action: action });
+}
 </script>
 
 <template>
@@ -12,26 +19,20 @@ const locked = ref(false);
 
     <!--Action Area-->
     <div class="mt-8 flex child:mr-4">
-      <div class="w-56 h-9 flex justify-center items-center cursor-pointer bg-gray-default hover:bg-navy-side-menu text-gray-default-text hover:text-white">
-        <img class="w-4 h-4 mr-3" src="@/assets/img/menu-placeholder.svg" alt="Icon"/>
-        <p class="text-base">
-          Share Website
-        </p>
-      </div>
+      <ShareWebsiteModal />
 
-
-      <div :class="{
-          'w-56 h-9 flex justify-center items-center cursor-pointer': true,
+      <button :class="{
+          'w-56 h-9 flex justify-center items-center': true,
           'bg-navy-side-menu text-white': locked,
           'bg-gray-default text-gray-default-text': !locked
           }"
-           v-on:click="locked = !locked"
+           v-on:click="locked = !locked; screenControl(locked ? REQUESTS.BLOCK : REQUESTS.UNBLOCK);"
       >
         <img class="w-4 h-4 mr-3" src="@/assets/img/menu-placeholder.svg" alt="Icon"/>
         <p class="text-base">
           {{locked ? 'Unlock screens' : 'Lock screens'}}
         </p>
-      </div>
+      </button>
     </div>
   </div>
 </template>

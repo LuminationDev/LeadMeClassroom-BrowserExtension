@@ -6,7 +6,9 @@ import {browserLocalPersistence, getAuth, setPersistence} from "@firebase/auth";
 const config = process.env.NODE_ENV === 'production' ? prodConfig : devConfig;
 
 class Firebase {
-    constructor() {
+    constructor(callback) {
+        this.callback = callback;
+
         try {
             firebase.initializeApp(config);
         } catch (err) {
@@ -29,7 +31,8 @@ class Firebase {
     }
 
     /**
-     * Create a new room on the real time database
+     * Update the Real Time Database with the pass object.
+     * @param {*} leader An object representing the current leader
      */
     connectAsLeader = (leader) => {
         this.generateRoom(leader);
@@ -72,6 +75,20 @@ class Firebase {
 
             this.db.ref(`/tabs/${classCode}/${followerId}`).on('child_removed', snapshot => {
                 followerTabRemoved(followerId, snapshot.key)
+            });
+        });
+    }
+
+    /**
+     * Run through all the student entries within the existing class entry and reattach the listeners that may have
+     * been severed when a page reload occurred, loading the students again to the dashboard as well.
+     * @param classCode
+     * @param followerResponse
+     */
+    reloadFollowers = (classCode, followerResponse) => {
+        this.db.ref(`/followers/${classCode}/`).get().then(snapshot => {
+            snapshot.forEach(entry => {
+                followerResponse(entry.val().screenshot, entry.val().name, entry.key);
             });
         });
     }
@@ -140,9 +157,9 @@ class Firebase {
      * @param classCode
      * @param {*} type
      */
-    requestAction = (classCode, type) => {
+    requestAction = async (classCode, type) => {
         const msg = this.db.ref("classCode").child(classCode).child("/request").push(type);
-        msg.remove().then(result => console.log(result));
+        await msg.remove();
     }
 
     /**
@@ -151,9 +168,9 @@ class Firebase {
      * @param uuid
      * @param {*} type
      */
-    requestIndividualAction = (classCode, uuid, type) => {
+    requestIndividualAction = async (classCode, uuid, type) => {
         const msg = this.db.ref("followers").child(classCode).child(uuid).child("/request").push(type);
-        msg.remove().then(result => console.log(result));
+        await msg.remove();
     }
 
     /**
@@ -182,7 +199,7 @@ class Firebase {
     }
 
     /**
-     * Unregister any listners that may be active.
+     * Unregister any listeners that may be active.
      * @param {*} inputCode A string representing the class a user is registered to.
      * @param uuid
      */
@@ -233,30 +250,21 @@ class Firebase {
         const classRef = this.db.ref("classCode").child(classCode);
         const followersRef = this.db.ref("followers").child(classCode);
         const tabsRef = this.db.ref("tabs").child(classCode);
+        classRef.off();
+        followersRef.off();
+        tabsRef.off();
 
         classRef.remove()
-            .then(function () {
-                console.log("Remove succeeded.")
-            })
-            .catch(function (error) {
-                console.log("Remove failed: " + error.message)
-            });
+            .then(function () { console.log("Remove succeeded.") })
+            .catch(function (error) { console.log("Remove failed: " + error.message) });
 
         followersRef.remove()
-            .then(function () {
-                console.log("Remove succeeded.")
-            })
-            .catch(function (error) {
-                console.log("Remove failed: " + error.message)
-            });
+            .then(function () { console.log("Remove succeeded.") })
+            .catch(function (error) { console.log("Remove failed: " + error.message) });
 
         tabsRef.remove()
-            .then(function () {
-                console.log("Remove succeeded.")
-            })
-            .catch(function (error) {
-                console.log("Remove failed: " + error.message)
-            });
+            .then(function () { console.log("Remove succeeded.") })
+            .catch(function (error) { console.log("Remove failed: " + error.message) });
     }
 }
 
