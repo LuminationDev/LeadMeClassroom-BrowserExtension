@@ -30,6 +30,7 @@ const activeCode = await onLoad();
 export let useDashboardStore = defineStore("dashboard", {
     state: () => {
         return {
+            view: "dashboard",
             firebase: firebase,
             classCode: activeCode,
             leaderName: leaderName,
@@ -40,6 +41,13 @@ export let useDashboardStore = defineStore("dashboard", {
     },
 
     actions: {
+        /**
+         * Change the current panel to the supplied one.
+         */
+        changeView(panel: string) {
+            this.view = panel;
+        },
+
         /**
          * Generate a new class code for the current session, attaching the necessary listeners to
          * the firebase real-time database.
@@ -93,6 +101,7 @@ export let useDashboardStore = defineStore("dashboard", {
          * @param response
          * @param name
          * @param id
+         * @param key
          */
         followerResponse(response: any, name: string, id: string, key: string) {
             switch (response.type) {
@@ -111,8 +120,8 @@ export let useDashboardStore = defineStore("dashboard", {
         /**
          * Notify the leader a follower has responded to a request
          * @param response
-         * @param name
-         * @param id
+         * @param followerId
+         * @param key
          */
         followerTabChanged(response: any, followerId: string, key: string) {
             this.updateFollowerTab(new Tab(key, response.name, response.favicon, response.url, response.lastActivated), followerId)
@@ -120,9 +129,8 @@ export let useDashboardStore = defineStore("dashboard", {
 
         /**
          * Notify the leader a follower has responded to a request
-         * @param response
-         * @param name
-         * @param id
+         * @param followerId
+         * @param key
          */
         followerTabRemoved(followerId: string, key: string) {
             this.removeFollowerTab(followerId, key)
@@ -131,8 +139,7 @@ export let useDashboardStore = defineStore("dashboard", {
         /**
          * Notify the leader a follower has responded to a request
          * @param response
-         * @param name
-         * @param id
+         * @param followerId
          */
         followerTabsAdded(response: any, followerId: string) {
             let tabs: Array<Tab> = []
@@ -158,8 +165,7 @@ export let useDashboardStore = defineStore("dashboard", {
 
         /**
          * Add new follower or update an existing one
-         * @param capture
-         * @param name
+         * @param tab
          * @param id
          */
         updateFollowerTab(tab: Tab, id: string) {
@@ -171,8 +177,7 @@ export let useDashboardStore = defineStore("dashboard", {
 
         /**
          * Add new follower or update an existing one
-         * @param capture
-         * @param name
+         * @param followerId
          * @param id
          */
         removeFollowerTab(followerId: string, id: string) {
@@ -184,8 +189,7 @@ export let useDashboardStore = defineStore("dashboard", {
 
         /**
          * Add new follower or update an existing one
-         * @param capture
-         * @param name
+         * @param tabs
          * @param id
          */
         setFollowerTabs(tabs: Tab[], id: string) {
@@ -197,6 +201,7 @@ export let useDashboardStore = defineStore("dashboard", {
 
         /**
          * Notify the leader that a follower has disconnected
+         * @param snapshot
          * @param id
          */
         followerAdded(snapshot: any, id: string) {

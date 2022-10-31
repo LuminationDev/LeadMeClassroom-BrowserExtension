@@ -1,6 +1,6 @@
 <script setup>
 import PopupSecondaryButton from "@/components/Buttons/PopupSecondaryButton.vue";
-import LoginTextInput from "@/components/Login/LoginTextInput.vue";
+import LoginTextInput from "@/components/Popup/Login/LoginTextInput.vue";
 import {ref} from "vue";
 
 import {usePopupStore} from "@/stores/popupStore.ts";

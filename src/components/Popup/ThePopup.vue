@@ -1,18 +1,18 @@
 <script setup>
 import LeadMeHeader from "./PopupHeader.vue";
 import PopupPanel from "./PopupPanel.vue";
-import LoginContent from "@/components/Login/LoginInitial.vue";
-import LoginStudent from "@/components/Login/LoginStudent.vue";
-import LoginTeacher from "@/components/Login/LoginTeacher.vue";
-import LoginSignup from "@/components/Login/LoginSignup.vue";
-import LoginRoomCode from "@/components/Login/LoginRoomCode.vue";
-import StudentSession from "@/components/Student/StudentSession.vue";
-import StudentFooter from "@/components/Student/StudentFooter.vue";
-import StudentOptions from "@/components/Student/StudentOptions.vue";
-import StudentPermissions from "@/components/Student/StudentPermissions.vue";
-import StudentSessionLeave from "@/components/Student/StudentSessionLeave.vue";
-import TeacherPopupSession from "@/components/Teacher/TeacherPopupSession.vue";
-import TeacherPopupFooter from "@/components/Teacher/TeacherPopupFooter.vue";
+import LoginContent from "@/components/Popup/Login/LoginInitial.vue";
+import LoginStudent from "@/components/Popup/Login/LoginStudent.vue";
+import LoginTeacher from "@/components/Popup/Login/LoginTeacher.vue";
+import LoginSignup from "@/components/Popup/Login/LoginSignup.vue";
+import LoginRoomCode from "@/components/Popup/Login/LoginRoomCode.vue";
+import StudentSession from "@/components/Popup/Student/StudentSession.vue";
+import StudentFooter from "@/components/Popup/Student/StudentFooter.vue";
+import StudentOptions from "@/components/Popup/Student/StudentOptions.vue";
+import StudentPermissions from "@/components/Popup/Student/StudentPermissions.vue";
+import StudentSessionLeave from "@/components/Popup/Student/StudentSessionLeave.vue";
+import TeacherPopupSession from "@/components/Popup/Teacher/TeacherPopupSession.vue";
+import TeacherPopupFooter from "@/components/Popup/Teacher/TeacherPopupFooter.vue";
 
 import { usePopupStore } from "@/stores/popupStore.ts";
 import { onBeforeMount } from "vue";
