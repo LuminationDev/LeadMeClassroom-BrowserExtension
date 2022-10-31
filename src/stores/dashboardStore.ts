@@ -186,6 +186,14 @@ export let useDashboardStore = defineStore("dashboard", {
         },
 
         /**
+         * Send an action to all connected students.
+         * @param action
+         */
+        requestAction(action: object) {
+            this.firebase.requestAction(this.classCode, action);
+        },
+
+        /**
          * Send an action to an individual student.
          * @param UUID
          * @param action

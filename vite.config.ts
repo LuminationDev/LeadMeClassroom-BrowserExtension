@@ -23,6 +23,7 @@ export default defineConfig({
         dashboard: 'src\\pages\\dashboard\\dashboard.html',
         options: 'src\\pages\\options\\options.html',
         assistant: 'src\\pages\\assistant\\assistant.html',
+        block: 'src\\assets\\templates\\block.html',
       },
     },
   }

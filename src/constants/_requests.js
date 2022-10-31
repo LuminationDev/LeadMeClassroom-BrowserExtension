@@ -11,8 +11,6 @@ export const WEBSITE = "website";
 
 export const ASSISTANT_MATCH_URL = "chrome-extension://*/*/assistant.html";
 
-export const DASHBOARD_MATCH_URL = "chrome-extension://*/*/dashboard.html";
-
 //Tab controls
 export const MAXIMIZE = "maximize";
 
@@ -25,6 +23,13 @@ export const UNMUTETAB = "unmute_tab";
 export const PINNED = "pinned";
 
 export const UNPINNED = "unpinned";
+
+//Screen controls
+export const SCREENCONTROL = "screenControl";
+
+export const BLOCK = "block";
+
+export const UNBLOCK = "unblock";
 
 //Determine if the request is for a single tab or all of them
 export const SINGLETAB = "single_tab";

@@ -48,6 +48,7 @@
         "src/assets/img/icon-128.png",
         "src/assets/img/icon-34.png",
         "src/assets/img/disconnect.png",
+        "src/assets/templates/block.html",
         "src/pages/assistant/assistant.html",
         "src/pages/dashboard/dashboard.html"
       ],
