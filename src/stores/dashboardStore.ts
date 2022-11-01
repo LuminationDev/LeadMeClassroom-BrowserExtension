@@ -245,7 +245,18 @@ export let useDashboardStore = defineStore("dashboard", {
             if (!follower) {
                 return
             }
-            follower.imageBase64 = Disconnect
+            follower.disconnected = true;
+        },
+
+        /**
+         * Notify the leader that a follower has disconnected
+         * @param UUID A string representing the unique ID of a student.
+         */
+        removeFollower(UUID: string) {
+            let index = this.followers.findIndex(element => element.getUniqueId() === UUID)
+            if (index !== -1) {
+                this.followers.splice(index, 1)
+            }
         },
 
         /**

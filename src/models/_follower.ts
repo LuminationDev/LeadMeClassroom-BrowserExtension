@@ -16,6 +16,7 @@ class Follower {
     monitoring: boolean|null|undefined;
     muted: boolean|null|undefined;
     muteAll: boolean|null|undefined;
+    disconnected: boolean = false;
 
     constructor(classCode = "", name = "", uniqueId = uuidv4()) {
         this.classCode = classCode;
