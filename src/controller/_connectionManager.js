@@ -70,7 +70,7 @@ class ConnectionManager {
      */
     captureScreen = () => {
         chrome.runtime.sendMessage({ "type": REQUESTS.CAPTURE }, async (response) => {
-            this.firebase.sendScreenShot(this.follower.classCode, this.follower.uniqueId, { type: REQUESTS.CAPTURE, message: response });
+            this.firebase.uploadScreenshot(response, this.follower.classCode, this.follower.uniqueId);
         });
     }
 

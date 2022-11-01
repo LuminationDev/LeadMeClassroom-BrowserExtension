@@ -27,6 +27,15 @@ async function onLoad() {
 
 const activeCode = await onLoad();
 
+const toDataURL = (url: string) => fetch(url)
+    .then(response =>  response.blob())
+    .then(blob => new Promise((resolve, reject) => {
+        const reader = new FileReader()
+        reader.onloadend = () => resolve(reader.result)
+        reader.onerror = reject
+        reader.readAsDataURL(blob)
+    }))
+
 export let useDashboardStore = defineStore("dashboard", {
     state: () => {
         return {
@@ -104,11 +113,13 @@ export let useDashboardStore = defineStore("dashboard", {
          * @param key
          */
         followerResponse(response: any, name: string, id: string, key: string) {
+            if (key === "screenshot") {
+                toDataURL(response).then((result) => {
+                    this.updateFollowerScreenshot(result, name, id)
+                })
+                return
+            }
             switch (response.type) {
-                case REQUESTS.CAPTURE:
-                    this.updateFollower(response.message, name, id);
-                    break;
-
                 case REQUESTS.MONITORPERMISSION:
                     this.monitorRequestResponse(response.message, id);
                     break;
@@ -156,7 +167,7 @@ export let useDashboardStore = defineStore("dashboard", {
          * @param name
          * @param id
          */
-        updateFollower(capture: string, name: string, id: string) {
+        updateFollowerScreenshot(capture: string, name: string, id: string) {
             let follower = this.followers.find(element => element.getUniqueId() === id)
             if (follower) {
                 follower.imageBase64 = capture
@@ -212,7 +223,17 @@ export let useDashboardStore = defineStore("dashboard", {
             follower.muted = false
             follower.muteAll = false
             follower.tabs = snapshot.tabs
-            this.followers.push(follower)
+            if (snapshot.screenshot) {
+                toDataURL(snapshot.screenshot).then((result) => {
+                    this.updateFollowerScreenshot(result, snapshot.name, id)
+                })
+            }
+            const index = this.followers.findIndex(element => element.getUniqueId() === id)
+            if (index === -1) {
+                this.followers.push(follower)
+            } else {
+                this.followers.splice(index, 1, follower)
+            }
         },
 
         /**

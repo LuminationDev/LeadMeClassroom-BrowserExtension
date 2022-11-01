@@ -1,4 +1,7 @@
 import {v4 as uuidv4} from 'uuid';
+import {
+    getAuth
+} from '@firebase/auth'
 
 /**
  * A class to describe the outline of a follower that is being attached
@@ -54,6 +57,8 @@ class Leader {
                 `{
                     "${this.code}": {
                         "name": "${this.name}",
+                        "classCode": "${this.code}",
+                        "uniqueId": "${getAuth().currentUser.uid}",
                         "request": ""
                     }
                 }`

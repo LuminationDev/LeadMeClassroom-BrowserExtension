@@ -1,5 +1,6 @@
 import { devConfig, prodConfig } from './_service';
 import firebase from 'firebase/compat/app';
+import 'firebase/compat/storage'
 import 'firebase/compat/database';
 import {browserLocalPersistence, getAuth, setPersistence} from "@firebase/auth";
 
@@ -19,6 +20,7 @@ class Firebase {
 
         //Real-time database reference
         this.db = firebase.database();
+        this.storage = firebase.storage();
     }
 
     /**
@@ -86,6 +88,7 @@ class Firebase {
      * @param followerResponse
      */
     reloadFollowers = (classCode, followerResponse) => {
+        // todo - use new method and load in the screenshot
         this.db.ref(`/followers/${classCode}/`).get().then(snapshot => {
             snapshot.forEach(entry => {
                 followerResponse(entry.val().screenshot, entry.val().name, entry.key);
@@ -97,8 +100,13 @@ class Firebase {
      * Attempt to find a class code matching the input, return whether the attempt was successful or not
      */
     async checkForClassroom(inputCode) {
-        return await this.db.ref("/classCode").child(inputCode).get().then((snapshot) => {
-            return snapshot.exists();
+        return await this.db.ref("/classCode/")
+            .child(inputCode)
+            .child("classCode")
+            .get()
+            .then((snapshot) => {
+                console.log("hey", snapshot, snapshot.val())
+            return snapshot.val() === inputCode;
         }).catch((error) => {
             console.log(error);
             return false;
@@ -265,6 +273,20 @@ class Firebase {
         tabsRef.remove()
             .then(function () { console.log("Remove succeeded.") })
             .catch(function (error) { console.log("Remove failed: " + error.message) });
+    }
+
+    /**
+     * Add a follower object to the classrooms followers array.
+     * @param {*} data A Follower object.
+     */
+    uploadScreenshot = (base64, classCode, followerId) => {
+        let screenshotRef = this.storage.ref().child(`${classCode}/${followerId}`)
+        screenshotRef.putString(base64, 'data_url', {contentType:`image/jpg`}).then((snapshot) => {
+            snapshot.ref.getDownloadURL().then((url) => {
+                this.db.ref("followers").child(classCode).child(followerId).child("screenshot").set(url)
+                    .then(result => console.log(result));
+            })
+        })
     }
 }
 
