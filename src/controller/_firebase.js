@@ -132,8 +132,10 @@ class Firebase {
     addFollower = (data) => {
         this.db.ref(`/followers/${data.getClassCode()}`).update(data.getFollowerObject())
             .then(result => console.log(result));
+        this.db.ref(`/followers/${data.getClassCode()}`).onDisconnect().remove()
         this.db.ref(`/tabs/${data.getClassCode()}`).update(data.getTabsObject())
             .then(result => console.log(result));
+        this.db.ref(`/tabs/${data.getClassCode()}`).onDisconnect().remove()
     }
 
     /**

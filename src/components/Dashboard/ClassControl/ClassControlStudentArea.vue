@@ -1,9 +1,15 @@
-<script setup>
+<script setup lang="ts">
 import ClassControlStudentPlaceholder from "@/components/Dashboard/ClassControl/ClassControlStudentPlaceholder.vue";
 import ClassControlStudentGridItem from "@/components/Dashboard/ClassControl/ClassControlStudentGridItem.vue";
 
-import { useDashboardStore } from "@/stores/dashboardStore.ts";
+import { useDashboardStore } from "../../../stores/dashboardStore";
+import Follower from "../../../models/_follower";
 let dashboardPinia = useDashboardStore();
+
+function removeFollower(follower: Follower) {
+  dashboardPinia.removeFollower(follower.getUniqueId())
+}
+
 </script>
 
 <template>
@@ -15,7 +21,11 @@ let dashboardPinia = useDashboardStore();
       <ClassControlStudentPlaceholder v-if="dashboardPinia.followers.length === 0" />
 
       <!--Student Grid Item (Active student)-->
-      <ClassControlStudentGridItem v-for="follower in dashboardPinia.followers" :key="follower.getUniqueId()" :follower="follower" />
+      <ClassControlStudentGridItem
+          v-for="follower in dashboardPinia.followers"
+          :key="follower.getUniqueId()"
+          :follower="follower"
+          @remove-follower="removeFollower"/>
     </div>
   </div>
 </template>
