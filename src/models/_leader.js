@@ -74,7 +74,21 @@ class Leader {
         return (
             JSON.parse(
                 `{
-                    "${this.code}": {}
+                    "${this.code}": "awaiting follower"
+                }`
+            )
+        );
+    }
+
+    /**
+     * Collect the necessary data to create a new room on the firebase database.
+     * @returns A JSON object reflecting the leader's information
+     */
+    getDefaultFollowerMessagesObject = () => {
+        return (
+            JSON.parse(
+                `{
+                    "${this.code}": "awaiting follower"
                 }`
             )
         );
