@@ -8,10 +8,8 @@ import {defineProps, PropType, computed, ref} from 'vue'
 import * as REQUESTS from "@/constants/_requests.js";
 // @ts-ignore
 import { Firebase } from '@/controller';
-// @ts-ignore
-import * as MODELS from '@/models/index.js';
-import Follower from "../../../models/_follower";
-import Tab from "../../../models/_tab";
+import Follower from "../../../../models/_follower";
+import Tab from "../../../../models/_tab";
 
 const emit = defineEmits<{
   (e: 'removeFollower', follower: Follower): void
@@ -69,25 +67,47 @@ function removeFollower () {
         <input name="test" type="checkbox" class="h-5 w-5 mx-2" :disabled="follower.disconnected">
         <label for="test" class="text-sm" :class="follower.disconnected ? 'text-gray-400' : 'text-black'">{{ follower.name }}</label>
       </div>
-      <div v-if="follower.disconnected" class="text-lg text-center h-full flex flex-col justify-center">
-        <span><b>{{ follower.name }}</b><br/> has left the lesson.</span>
+
+      <!--Disconnected screen-->
+<!--      <div v-if="follower.disconnected" class="text-lg text-center h-full flex flex-col justify-center">-->
+<!--        <span><b>{{ follower.name }}</b><br/> has left the lesson.</span>-->
+<!--      </div>-->
+
+<!--      &lt;!&ndash;Tab content&ndash;&gt;-->
+<!--      <div v-else>-->
+<!--        <div v-for="(tab, index) in firstThreeTabs" class="py-1" :id="index">-->
+<!--          <div class="flex flex-row px-2 items-center">-->
+<!--            <img class="flex-shrink-0 w-4 h-4 mr-2" :src="tab.favicon" />-->
+<!--            <span class="overflow-ellipsis whitespace-nowrap overflow-hidden">{{ tab.url }}</span>-->
+<!--          </div>-->
+<!--        </div>-->
+
+      <!--Screenshot content-->
+<!--      <div>-->
+<!--        <img class="w-full h-full" :id="`image_${follower.getUniqueId()}`" :src="follower.imageBase64" alt="Follower Screen shot"/>-->
+<!--      </div>-->
+
+      <!--Video content-->
+      <div>
+        <video class="w-full h-full" :id="`video_${follower.getUniqueId()}`" muted autoplay/>
       </div>
-      <div v-else>
-        <div v-for="(tab, index) in firstThreeTabs" class="py-1" :id="index">
-          <div class="flex flex-row px-2 items-center">
-            <img class="flex-shrink-0 w-4 h-4 mr-2" :src="tab.favicon" />
-            <span class="overflow-ellipsis whitespace-nowrap overflow-hidden">{{ tab.url }}</span>
-          </div>
-        </div>
-      </div>
+
+<!--      </div>-->
     </div>
+
+    <!--Dismiss button-->
     <div v-if="follower.disconnected" class="h-12 bg-navy-side-menu rounded-b-sm flex">
       <button @click="removeFollower" class="w-full flex justify-center items-center">
         <span class="text-sm text-white font-poppins">Dismiss</span>
       </button>
     </div>
+
+    <!--Student buttons-->
     <div v-else class="h-12 bg-navy-side-menu rounded-b-sm flex">
-      <button class="w-full flex justify-center items-center">
+      <button
+        class="w-full flex justify-center items-center"
+        v-on:click="handleMonitorFollowerButton()"
+      >
         <img class="w-9 h-5" src="@/assets/img/student-icon-eye.svg" alt="Icon"/>
       </button>
       <div class="h-10 mt-1 w-px bg-white"></div>
@@ -97,17 +117,14 @@ function removeFollower () {
     </div>
   </div>
 
-  <div class="h-36 w-36" :id="follower.getUniqueId()">
-    <img :id="`image_${follower.getUniqueId()}`" :src="follower.imageBase64" alt="Follower Screen shot"/>
-    <video :id="`video_${follower.getUniqueId()}`" muted autoplay/>
-    <button @click="() => { handleMonitorFollowerButton() }">{{ follower.monitoring ? 'Stop Monitoring' : 'Request Monitoring' }}</button>
-    <button @click="() => { handleMuteFollowerButton() }">{{ follower.muted ? 'Unmute Tab' : 'Mute Tab' }}</button>
-    <button @click="() => { handleMuteAllFollowerButton() }">{{ follower.muteAll ? 'Unmute All Tab' : 'Mute All Tab' }}</button>
-    <button @click="() => { handleVideoButton(REQUESTS.VIDEOPLAY) }">Play</button>
-    <button @click="() => { handleVideoButton(REQUESTS.VIDEOPAUSE) }">Pause</button>
-    <button @click="() => { handleVideoButton(REQUESTS.VIDEOSTOP) }">Stop</button>
-  </div>
+<!--  <div class="h-36 w-36" :id="follower.getUniqueId()">-->
+<!--    <img :id="`image_${follower.getUniqueId()}`" :src="follower.imageBase64" alt="Follower Screen shot"/>-->
+<!--    <video :id="`video_${follower.getUniqueId()}`" muted autoplay/>-->
+<!--    <button @click="() => { handleMonitorFollowerButton() }">{{ follower.monitoring ? 'Stop Monitoring' : 'Request Monitoring' }}</button>-->
+<!--    <button @click="() => { handleMuteFollowerButton() }">{{ follower.muted ? 'Unmute Tab' : 'Mute Tab' }}</button>-->
+<!--    <button @click="() => { handleMuteAllFollowerButton() }">{{ follower.muteAll ? 'Unmute All Tab' : 'Mute All Tab' }}</button>-->
+<!--    <button @click="() => { handleVideoButton(REQUESTS.VIDEOPLAY) }">Play</button>-->
+<!--    <button @click="() => { handleVideoButton(REQUESTS.VIDEOPAUSE) }">Pause</button>-->
+<!--    <button @click="() => { handleVideoButton(REQUESTS.VIDEOSTOP) }">Stop</button>-->
+<!--  </div>-->
 </template>
-
-
-

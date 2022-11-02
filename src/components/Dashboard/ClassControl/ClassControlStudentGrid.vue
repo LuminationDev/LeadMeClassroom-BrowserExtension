@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import ClassControlStudentPlaceholder from "@/components/Dashboard/ClassControl/ClassControlStudentPlaceholder.vue";
-import ClassControlStudentGridItem from "@/components/Dashboard/ClassControl/ClassControlStudentGridItem.vue";
+import StudentPlaceholder from "@/components/Dashboard/ClassControl/GridItem/StudentPlaceholder.vue";
+import StudentGridItem from "@/components/Dashboard/ClassControl/GridItem/StudentGridItem.vue";
 
 import { useDashboardStore } from "../../../stores/dashboardStore";
 import Follower from "../../../models/_follower";
@@ -18,10 +18,10 @@ function removeFollower(follower: Follower) {
 
     <div id="studentGrid" class="mt-4 grid grid-cols-2">
       <!--Student Grid Item (No active students)-->
-      <ClassControlStudentPlaceholder v-if="dashboardPinia.followers.length === 0" />
+      <StudentPlaceholder v-if="dashboardPinia.followers.length === 0" />
 
       <!--Student Grid Item (Active student)-->
-      <ClassControlStudentGridItem
+      <StudentGridItem
           v-for="follower in dashboardPinia.followers"
           :key="follower.getUniqueId()"
           :follower="follower"

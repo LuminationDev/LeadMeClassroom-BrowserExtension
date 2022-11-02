@@ -8,13 +8,13 @@ class WebRTC {
         this.uniqueId = Math.floor(Math.random() * 1000000000);
         this.servers = { 'iceServers': [{ 'urls': 'stun:stun.services.mozilla.com' }, { 'urls': 'stun:stun.l.google.com:19302' }] };
         this.pc = this.createNewPeerConnection();
-        this.stream = null; //Track the current stream 
-
+        this.stream = null; //Track the current stream
 
         //Real time database reference
         this.database = realTimeDatabase;
+
         //Listen for ice candidates being sent
-        // this.database.ref("/classCode").child(this.classCode).child("followers").child(this.uuid).child("/ice").on('child_added', this.readIceCandidate);
+        //this.database.ref("/ice").child(this.classCode).child(this.uuid).on('child_added', this.readIceCandidate);
     }
 
     /**
@@ -32,7 +32,7 @@ class WebRTC {
      */
     setVideoElement = (element) => {
         this.video = element;
-        //Setup the video ready for the stream
+        //Set up the video ready for the stream
         this.setupVideo(this.video);
     }
 
@@ -50,7 +50,7 @@ class WebRTC {
      * @param {*} data 
      */
     sendIceCandidates = (senderId, data) => {
-        var msg = this.database.ref("/classCode").child(this.classCode).child("followers").child(this.uuid).child("/ice").push({ sender: senderId, message: data });
+        let msg = this.database.ref("/ice").child(this.classCode).child(this.uuid).push({ sender: senderId, message: data });
         msg.remove();
     }
 
@@ -65,8 +65,8 @@ class WebRTC {
         }
         console.log(data.val());
 
-        var msg = JSON.parse(data.val().message);
-        var sender = data.val().sender;
+        let msg = JSON.parse(data.val().message);
+        let sender = data.val().sender;
         if (sender !== this.uniqueId) {
             if (msg.ice !== undefined) {
                 this.pc.addIceCandidate(new RTCIceCandidate(msg.ice));

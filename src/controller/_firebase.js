@@ -45,6 +45,7 @@ class Firebase {
      * @param classCode
      * @param followerResponse
      * @param {*} followerDisconnected
+     * @param followerAdded
      */
     followerListeners = (classCode, followerResponse, followerDisconnected, followerAdded) => {
         this.db.ref(`/followers/${classCode}`).on('child_added', async snapshot => {
@@ -64,8 +65,9 @@ class Firebase {
     /**
      * Add listeners for followers being added and removed to the database
      * @param classCode
-     * @param followerResponse
-     * @param {*} followerDisconnected
+     * @param followerTabChanged
+     * @param followerTabRemoved
+     * @param followerTabsAdded
      */
     tabListeners = (classCode, followerTabChanged, followerTabRemoved, followerTabsAdded) => {
         this.db.ref(`/tabs/${classCode}`).on('child_added', async snapshot => {
@@ -91,6 +93,7 @@ class Firebase {
         // todo - use new method and load in the screenshot
         this.db.ref(`/followers/${classCode}/`).get().then(snapshot => {
             snapshot.forEach(entry => {
+                console.log(entry.val());
                 followerResponse(entry.val().screenshot, entry.val().name, entry.key);
             });
         });
@@ -133,9 +136,14 @@ class Firebase {
         this.db.ref(`/followers/${data.getClassCode()}`).update(data.getFollowerObject())
             .then(result => console.log(result));
         this.db.ref(`/followers/${data.getClassCode()}`).onDisconnect().remove()
+
         this.db.ref(`/tabs/${data.getClassCode()}`).update(data.getTabsObject())
             .then(result => console.log(result));
         this.db.ref(`/tabs/${data.getClassCode()}`).onDisconnect().remove()
+            .then(() => console.log("Follower object added"));
+
+        // this.db.ref(`/ice/${data.getClassCode()}`).update(data.uniqueId)
+        //     .then(() => console.log("Tabs object added"));
     }
 
     /**
@@ -154,12 +162,13 @@ class Firebase {
 
     /**
      * Update the Real Time Database with the pass object.
-     * @param {*} object A JSON structured object to be uploaded into the database.
+     * @param {*} leader A JSON structured object to be uploaded into the database.
      */
     generateRoom = (leader) => {
-        this.db.ref(`classCode`).update(leader.getClassroomObject()).then(result => console.log(result));
-        this.db.ref(`followers`).update(leader.getDefaultFollowersObject()).then(result => console.log(result));
-        this.db.ref(`tabs`).update(leader.getDefaultTabsObject()).then(result => console.log(result));
+        this.db.ref(`classCode`).update(leader.getClassroomObject()).then(() => console.log("Database: Class code updated"));
+        this.db.ref(`followers`).update(leader.getDefaultFollowersObject()).then(() => console.log("Database: Follower object updated"));
+        this.db.ref(`tabs`).update(leader.getDefaultTabsObject()).then(() => console.log("Database: Tab object updated"));
+        this.db.ref('ice').update(leader.getDefaultIceObject()).then(() => console.log("Database: Ice object updated"));
     }
 
     /**
@@ -195,8 +204,7 @@ class Firebase {
     }
 
     /**
-     * Register listeners on the firebase, applying different listeners depending on what type of users
-     * has just connected.
+     * Register listeners on firebase for a student that has just connected
      * @param {*} classCode A string representing the class a user is registered to.
      * @param uuid
      */
@@ -227,7 +235,7 @@ class Firebase {
      */
     sendScreenShot = (inputCode, inputUUID, base64) => {
         this.db.ref("followers").child(inputCode).child(inputUUID).child("screenshot").set(base64)
-            .then(result => console.log(result));
+            .then(result => console.log("Screen shot sent"));
     }
 
     /**
@@ -235,21 +243,21 @@ class Firebase {
      * entry.
      * @param {*} inputCode A string representing the class a user is registered to.
      * @param {*} inputUUID A string representing the unique ID of a follower.
-     * @param base64
+     * @param tab
      */
     updateTab = (inputCode, inputUUID, tab) => {
         this.db.ref("tabs").child(inputCode).child(inputUUID).child(tab.id).set(tab)
-            .then(result => console.log(result));
+            .then(() => console.log("Tab updated"));
     }
 
     updateActiveTab = (inputCode, inputUUID, tabId) => {
         this.db.ref("tabs").child(inputCode).child(inputUUID).child(tabId).child("lastActivated").set(Date.now())
-            .then(result => console.log(result));
+            .then(() => console.log("Active tab updated"));
     }
 
     removeTab = (inputCode, inputUUID, tabId) => {
         this.db.ref("tabs").child(inputCode).child(inputUUID).child(tabId).remove()
-            .then(result => console.log(result));
+            .then(() => console.log("Remove tab"));
     }
 
     /**
@@ -260,33 +268,42 @@ class Firebase {
         const classRef = this.db.ref("classCode").child(classCode);
         const followersRef = this.db.ref("followers").child(classCode);
         const tabsRef = this.db.ref("tabs").child(classCode);
+        const iceRef = this.db.ref("ice").child(classCode);
+
         classRef.off();
         followersRef.off();
         tabsRef.off();
+        iceRef.off();
 
         classRef.remove()
-            .then(function () { console.log("Remove succeeded.") })
+            .then(function () { console.log("Removed class succeeded.") })
             .catch(function (error) { console.log("Remove failed: " + error.message) });
 
         followersRef.remove()
-            .then(function () { console.log("Remove succeeded.") })
+            .then(function () { console.log("Removed followers succeeded.") })
             .catch(function (error) { console.log("Remove failed: " + error.message) });
 
         tabsRef.remove()
-            .then(function () { console.log("Remove succeeded.") })
+            .then(function () { console.log("Removed tabs succeeded.") })
+            .catch(function (error) { console.log("Remove failed: " + error.message) });
+
+        iceRef.remove()
+            .then(function () { console.log("Removed ice succeeded.") })
             .catch(function (error) { console.log("Remove failed: " + error.message) });
     }
 
     /**
      * Add a follower object to the classrooms followers array.
-     * @param {*} data A Follower object.
+     * @param base64
+     * @param classCode
+     * @param followerId
      */
     uploadScreenshot = (base64, classCode, followerId) => {
         let screenshotRef = this.storage.ref().child(`${classCode}/${followerId}`)
         screenshotRef.putString(base64, 'data_url', {contentType:`image/jpg`}).then((snapshot) => {
             snapshot.ref.getDownloadURL().then((url) => {
                 this.db.ref("followers").child(classCode).child(followerId).child("screenshot").set(url)
-                    .then(result => console.log(result));
+                    .then(() => console.log("Screen shot updated"));
             })
         })
     }

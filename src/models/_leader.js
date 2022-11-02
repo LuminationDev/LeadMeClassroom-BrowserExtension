@@ -93,6 +93,20 @@ class Leader {
             )
         );
     }
+
+    /**
+     * Set up the necessary object for ice candidates to be placed/listened to
+     * @returns
+     */
+    getDefaultIceObject = () => {
+        return (
+            JSON.parse(
+                `{
+                    "${this.code}": {}
+                }`
+            )
+        );
+    }
 }
 
 export default Leader;

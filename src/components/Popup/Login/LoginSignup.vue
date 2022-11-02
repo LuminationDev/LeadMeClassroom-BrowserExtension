@@ -8,15 +8,12 @@ let popupPinia = usePopupStore();
 
 const error = ref("");
 const termsError = ref(false);
-const name = ref("");
-const email = ref("");
-const password = ref("");
 const authorise = ref(false);
 
 function validateInputs() {
   resetErrors();
 
-  if(name.value === "") {
+  if(popupPinia.signupName === "") {
     //Invalid name input
     error.value = "Please enter a name.";
     return;
@@ -40,11 +37,11 @@ function validateInputs() {
     return;
   }
 
-  popupPinia.handleSignup(name.value, email.value, password.value)
+  popupPinia.handleSignup();
 }
 
 function validateEmail() {
-  return String(email.value)
+  return String(popupPinia.signupEmail)
       .toLowerCase()
       .match(
           /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
@@ -52,7 +49,7 @@ function validateEmail() {
 }
 
 function validatePassword() {
-  return password.value.length > 5;
+  return popupPinia.signupPassword.length > 5;
 }
 
 function resetErrors() {
@@ -64,9 +61,9 @@ function resetErrors() {
 <template>
   <div class="mt-9 pb-7">
     <div>
-      <LoginTextInput class="mb-2" placeholder="Name" @update="newValue => name = newValue"/>
-      <LoginTextInput class="mb-2" placeholder="Email" @update="newValue => email = newValue"/>
-      <LoginTextInput class="mb-3" placeholder="Password" @update="newValue => password = newValue"/>
+      <LoginTextInput class="mb-2" type="text" placeholder="Name" v-model="popupPinia.name"/>
+      <LoginTextInput class="mb-2" type="text" placeholder="Email" v-model="popupPinia.email"/>
+      <LoginTextInput class="mb-3" type="password" placeholder="Password" v-model="popupPinia.password"/>
       <p class="text-red-400">{{ error }}</p>
     </div>
 
@@ -85,6 +82,6 @@ function resetErrors() {
     </label>
 
     <PopupSecondaryButton v-on:click="validateInputs()">Sign up</PopupSecondaryButton>
-    <p class="text-red-400">{{ popupPinia.signupError }}</p>
+    <p class="text-red-400">{{ popupPinia.error }}</p>
   </div>
 </template>
