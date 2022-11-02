@@ -68,7 +68,7 @@ export let useDashboardStore = defineStore("dashboard", {
             await this.attachClassListeners(false);
         },
 
-        attachClassListeners(active: boolean) {
+        async attachClassListeners(active: boolean) {
             //Override the auto generated code if there is a saved one
             if(this.classCode === "") {
                 return;
@@ -88,6 +88,8 @@ export let useDashboardStore = defineStore("dashboard", {
                 this.followerTabRemoved,
                 this.followerTabsAdded
             );
+
+            new WebRTC(this.firebase.db, this.classCode, "test");
 
             if(!active) {
                 return;

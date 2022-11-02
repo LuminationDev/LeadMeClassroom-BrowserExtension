@@ -93,7 +93,6 @@ class Firebase {
         // todo - use new method and load in the screenshot
         this.db.ref(`/followers/${classCode}/`).get().then(snapshot => {
             snapshot.forEach(entry => {
-                console.log(entry.val());
                 followerResponse(entry.val().screenshot, entry.val().name, entry.key);
             });
         });
@@ -134,16 +133,19 @@ class Firebase {
      */
     addFollower = (data) => {
         this.db.ref(`/followers/${data.getClassCode()}`).update(data.getFollowerObject())
-            .then(result => console.log(result));
+            .then(() => console.log("Follower object added"));
         this.db.ref(`/followers/${data.getClassCode()}`).onDisconnect().remove()
+            .then(() => console.log("Follower object removed"));
 
         this.db.ref(`/tabs/${data.getClassCode()}`).update(data.getTabsObject())
-            .then(result => console.log(result));
+            .then(() => console.log("Tab object added"));
         this.db.ref(`/tabs/${data.getClassCode()}`).onDisconnect().remove()
-            .then(() => console.log("Follower object added"));
+            .then(() => console.log("Tab object removed"));
 
-        // this.db.ref(`/ice/${data.getClassCode()}`).update(data.uniqueId)
-        //     .then(() => console.log("Tabs object added"));
+        // this.db.ref(`/ice/${data.getClassCode()}`).update(data.getIceObject())
+        //     .then(() => console.log("Ice object added"));
+        // this.db.ref(`/ice/${data.getClassCode()}`).onDisconnect().remove()
+        //     .then(() => console.log("Ice object removed"));
     }
 
     /**
@@ -167,6 +169,7 @@ class Firebase {
     generateRoom = (leader) => {
         this.db.ref(`classCode`).update(leader.getClassroomObject()).then(() => console.log("Database: Class code updated"));
         this.db.ref(`followers`).update(leader.getDefaultFollowersObject()).then(() => console.log("Database: Follower object updated"));
+        this.db.ref(`followerMessages`).update(leader.getDefaultFollowerMessagesObject()).then(() => console.log("Database: Follower messages updated"));
         this.db.ref(`tabs`).update(leader.getDefaultTabsObject()).then(() => console.log("Database: Tab object updated"));
         this.db.ref('ice').update(leader.getDefaultIceObject()).then(() => console.log("Database: Ice object updated"));
     }
@@ -188,7 +191,7 @@ class Firebase {
      * @param {*} type
      */
     requestIndividualAction = async (classCode, uuid, type) => {
-        const msg = this.db.ref("followers").child(classCode).child(uuid).child("/request").push(type);
+        const msg = this.db.ref("followerMessages").child(classCode).child(uuid).child("/request").push(type);
         await msg.remove();
     }
 
@@ -213,7 +216,7 @@ class Firebase {
         this.db.ref("classCode").child(classCode).child("request").on('child_added', (snapshot) => this.callback(snapshot.val()));
 
         //Listen for individual actions
-        this.db.ref("followers").child(classCode).child(uuid).child("request").on('child_added', (snapshot) => this.callback(snapshot.val()));
+        this.db.ref("followerMessages").child(classCode).child(uuid).child("request").on('child_added', (snapshot) => this.callback(snapshot.val()));
     }
 
     /**
@@ -223,7 +226,7 @@ class Firebase {
      */
     unregisterListeners = (inputCode, uuid) => {
         this.db.ref("classCode").child(inputCode).child("request").off("child_changed");
-        this.db.ref("followers").child(inputCode).child(uuid).child("request").off("child_changed");
+        this.db.ref("followerMessages").child(inputCode).child(uuid).child("request").off("child_changed");
     }
 
     /**
@@ -267,11 +270,13 @@ class Firebase {
     removeClass = (classCode) => {
         const classRef = this.db.ref("classCode").child(classCode);
         const followersRef = this.db.ref("followers").child(classCode);
+        const followerMessagesRef = this.db.ref("followerMessages").child(classCode);
         const tabsRef = this.db.ref("tabs").child(classCode);
         const iceRef = this.db.ref("ice").child(classCode);
 
         classRef.off();
         followersRef.off();
+        followerMessagesRef.off();
         tabsRef.off();
         iceRef.off();
 
@@ -281,6 +286,10 @@ class Firebase {
 
         followersRef.remove()
             .then(function () { console.log("Removed followers succeeded.") })
+            .catch(function (error) { console.log("Remove failed: " + error.message) });
+
+        followerMessagesRef.remove()
+            .then(function () { console.log("Remove succeeded.") })
             .catch(function (error) { console.log("Remove failed: " + error.message) });
 
         tabsRef.remove()

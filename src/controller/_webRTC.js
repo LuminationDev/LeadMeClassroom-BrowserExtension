@@ -4,6 +4,8 @@ class WebRTC {
         this.uuid = uuid;
         this.video = null;
 
+        console.log("CREATED");
+
         // //Determine who sent the message in firebase
         this.uniqueId = Math.floor(Math.random() * 1000000000);
         this.servers = { 'iceServers': [{ 'urls': 'stun:stun.services.mozilla.com' }, { 'urls': 'stun:stun.l.google.com:19302' }] };
@@ -11,10 +13,10 @@ class WebRTC {
         this.stream = null; //Track the current stream
 
         //Real time database reference
-        this.database = realTimeDatabase;
+        this.db = realTimeDatabase;
 
         //Listen for ice candidates being sent
-        //this.database.ref("/ice").child(this.classCode).child(this.uuid).on('child_added', this.readIceCandidate);
+        this.db.ref(`ice/${this.classCode}/${this.uuid}`).on('child_added', async (snapshot) => this.readIceCandidate(snapshot));
     }
 
     /**
@@ -50,7 +52,7 @@ class WebRTC {
      * @param {*} data 
      */
     sendIceCandidates = (senderId, data) => {
-        let msg = this.database.ref("/ice").child(this.classCode).child(this.uuid).push({ sender: senderId, message: data });
+        const msg = this.db.ref(`ice/${this.classCode}/${this.uuid}`).push({ sender: senderId, message: data });
         msg.remove();
     }
 
@@ -63,6 +65,11 @@ class WebRTC {
         if (data == null) {
             return;
         }
+
+        if(data.val().message === "initial data") {
+            return;
+        }
+
         console.log(data.val());
 
         let msg = JSON.parse(data.val().message);
