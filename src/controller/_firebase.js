@@ -305,7 +305,7 @@ class Firebase {
         remove(followersRef)
             .then(function () { console.log("Removed class succeeded.") })
             .catch(function (error) { console.log("Remove failed: " + error.message) });
-
+            
         remove(followerMessagesRef)
             .then(function () { console.log("Removed class succeeded.") })
             .catch(function (error) { console.log("Remove failed: " + error.message) });
