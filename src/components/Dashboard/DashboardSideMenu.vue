@@ -1,5 +1,8 @@
 <script setup>
 import DashboardMenuItem from "@/components/Dashboard/DashboardMenuItem.vue";
+
+import { usePopupStore } from "@/stores/popupStore.ts";
+let popupPinia = usePopupStore();
 </script>
 
 <template>
@@ -20,6 +23,6 @@ import DashboardMenuItem from "@/components/Dashboard/DashboardMenuItem.vue";
     </div>
 
     <!--Logout-->
-    <DashboardMenuItem class="fixed bottom-12">Log Out</DashboardMenuItem>
+    <DashboardMenuItem class="fixed bottom-12" v-on:click="popupPinia.handleLogoutClick()">Log Out</DashboardMenuItem>
   </div>
 </template>

@@ -4,6 +4,7 @@ import PopupPanel from "./PopupPanel.vue";
 import LoginContent from "@/components/Popup/Login/LoginInitial.vue";
 import LoginStudent from "@/components/Popup/Login/LoginStudent.vue";
 import LoginTeacher from "@/components/Popup/Login/LoginTeacher.vue";
+import LoginPasswordReset from "@/components/Popup/Login/LoginPasswordReset.vue";
 import LoginSignup from "@/components/Popup/Login/LoginSignup.vue";
 import LoginRoomCode from "@/components/Popup/Login/LoginRoomCode.vue";
 import StudentSession from "@/components/Popup/Student/StudentSession.vue";
@@ -34,6 +35,12 @@ onBeforeMount(() => popupPinia.onOpen());
   <PopupPanel v-show="popupPinia.view === 'loginTeacher'">
     <template v-slot:header>Log in with Email</template>
     <template v-slot:content><LoginTeacher /></template>
+  </PopupPanel>
+
+  <!-- Forgot password -->
+  <PopupPanel v-show="popupPinia.view === 'forgot'">
+    <template v-slot:header>Reset Password</template>
+    <template v-slot:content><LoginPasswordReset /></template>
   </PopupPanel>
 
   <!-- Active Teacher Session -->

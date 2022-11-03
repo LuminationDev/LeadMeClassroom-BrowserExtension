@@ -1,3 +1,10 @@
+import {
+    ref,
+    onChildAdded,
+    push,
+    remove,
+} from 'firebase/database';
+
 class WebRTC {
     constructor(realTimeDatabase, classCode, uuid) {
         this.classCode = classCode;
@@ -7,14 +14,16 @@ class WebRTC {
         // //Determine who sent the message in firebase
         this.uniqueId = Math.floor(Math.random() * 1000000000);
         this.servers = { 'iceServers': [{ 'urls': 'stun:stun.services.mozilla.com' }, { 'urls': 'stun:stun.l.google.com:19302' }] };
-        this.pc = this.createNewPeerConnection();
-        this.stream = null; //Track the current stream 
-
+        //this.pc = this.createNewPeerConnection();
+        this.stream = null; //Track the current stream
 
         //Real time database reference
-        this.database = realTimeDatabase;
+        this.db = realTimeDatabase;
+
+        //todo still not working
         //Listen for ice candidates being sent
-        // this.database.ref("/classCode").child(this.classCode).child("followers").child(this.uuid).child("/ice").on('child_added', this.readIceCandidate);
+        //const iceRef = ref(this.db, `ice/${this.classCode}/${this.uuid}`);
+        //onChildAdded(iceRef, (snapshot) => { console.log(snapshot) });
     }
 
     /**
@@ -32,7 +41,7 @@ class WebRTC {
      */
     setVideoElement = (element) => {
         this.video = element;
-        //Setup the video ready for the stream
+        //Set up the video ready for the stream
         this.setupVideo(this.video);
     }
 
@@ -49,9 +58,10 @@ class WebRTC {
      * @param {*} senderId 
      * @param {*} data 
      */
-    sendIceCandidates = (senderId, data) => {
-        var msg = this.database.ref("/classCode").child(this.classCode).child("followers").child(this.uuid).child("/ice").push({ sender: senderId, message: data });
-        msg.remove();
+    sendIceCandidates = async (senderId, data) => {
+        const msgRef = ref(this.db, `ice/${this.classCode}/${this.uuid}`);
+        const msg = await push(msgRef, { sender: senderId, message: data });
+        await remove(msg);
     }
 
     /**
@@ -60,27 +70,33 @@ class WebRTC {
      * @returns Null if there is no new data.
      */
     readIceCandidate = (data) => {
-        if (data == null) {
-            return;
-        }
         console.log(data.val());
-
-        var msg = JSON.parse(data.val().message);
-        var sender = data.val().sender;
-        if (sender !== this.uniqueId) {
-            if (msg.ice !== undefined) {
-                this.pc.addIceCandidate(new RTCIceCandidate(msg.ice));
-            }
-            else if (msg.sdp.type === "offer") {
-                this.pc.setRemoteDescription(new RTCSessionDescription(msg.sdp))
-                    .then(() => this.pc.createAnswer())
-                    .then(answer => this.pc.setLocalDescription(answer))
-                    .then(() => this.sendIceCandidates(this.uniqueId, JSON.stringify({ 'sdp': this.pc.localDescription })));
-            }
-            else if (msg.sdp.type === "answer") {
-                this.pc.setRemoteDescription(new RTCSessionDescription(msg.sdp));
-            }
-        }
+        // if (data == null) {
+        //     return;
+        // }
+        //
+        // if(data.val().placeholder === "Awaiting data") {
+        //     return;
+        // }
+        //
+        // console.log(data.val());
+        //
+        // let msg = JSON.parse(data.val().message);
+        // let sender = data.val().sender;
+        // if (sender !== this.uniqueId) {
+        //     if (msg.ice !== undefined) {
+        //         this.pc.addIceCandidate(new RTCIceCandidate(msg.ice));
+        //     }
+        //     else if (msg.sdp.type === "offer") {
+        //         this.pc.setRemoteDescription(new RTCSessionDescription(msg.sdp))
+        //             .then(() => this.pc.createAnswer())
+        //             .then(answer => this.pc.setLocalDescription(answer))
+        //             .then(() => this.sendIceCandidates(this.uniqueId, JSON.stringify({ 'sdp': this.pc.localDescription })));
+        //     }
+        //     else if (msg.sdp.type === "answer") {
+        //         this.pc.setRemoteDescription(new RTCSessionDescription(msg.sdp));
+        //     }
+        // }
     };
 
     /**

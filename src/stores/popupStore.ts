@@ -2,10 +2,10 @@
 import {defineStore} from "pinia";
 import { useStorage } from "../hooks/useStorage";
 const { getSyncStorage, setSyncStorage, removeSyncStorage } = useStorage();
-import {auth} from 'firebaseui';
 import {
     createUserWithEmailAndPassword,
-    EmailAuthProvider,
+    signInWithEmailAndPassword,
+    sendPasswordResetEmail,
     getAuth,
     signOut,
     updateProfile
@@ -32,8 +32,11 @@ export let usePopupStore = defineStore("popup", {
             username: null,
             follower: new Follower(),
             classCode: "",
-            classError: "",
-            signupError: "",
+            error: "",
+            name: "",
+            email: "",
+            password: "",
+            loading: false,
         };
     },
 
@@ -43,7 +46,18 @@ export let usePopupStore = defineStore("popup", {
          * Change the current panel to the supplied one.
          */
         changeView(panel: string) {
+            this.resetStateFields();
             this.view = panel;
+        },
+
+        /**
+         * Reset any fields that may be used across multiple panels
+         */
+        resetStateFields() {
+            this.error = "";
+            this.name = "";
+            this.email = "";
+            this.password = "";
         },
 
         /**
@@ -82,7 +96,6 @@ export let usePopupStore = defineStore("popup", {
          */
         async checkForFollower() {
             const follower = await getSyncStorage("follower");
-            console.log(follower);
             if(follower != null) {
                 this.view = "sessionStudent";
                 return;
@@ -105,20 +118,17 @@ export let usePopupStore = defineStore("popup", {
          * Sign a user up with the supplied password and email. Upon successful registration update the firebase profile
          * with the supplied display name. This is attached to the authentication portion of firebase instead of creating
          * a new user field.
-         * @param name
-         * @param email
-         * @param password
          */
-        handleSignup(name: string, email: string, password: string) {
+        handleSignup() {
             if (getAuth().currentUser) {
                 this.createDashboard();
             } else {
                 const auth = getAuth();
-                createUserWithEmailAndPassword(auth, email, password)
+                createUserWithEmailAndPassword(auth, this.email, this.password)
                     .then(() => {
                         //Set the display name of the user
                         // @ts-ignore
-                        updateProfile(getAuth().currentUser, { displayName: name })
+                        updateProfile(auth.currentUser, { displayName: this.name })
                             .catch((err) => console.log(err));
 
                         // Move to sign in
@@ -128,7 +138,7 @@ export let usePopupStore = defineStore("popup", {
                         const errorCode = error.code;
                         console.log(errorCode);
 
-                        this.signupError = error.message;
+                        this.error = error.message;
                     });
             }
         },
@@ -138,30 +148,44 @@ export let usePopupStore = defineStore("popup", {
          * id.
          */
         handleLogin() {
+            this.loading = true;
+
             //Create a temp variable to access within the callback options
             const self = this;
             if (getAuth().currentUser) {
                 this.createDashboard();
             } else {
-                let ui = new auth.AuthUI(getAuth())
-                ui.start('#firebaseui-auth-container', {
-                    signInOptions: [
-                        EmailAuthProvider.PROVIDER_ID,
-                    ],
-                    callbacks: {
-                        // @ts-ignore
-                        signInFailure(error) {
-                            console.log(error);
-                            return false;
-                        },
-                        signInSuccessWithAuthResult: function () {
-                            setSyncStorage({"Teacher": true})
-                                .then(() => self.createDashboard());
-                            return false;
-                        }
-                    }
-                });
+                const auth = getAuth();
+                signInWithEmailAndPassword(auth, this.email, this.password)
+                    .then(() => {
+                        this.loading = false;
+                        setSyncStorage({"Teacher": true})
+                            .then(() => self.createDashboard());
+                    })
+                    .catch((error) => {
+                        this.loading = false;
+                        console.log(error);
+                        this.error = error.message;
+                    });
             }
+        },
+
+        /**
+         * Send the firebase password reset email off to the supplied user.
+         */
+        handlePasswordReset() {
+            const auth = getAuth();
+            sendPasswordResetEmail(auth, this.email)
+                .then(() => {
+                    // Password reset email sent!
+                    // ..
+                })
+                .catch((error) => {
+                    const errorCode = error.code;
+                    console.log(errorCode);
+
+                    this.error = error.message;
+                });
         },
 
         /**
@@ -205,7 +229,7 @@ export let usePopupStore = defineStore("popup", {
                     console.log("Permissions have been enabled");
                     this.connectToClass();
                 } else {
-                    this.classError = "Permissions have been denied.";
+                    this.error = "Permissions have been denied.";
                 }
             });
         },
@@ -240,7 +264,7 @@ export let usePopupStore = defineStore("popup", {
                         window.close();
                         // this.view = 'sessionStudent';
                     } else {
-                        this.classError = "No Class found";
+                        this.error = "No Class found";
                     }
                 });
             });
