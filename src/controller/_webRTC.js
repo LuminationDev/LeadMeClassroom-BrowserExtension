@@ -1,22 +1,29 @@
+import {
+    ref,
+    onChildAdded,
+    push,
+    remove,
+} from 'firebase/database';
+
 class WebRTC {
     constructor(realTimeDatabase, classCode, uuid) {
         this.classCode = classCode;
         this.uuid = uuid;
         this.video = null;
 
-        console.log("CREATED");
-
         // //Determine who sent the message in firebase
         this.uniqueId = Math.floor(Math.random() * 1000000000);
         this.servers = { 'iceServers': [{ 'urls': 'stun:stun.services.mozilla.com' }, { 'urls': 'stun:stun.l.google.com:19302' }] };
-        this.pc = this.createNewPeerConnection();
+        //this.pc = this.createNewPeerConnection();
         this.stream = null; //Track the current stream
 
         //Real time database reference
         this.db = realTimeDatabase;
 
+        //todo still not working
         //Listen for ice candidates being sent
-        this.db.ref(`ice/${this.classCode}/${this.uuid}`).on('child_added', async (snapshot) => this.readIceCandidate(snapshot));
+        //const iceRef = ref(this.db, `ice/${this.classCode}/${this.uuid}`);
+        //onChildAdded(iceRef, (snapshot) => { console.log(snapshot) });
     }
 
     /**
@@ -51,9 +58,10 @@ class WebRTC {
      * @param {*} senderId 
      * @param {*} data 
      */
-    sendIceCandidates = (senderId, data) => {
-        const msg = this.db.ref(`ice/${this.classCode}/${this.uuid}`).push({ sender: senderId, message: data });
-        msg.remove();
+    sendIceCandidates = async (senderId, data) => {
+        const msgRef = ref(this.db, `ice/${this.classCode}/${this.uuid}`);
+        const msg = await push(msgRef, { sender: senderId, message: data });
+        await remove(msg);
     }
 
     /**
@@ -62,32 +70,33 @@ class WebRTC {
      * @returns Null if there is no new data.
      */
     readIceCandidate = (data) => {
-        if (data == null) {
-            return;
-        }
-
-        if(data.val().message === "initial data") {
-            return;
-        }
-
         console.log(data.val());
-
-        let msg = JSON.parse(data.val().message);
-        let sender = data.val().sender;
-        if (sender !== this.uniqueId) {
-            if (msg.ice !== undefined) {
-                this.pc.addIceCandidate(new RTCIceCandidate(msg.ice));
-            }
-            else if (msg.sdp.type === "offer") {
-                this.pc.setRemoteDescription(new RTCSessionDescription(msg.sdp))
-                    .then(() => this.pc.createAnswer())
-                    .then(answer => this.pc.setLocalDescription(answer))
-                    .then(() => this.sendIceCandidates(this.uniqueId, JSON.stringify({ 'sdp': this.pc.localDescription })));
-            }
-            else if (msg.sdp.type === "answer") {
-                this.pc.setRemoteDescription(new RTCSessionDescription(msg.sdp));
-            }
-        }
+        // if (data == null) {
+        //     return;
+        // }
+        //
+        // if(data.val().placeholder === "Awaiting data") {
+        //     return;
+        // }
+        //
+        // console.log(data.val());
+        //
+        // let msg = JSON.parse(data.val().message);
+        // let sender = data.val().sender;
+        // if (sender !== this.uniqueId) {
+        //     if (msg.ice !== undefined) {
+        //         this.pc.addIceCandidate(new RTCIceCandidate(msg.ice));
+        //     }
+        //     else if (msg.sdp.type === "offer") {
+        //         this.pc.setRemoteDescription(new RTCSessionDescription(msg.sdp))
+        //             .then(() => this.pc.createAnswer())
+        //             .then(answer => this.pc.setLocalDescription(answer))
+        //             .then(() => this.sendIceCandidates(this.uniqueId, JSON.stringify({ 'sdp': this.pc.localDescription })));
+        //     }
+        //     else if (msg.sdp.type === "answer") {
+        //         this.pc.setRemoteDescription(new RTCSessionDescription(msg.sdp));
+        //     }
+        // }
     };
 
     /**

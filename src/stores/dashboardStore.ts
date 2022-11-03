@@ -89,8 +89,6 @@ export let useDashboardStore = defineStore("dashboard", {
                 this.followerTabsAdded
             );
 
-            new WebRTC(this.firebase.db, this.classCode, "test");
-
             if(!active) {
                 return;
             }
@@ -223,9 +221,8 @@ export let useDashboardStore = defineStore("dashboard", {
          * @param id
          */
         followerAdded(snapshot: any, id: string) {
-            let webRTC = new WebRTC(this.firebase.db, this.classCode, id)
             let follower = new Follower(this.classCode, snapshot.name, id)
-            follower.webRTC = webRTC
+            follower.webRTC = new WebRTC(this.firebase.db, this.classCode, id)
             follower.monitoring = false
             follower.muted = false
             follower.muteAll = false

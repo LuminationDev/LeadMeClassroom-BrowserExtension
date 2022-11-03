@@ -15,7 +15,6 @@
     "pinia": "^2.0.23",
     "uuid": "^9.0.0",
     "vue": "^3.2.25",
-    "vue-spinner": "^1.0.4",
     "vue3-otp-input": "^0.3.6"
   },
   "devDependencies": {

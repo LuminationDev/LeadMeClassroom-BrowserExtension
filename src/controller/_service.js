@@ -22,3 +22,14 @@ export const devConfig = {
     appId: "1:12541426407:web:7fd40f96e3b7da8c108042",
     measurementId: "G-JY5GNBKCFY"
 };
+
+// Testing firebase with no rules
+export const testConfig = {
+    apiKey: "AIzaSyD0nGSl2f_jxBjsXtdi66fNeHFFjisd4Mo",
+    authDomain: "browsernorules.firebaseapp.com",
+    databaseURL: "https://browsernorules-default-rtdb.asia-southeast1.firebasedatabase.app",
+    projectId: "browsernorules",
+    storageBucket: "browsernorules.appspot.com",
+    messagingSenderId: "90215888337",
+    appId: "1:90215888337:web:2b75b70246ce5a35935cf0"
+};

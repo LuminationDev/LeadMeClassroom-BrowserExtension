@@ -1,6 +1,6 @@
 <script setup>
 import LoginTextInput from "./LoginTextInput.vue";
-import MoonLoader from 'vue-spinner/src/MoonLoader.vue'
+import Spinner from "./Spinner.vue";
 import PopupSecondaryButton from "@/components/Buttons/PopupSecondaryButton.vue";
 
 import { usePopupStore } from "@/stores/popupStore.ts";
@@ -21,11 +21,12 @@ let popupPinia = usePopupStore();
     <!--Display a spinner while waiting for a response-->
     <PopupSecondaryButton v-on:click="popupPinia.handleLogin()">
       <p v-if="!popupPinia.loading">Sign in</p>
-      <MoonLoader
+
+      <Spinner
+        v-if="popupPinia.loading"
         class="flex justify-center"
-        :loading="popupPinia.loading"
-        :color="'white'"
-        :size="'30px'"/>
+      />
+
     </PopupSecondaryButton>
 
     <p

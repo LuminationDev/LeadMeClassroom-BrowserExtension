@@ -128,7 +128,7 @@ export let usePopupStore = defineStore("popup", {
                     .then(() => {
                         //Set the display name of the user
                         // @ts-ignore
-                        updateProfile(getAuth().currentUser, { displayName: this.signupName })
+                        updateProfile(auth.currentUser, { displayName: this.name })
                             .catch((err) => console.log(err));
 
                         // Move to sign in

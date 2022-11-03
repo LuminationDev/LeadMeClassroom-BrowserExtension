@@ -41,7 +41,7 @@ function validateInputs() {
 }
 
 function validateEmail() {
-  return String(popupPinia.signupEmail)
+  return String(popupPinia.email)
       .toLowerCase()
       .match(
           /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
@@ -49,7 +49,7 @@ function validateEmail() {
 }
 
 function validatePassword() {
-  return popupPinia.signupPassword.length > 5;
+  return popupPinia.password.length > 5;
 }
 
 function resetErrors() {

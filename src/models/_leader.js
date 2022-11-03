@@ -1,7 +1,5 @@
 import {v4 as uuidv4} from 'uuid';
-import {
-    getAuth
-} from '@firebase/auth'
+import { getAuth } from '@firebase/auth'
 
 /**
  * A class to describe the outline of a follower that is being attached
@@ -116,7 +114,7 @@ class Leader {
         return (
             JSON.parse(
                 `{
-                    "${this.code}": {}
+                    "${this.code}": "awaiting follower"
                 }`
             )
         );
