@@ -12,7 +12,7 @@ import { Firebase } from '@/controller';
 import * as MODELS from '@/models/index.js';
 import Follower from "../../../../models/_follower";
 import Tab from "../../../../models/_tab";
-import ClassControlStudentDetailModal from "./ClassControlStudentDetailModal.vue";
+import ClassControlStudentDetailModal from "../ClassControlStudentDetailModal.vue";
 
 const emit = defineEmits<{
   (e: 'removeFollower', follower: Follower): void
