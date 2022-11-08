@@ -6,7 +6,6 @@ const { getSyncStorage, setSyncStorage, removeSyncStorage } = useStorage();
 import * as REQUESTS from "@/constants/_requests.js";
 // @ts-ignore
 import { Firebase, WebRTC } from '@/controller/index.js';
-import Disconnect from '@/assets/img/disconnect.png';
 // @ts-ignore
 import * as MODELS from '@/models/index.js';
 import Follower from "../models/_follower";
@@ -64,16 +63,19 @@ export let useDashboardStore = defineStore("dashboard", {
         async generateSession() {
             console.log('generating')
             this.classCode = this.leader.getClassCode()
+            this.firebase.connectAsLeader(this.leader);
             await setSyncStorage({"CurrentClass": this.classCode});
             await this.attachClassListeners(false);
         },
 
-        attachClassListeners(active: boolean) {
+        async attachClassListeners(active: boolean) {
+            //Override the auto generated code if there is a saved one
             if(this.classCode === "") {
                 return;
+            } else {
+                this.leader.setClassCode(this.classCode);
             }
 
-            this.firebase.connectAsLeader(this.leader);
             this.firebase.followerListeners(
                 this.classCode,
                 this.followerResponse,
@@ -115,7 +117,9 @@ export let useDashboardStore = defineStore("dashboard", {
         followerResponse(response: any, name: string, id: string, key: string) {
             if (key === "screenshot") {
                 toDataURL(response).then((result) => {
-                    this.updateFollowerScreenshot(result, name, id)
+                    if (typeof result === "string") {
+                        this.updateFollowerScreenshot(result, name, id)
+                    }
                 })
                 return
             }
@@ -124,6 +128,7 @@ export let useDashboardStore = defineStore("dashboard", {
                     this.monitorRequestResponse(response.message, id);
                     break;
                 default:
+                    console.log(response);
                     console.log("Unknown command");
             }
         },
@@ -233,16 +238,17 @@ export let useDashboardStore = defineStore("dashboard", {
          * @param id
          */
         followerAdded(snapshot: any, id: string) {
-            let webRTC = new WebRTC(this.firebase.db, this.classCode, id)
             let follower = new Follower(this.classCode, snapshot.name, id)
-            follower.webRTC = webRTC
+            follower.webRTC = new WebRTC(this.firebase.db, this.classCode, id)
             follower.monitoring = false
             follower.muted = false
             follower.muteAll = false
             follower.tabs = snapshot.tabs
             if (snapshot.screenshot) {
                 toDataURL(snapshot.screenshot).then((result) => {
-                    this.updateFollowerScreenshot(result, snapshot.name, id)
+                    if (typeof result === "string") {
+                        this.updateFollowerScreenshot(result, snapshot.name, id)
+                    }
                 })
             }
             const index = this.followers.findIndex(element => element.getUniqueId() === id)
@@ -259,9 +265,7 @@ export let useDashboardStore = defineStore("dashboard", {
          */
         followerDisconnected(UUID: string) {
             let follower = this.followers.find(element => element.getUniqueId() === UUID)
-            if (!follower) {
-                return
-            }
+            if (!follower) { return }
             follower.disconnected = true;
         },
 
@@ -286,9 +290,8 @@ export let useDashboardStore = defineStore("dashboard", {
             console.log(id);
 
             let follower = this.followers.find(element => element.getUniqueId() === id)
-            if (!follower) {
-                return
-            }
+            if (!follower) { return }
+
             if (message === "granted") {
                 follower.monitoring = true
                 follower.webRTC.setVideoElement(document.getElementById(`video_${follower.getUniqueId()}`))

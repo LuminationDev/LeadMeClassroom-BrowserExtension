@@ -10,8 +10,8 @@ import * as REQUESTS from "@/constants/_requests.js";
 import { Firebase } from '@/controller';
 // @ts-ignore
 import * as MODELS from '@/models/index.js';
-import Follower from "../../../models/_follower";
-import Tab from "../../../models/_tab";
+import Follower from "../../../../models/_follower";
+import Tab from "../../../../models/_tab";
 import ClassControlStudentDetailModal from "./ClassControlStudentDetailModal.vue";
 
 const emit = defineEmits<{
@@ -77,9 +77,13 @@ const showModal = ref(false);
         <input name="test" type="checkbox" class="h-5 w-5 mx-2" :disabled="follower.disconnected">
         <label for="test" class="text-sm" :class="follower.disconnected ? 'text-gray-400' : 'text-black'">{{ follower.name }}</label>
       </div>
+
+      <!--Disconnected screen-->
       <div v-if="follower.disconnected" class="text-lg text-center h-full flex flex-col justify-center">
         <span><b>{{ follower.name }}</b><br/> has left the lesson.</span>
       </div>
+
+      <!--Tab content-->
       <div v-else>
         <div v-for="(tab, index) in firstThreeTabs" class="py-1" :id="index">
           <div class="flex flex-row px-2 items-center">
@@ -88,14 +92,31 @@ const showModal = ref(false);
           </div>
         </div>
       </div>
+
+      <!--Screenshot content-->
+<!--      <div>-->
+<!--        <img class="w-full h-full" :id="`image_${follower.getUniqueId()}`" :src="follower.imageBase64" alt="Follower Screen shot"/>-->
+<!--      </div>-->
+
+      <!--Video content-->
+<!--      <div>-->
+<!--        <video class="w-full h-full" :id="`video_${follower.getUniqueId()}`" muted autoplay/>-->
+<!--      </div>-->
     </div>
+
+    <!--Dismiss button-->
     <div v-if="follower.disconnected" class="h-12 bg-navy-side-menu rounded-b-sm flex">
       <button @click="removeFollower" class="w-full flex justify-center items-center">
         <span class="text-sm text-white font-poppins">Dismiss</span>
       </button>
     </div>
+
+    <!--Student buttons-->
     <div v-else class="h-12 bg-navy-side-menu rounded-b-sm flex">
-      <button class="w-full flex justify-center items-center">
+      <button
+        class="w-full flex justify-center items-center"
+        v-on:click="handleMonitorFollowerButton()"
+      >
         <img class="w-9 h-5" src="@/assets/img/student-icon-eye.svg" alt="Icon"/>
       </button>
       <div class="h-10 mt-1 w-px bg-white"></div>
@@ -121,6 +142,3 @@ const showModal = ref(false);
     <button @click="() => { handleVideoButton(REQUESTS.VIDEOSTOP) }">Stop</button>
   </div>
 </template>
-
-
-

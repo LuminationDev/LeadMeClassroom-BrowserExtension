@@ -1,7 +1,5 @@
 import {v4 as uuidv4} from 'uuid';
-import {
-    getAuth
-} from '@firebase/auth'
+import { getAuth } from '@firebase/auth'
 
 /**
  * A class to describe the outline of a follower that is being attached
@@ -74,7 +72,21 @@ class Leader {
         return (
             JSON.parse(
                 `{
-                    "${this.code}": {}
+                    "${this.code}": "awaiting follower"
+                }`
+            )
+        );
+    }
+
+    /**
+     * Collect the necessary data to create a new room on the firebase database.
+     * @returns A JSON object reflecting the leader's information
+     */
+    getDefaultFollowerMessagesObject = () => {
+        return (
+            JSON.parse(
+                `{
+                    "${this.code}": "awaiting follower"
                 }`
             )
         );
@@ -89,6 +101,20 @@ class Leader {
             JSON.parse(
                 `{
                     "${this.code}": {}
+                }`
+            )
+        );
+    }
+
+    /**
+     * Set up the necessary object for ice candidates to be placed/listened to
+     * @returns
+     */
+    getDefaultIceObject = () => {
+        return (
+            JSON.parse(
+                `{
+                    "${this.code}": "awaiting follower"
                 }`
             )
         );

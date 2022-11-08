@@ -1,6 +1,5 @@
 import Firebase from './_firebase';
 import WebRTC from './_webRTC';
-import Follower from '/src/models/_follower'
 import * as REQUESTS from "../constants/_requests";
 
 class ConnectionManager {
@@ -12,8 +11,7 @@ class ConnectionManager {
 
     /**
      * Create an initial connection with the firebase.
-     * @param {*} userCode
-     * @param name
+     * @param follower
      */
     connect = async (follower) => {
         this.follower = follower;
@@ -32,7 +30,6 @@ class ConnectionManager {
                     "uuid": uuid
                 }
         });
-
         this.firebase.addFollower(this.follower);
 
         this.connectionMethods(this.follower.classCode, this.follower.uniqueId);

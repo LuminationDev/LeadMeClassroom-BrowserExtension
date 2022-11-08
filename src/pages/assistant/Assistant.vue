@@ -6,7 +6,7 @@ import * as REQUESTS from '../../constants/_requests.js'
 import Tab from "../../models/_tab";
 import Follower from "../../models/_follower";
 
-const assistantListener = (data) => {
+const assistantListener = (data: any) => {
   if (data == null) {
     return;
   }
@@ -16,6 +16,11 @@ const assistantListener = (data) => {
   switch (data.type) {
     case REQUESTS.MONITORPERMISSION:
       monitorRequest();
+      break;
+
+    case "ice":
+      console.log("ice");
+      MANAGER.webRTC.readIceCandidate(data);
       break;
 
     case REQUESTS.MONITORENDED:

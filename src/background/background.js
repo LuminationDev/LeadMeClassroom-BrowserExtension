@@ -100,7 +100,6 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
             break;
 
         case REQUESTS.SCREENCONTROL:
-            console.log("Background");
             contentAction(request); //Send to the content script
             break;
 
@@ -165,17 +164,15 @@ const captureScreen = () => {
  * Update the URL of the currently active tab with the message that has been sent, it
  * MUST begin with https:// otherwise it will extend the current URL with whatever is 
  * passed.
- * @param {*} message 
+ * @param {*} message
  */
 const updateTabURL = (message) => {
-    setTimeout(function () {
-        chrome.tabs.query({ currentWindow: true, active: true }, function (tabs) {
-            const activeTab = tabs[0];
-            // chrome.tabs.sendMessage(activeTab.id, message);
-            chrome.tabs.update(activeTab.id, { url: `https://${message.value}` });
-            chrome.windows.update(activeTab.windowId, { state: 'maximized', focused: true });
-        });
-    }, 3000);
+    chrome.tabs.query({ currentWindow: true, active: true }, function (tabs) {
+        const activeTab = tabs[0];
+        // chrome.tabs.sendMessage(activeTab.id, message);
+        chrome.tabs.update(activeTab.id, { url: `https://${message.value}` });
+        chrome.windows.update(activeTab.windowId, { state: 'maximized', focused: true });
+    });
 }
 
 /**

@@ -29,7 +29,6 @@ function resetErrorMessages() {
 <template>
   <div class="mt-9 pb-7">
     <div class="flex flex-row justify-center mb-4">
-      {{ popupPinia.follower }}
       <VOtpInput
           class="mr-3"
           :num-inputs="4"
