@@ -3,7 +3,7 @@
 </script>
 
 <template>
-  <div class="w-48">
+  <div class="w-48" id="student_placeholder">
     <div class="h-28 flex flex-col justify-center items-center bg-gray-default border-2 border-gray-no-student rounded-t-sm text-gray-default-text text-lg">
       <p>No active</p>
       <p>students!</p>
