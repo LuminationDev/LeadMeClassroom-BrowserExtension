@@ -298,14 +298,10 @@ class Firebase {
         off(tabsRef);
         off(iceRef);
 
-        remove(classRef)
-            .then(function () { console.log("Removed class succeeded.") })
-            .catch(function (error) { console.log("Remove failed: " + error.message) });
-
         remove(followersRef)
             .then(function () { console.log("Removed class succeeded.") })
             .catch(function (error) { console.log("Remove failed: " + error.message) });
-            
+
         remove(followerMessagesRef)
             .then(function () { console.log("Removed class succeeded.") })
             .catch(function (error) { console.log("Remove failed: " + error.message) });
@@ -315,6 +311,10 @@ class Firebase {
             .catch(function (error) { console.log("Remove failed: " + error.message) });
 
         remove(iceRef)
+            .then(function () { console.log("Removed class succeeded.") })
+            .catch(function (error) { console.log("Remove failed: " + error.message) });
+
+        remove(classRef)
             .then(function () { console.log("Removed class succeeded.") })
             .catch(function (error) { console.log("Remove failed: " + error.message) });
     }
