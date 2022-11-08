@@ -200,6 +200,23 @@ export let useDashboardStore = defineStore("dashboard", {
 
         /**
          * Add new follower or update an existing one
+         * @param followerId
+         * @param id
+         */
+        requestDeleteFollowerTab(followerId: string, id: string) {
+            let follower = this.followers.find(element => element.getUniqueId() === followerId)
+            if (follower) {
+                let action = { type: REQUESTS.DELETE_TAB, tabId: id };
+                this.firebase.requestIndividualAction(this.classCode, follower.getUniqueId(), action);
+                const index = follower.tabs.findIndex(element => id === element.id)
+                if (index !== -1) {
+                    follower.tabs[index].closing = true
+                }
+            }
+        },
+
+        /**
+         * Add new follower or update an existing one
          * @param tabs
          * @param id
          */

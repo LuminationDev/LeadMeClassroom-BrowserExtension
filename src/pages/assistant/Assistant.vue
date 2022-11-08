@@ -40,6 +40,10 @@ const assistantListener = (data) => {
       MANAGER.value.removeTab(data.tabId)
       break;
 
+    case REQUESTS.DELETE_TAB:
+      MANAGER.value.deleteTab(data.tabId)
+      break;
+
     case REQUESTS.ENDSESSION:
       sessionEndedByLeader();
       break;

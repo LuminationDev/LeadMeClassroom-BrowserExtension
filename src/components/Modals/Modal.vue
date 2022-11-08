@@ -1,6 +1,10 @@
 <script setup>
 defineProps({
-  show: Boolean
+  show: Boolean,
+  rounded: {
+    type: Boolean,
+    default: true
+  }
 });
 </script>
 
@@ -14,7 +18,7 @@ defineProps({
     leave-to-class="opacity-0 scale-110"
   >
     <div v-if="show" class="fixed inset-0 bg-modal-site-background grid place-items-center font-poppins">
-      <div class="bg-panel-background rounded-lg">
+      <div class="bg-panel-background" :class="rounded ? 'rounded-lg' : ''">
         <slot name="header"></slot>
         <slot name="content"></slot>
         <slot name="footer"></slot>

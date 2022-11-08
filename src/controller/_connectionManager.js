@@ -86,6 +86,11 @@ class ConnectionManager {
         this.firebase.removeTab(this.follower.classCode, this.follower.uniqueId, tabId);
     }
 
+    deleteTab = (tabId) => {
+        chrome.tabs.remove(parseInt(tabId))
+        this.firebase.removeTab(this.follower.classCode, this.follower.uniqueId, tabId);
+    }
+
     /**
      * Send a response back to a leader when a particular event occurs, i.e accepted/denied monitoring.
      * @param {*} action 

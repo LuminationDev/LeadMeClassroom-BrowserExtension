@@ -10,6 +10,10 @@ function removeFollower(follower: Follower) {
   dashboardPinia.removeFollower(follower.getUniqueId())
 }
 
+function deleteFollowerTab(follower: Follower, tabId: string) {
+  dashboardPinia.requestDeleteFollowerTab(follower.getUniqueId(), tabId)
+}
+
 </script>
 
 <template>
@@ -25,6 +29,7 @@ function removeFollower(follower: Follower) {
           v-for="follower in dashboardPinia.followers"
           :key="follower.getUniqueId()"
           :follower="follower"
+          @delete-tab="(tabId) => { deleteFollowerTab(follower, tabId) }"
           @remove-follower="removeFollower"/>
     </div>
   </div>

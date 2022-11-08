@@ -264,15 +264,15 @@ class Firebase {
         followersRef.off();
         tabsRef.off();
 
-        classRef.remove()
-            .then(function () { console.log("Remove succeeded.") })
-            .catch(function (error) { console.log("Remove failed: " + error.message) });
-
         followersRef.remove()
             .then(function () { console.log("Remove succeeded.") })
             .catch(function (error) { console.log("Remove failed: " + error.message) });
 
         tabsRef.remove()
+            .then(function () { console.log("Remove succeeded.") })
+            .catch(function (error) { console.log("Remove failed: " + error.message) });
+
+        classRef.remove()
             .then(function () { console.log("Remove succeeded.") })
             .catch(function (error) { console.log("Remove failed: " + error.message) });
     }

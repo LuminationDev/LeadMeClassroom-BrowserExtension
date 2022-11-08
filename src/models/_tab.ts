@@ -4,6 +4,7 @@ class Tab {
     url: string;
     id: string;
     lastActivated: number;
+    closing: boolean = false;
 
     constructor(id: string, name: string, favicon: string, url: string, lastActivated: number = Date.now()) {
         this.favicon = favicon;
