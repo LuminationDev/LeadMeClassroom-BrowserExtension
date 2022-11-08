@@ -39,7 +39,7 @@ class ConnectionManager {
      * Remove the connection to firebase. Used when signing out or tab becomes inactive.
      */
     disconnect = () => {
-        if (this.webRTC != null) {
+        if (this.webRTC) {
             this.firebase.unregisterListeners(this.follower.classCode, this.follower.uniqueId);
         }
     }
@@ -104,14 +104,6 @@ class ConnectionManager {
      */
     checkForClassroom = async (code) => {
         return await this.firebase.checkForClassroom(code);
-    }
-
-    /**
-     * Prepare the stream for a webRTC connection.
-     */
-    setupNewWebRTCConnection = () => {
-        this.webRTC = new WebRTC(this.firebase.db, userCode, follower.uniqueId);
-        this.webRTC.prepareScreen();
     }
 }
 

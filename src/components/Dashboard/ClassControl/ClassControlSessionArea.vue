@@ -22,6 +22,7 @@ let dashboardPinia = useDashboardStore();
     >Class Code: {{ dashboardPinia.classCode }}</button>
 
     <button
+        id="generate_class"
         v-if="!dashboardPinia.classCode"
         v-on:click="dashboardPinia.generateSession()"
         class="ml-3 h-12 w-56 bg-navy-side-menu

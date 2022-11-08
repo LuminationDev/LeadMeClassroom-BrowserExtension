@@ -5,13 +5,10 @@ const { getSyncStorage, setSyncStorage, removeSyncStorage } = useStorage();
 // @ts-ignore
 import * as REQUESTS from "@/constants/_requests.js";
 // @ts-ignore
-import { Firebase, WebRTC } from '@/controller/index.js';
+import { Firebase, WebRTC } from '@/controller/index.ts';
 // @ts-ignore
-import * as MODELS from '@/models/index.js';
-import Follower from "../models/_follower";
-import Tab from "../models/_tab";
-
-const { Leader } = MODELS.default;
+import * as MODELS from '@/models/index.ts';
+import { Follower, Tab, Leader } from '../models'
 const firebase = new Firebase();
 const leaderName = await firebase.getDisplayName();
 

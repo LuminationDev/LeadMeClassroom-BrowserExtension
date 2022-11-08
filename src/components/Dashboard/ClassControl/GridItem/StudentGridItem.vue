@@ -1,18 +1,14 @@
 <script setup lang="ts">
-// @ts-ignore
-import { useDashboardStore } from "@/stores/dashboardStore.ts";
-let dashboardPinia = useDashboardStore();
-
+import { useDashboardStore } from "../../../../stores/dashboardStore";
 import {defineProps, PropType, computed, ref} from 'vue'
+import * as REQUESTS from '../../../../constants/_requests'
+import { Firebase } from '../../../../controller'
 // @ts-ignore
-import * as REQUESTS from "@/constants/_requests.js";
-// @ts-ignore
-import { Firebase } from '@/controller';
-// @ts-ignore
-import * as MODELS from '@/models/index.js';
-import Follower from "../../../../models/_follower";
-import Tab from "../../../../models/_tab";
-import ClassControlStudentDetailModal from "../ClassControlStudentDetailModal.vue";
+import * as MODELS from '@/models/index.ts';
+import { Tab, Follower } from "../../../../models";
+import ClassControlStudentDetailModal from "@/components/Dashboard/ClassControl/ClassControlStudentDetailModal.vue";
+
+let dashboardPinia = useDashboardStore();
 
 const emit = defineEmits<{
   (e: 'removeFollower', follower: Follower): void
@@ -132,7 +128,7 @@ const showModal = ref(false);
   </div>
 
   <div class="h-36 w-36" :id="follower.getUniqueId()">
-    <img :id="`image_${follower.getUniqueId()}`" :src="follower.imageBase64" alt="Follower Screen shot"/>
+    <img v-if="follower.imageBase64" :id="`image_${follower.getUniqueId()}`" :src="follower.imageBase64" alt="Follower Screen shot"/>
     <video :id="`video_${follower.getUniqueId()}`" muted autoplay/>
     <button @click="() => { handleMonitorFollowerButton() }">{{ follower.monitoring ? 'Stop Monitoring' : 'Request Monitoring' }}</button>
     <button @click="() => { handleMuteFollowerButton() }">{{ follower.muted ? 'Unmute Tab' : 'Mute Tab' }}</button>

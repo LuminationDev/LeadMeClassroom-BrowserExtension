@@ -17,6 +17,7 @@ const websiteLink = ref("");
     text-gray-default-text
     hover:text-white"
     v-on:click="showWebsiteModal = true"
+    id="share_button"
   >
     <img class="w-4 h-4 mr-3" src="@/assets/img/menu-placeholder.svg" alt="Icon"/>
     <p class="text-base">

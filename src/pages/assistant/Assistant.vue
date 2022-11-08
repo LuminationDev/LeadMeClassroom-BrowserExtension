@@ -20,12 +20,16 @@ const assistantListener = (data: any) => {
 
     case "ice":
       console.log("ice");
-      MANAGER.webRTC.readIceCandidate(data);
+      if (MANAGER.value.webRTC) {
+        MANAGER.value.webRTC.readIceCandidate(data);
+      }
       break;
 
     case REQUESTS.MONITORENDED:
       console.log(MANAGER)
-      MANAGER.value.webRTC.stopStream();
+      if (MANAGER.value.webRTC) {
+        MANAGER.value.webRTC.stopFollowerStream();
+      }
       break;
 
     case REQUESTS.CAPTURE:
@@ -70,7 +74,7 @@ const assistantListener = (data: any) => {
 chrome.runtime.onMessage.addListener(
     function (request, sender, sendResponse) {
       console.log(request);
-      if (sender.tab && sender.tab.url.contains("assistant.html")) {
+      if (sender?.tab?.url?.includes("assistant.html")) {
         return;
       }
       assistantListener(request);
@@ -85,14 +89,10 @@ const MANAGER = ref(new ConnectionManager(assistantListener));
 chrome.storage.sync.get("follower", async (data) => {
   let f = new Follower(data.follower.code, data.follower.name)
   chrome.tabs.query({}, (tabs) => {
-    const tabsArr = tabs.map(tab => {
-      return new Tab(tab.id + "", tab.title, tab.favIconUrl ?? "", tab.url)
+    const tabsArr: Tab[] = tabs.map(tab => {
+      return new Tab(tab.id + "", tab.title ?? "", tab.favIconUrl ?? "", tab.url ?? "")
     })
-    const tabsKeyValue = {}
-    tabsArr.forEach(tab => {
-      tabsKeyValue[tab.id] = tab
-    })
-    f.tabs = tabsKeyValue
+    f.tabs = tabsArr
     MANAGER.value.connect(f);
   })
 });
@@ -101,6 +101,9 @@ const monitorRequest = () => {
   console.log("Leader has asked follower for permission");
   chrome.runtime.sendMessage({ "type": "maximize" });
   setTimeout(() => {
+    if (!MANAGER.value.webRTC) {
+      return
+    }
     MANAGER.value.webRTC.prepareScreen()
         .then((result) => {
           console.log(result);
@@ -126,6 +129,8 @@ const endSession = () => {
   closeAssistant()
 }
 
+let updateMessage = ref("")
+
 /**
  * Print a message to the assistant page that the Leader has ended the current
  * session.
@@ -136,7 +141,7 @@ const sessionEndedByLeader = () => {
   let count = 5;
 
   let countDown = setInterval(() => {
-    document.getElementById("updateMessage").innerHTML = `Leader has ended session, window closing in ${count} seconds.`
+    updateMessage.value = `Leader has ended session, window closing in ${count} seconds.`
 
     count--;
     if (count < 0) {
@@ -148,7 +153,7 @@ const sessionEndedByLeader = () => {
 
  const closeAssistant = () => {
   chrome.tabs.query({ url: REQUESTS.ASSISTANT_MATCH_URL }, ([tab]) => {
-    if (tab) {
+    if (tab && tab.id) {
       chrome.tabs.remove(tab.id);
     }
   });
@@ -162,7 +167,7 @@ const sessionEndedByLeader = () => {
     <p>src\pages\assistant\assistant.html</p>
     <p>Don't close me, I'm here for a persistant connection!</p>
 
-    <p id="updateMessage"></p>
+    <p id="updateMessage">{{ updateMessage }}</p>
 
     <button id="endSessionBtn" @click="endSession">End Session</button>
   </div>

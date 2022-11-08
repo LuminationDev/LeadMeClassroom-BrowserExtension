@@ -1,7 +1,7 @@
 import { Firebase } from '../controller';
 import YoutubeController from "./modules/YoutubeController";
 import ScreenController from "./modules/ScreenController";
-import {useStorage} from "@/hooks/useStorage";
+import { useStorage } from "../hooks/useStorage";
 
 const { getSyncStorage } = useStorage();
 
@@ -44,7 +44,7 @@ chrome.runtime.onMessage.addListener(
             case "youtube":
                 if(location.href.includes("youtube")) {
                     console.log("Youtube Controller --- setting action: " + request.action);
-                    youtubeController.determineAction(request.action);
+                    youtubeController?.determineAction(request.action);
                 }
                 break;
 
@@ -55,7 +55,7 @@ chrome.runtime.onMessage.addListener(
 );
 
 //Check if there is a class with the supplied code
-const AsyncProcessing = (request, code, uuid=null) => {
+const AsyncProcessing = (request: any, code: string, uuid=null) => {
     return new Promise(resolve => {
         const FIREBASE = new Firebase();
 
