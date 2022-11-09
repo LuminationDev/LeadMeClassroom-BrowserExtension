@@ -1,3 +1,4 @@
+// @ts-ignore
 import { v4 as uuidv4 } from 'uuid';
 import Tab from "./_tab";
 
@@ -57,6 +58,7 @@ class Follower {
      */
     getFollowerObject = () => {
         const obj = {}
+        // @ts-ignore
         obj[this.uniqueId] = {
             name: this.name,
             screenshot: "",
@@ -72,8 +74,15 @@ class Follower {
 
     getTabsObject = () => {
         const obj = {}
+        // @ts-ignore
+        const tabsKeyValue = {}
+        this.tabs.forEach(tab => {
+            // @ts-ignore
+            tabsKeyValue[tab.id] = tab
+        })
+        // @ts-ignore
         obj[this.uniqueId] = {
-            ...this.tabs
+            ...tabsKeyValue
         }
         return obj
     }

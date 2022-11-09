@@ -3,6 +3,7 @@ import { createPinia } from "pinia";
 import Dashboard from './Dashboard.vue'
 
 const app = createApp(Dashboard);
-app.use(createPinia());
+const pinia = createPinia()
+app.use(pinia);
 
 app.mount('#app');

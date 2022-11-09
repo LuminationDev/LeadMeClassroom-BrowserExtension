@@ -3,7 +3,7 @@ import StudentPlaceholder from "@/components/Dashboard/ClassControl/GridItem/Stu
 import StudentGridItem from "@/components/Dashboard/ClassControl/GridItem/StudentGridItem.vue";
 
 import { useDashboardStore } from "../../../stores/dashboardStore";
-import Follower from "../../../models/_follower";
+import { Follower } from "../../../models"
 let dashboardPinia = useDashboardStore();
 
 function removeFollower(follower: Follower) {
@@ -29,7 +29,7 @@ function deleteFollowerTab(follower: Follower, tabId: string) {
           v-for="follower in dashboardPinia.followers"
           :key="follower.getUniqueId()"
           :follower="follower"
-          @delete-tab="(tabId) => { deleteFollowerTab(follower, tabId) }"
+          @delete-tab="(tabId: string) => { deleteFollowerTab(follower, tabId) }"
           @remove-follower="removeFollower"/>
     </div>
   </div>

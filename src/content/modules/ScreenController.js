@@ -33,13 +33,9 @@ class ScreenController extends Controller {
         //Check if the screen is already blocked
         if(document.getElementById('block-screen-container')) { return; }
 
-        fetch(chrome.runtime.getURL('src/assets/templates/block.html'))
-            .then(response => response.text())
-            .then(html => {
-                document.body.insertAdjacentHTML('beforebegin', html);
-            }).catch(err => {
-            // handle error
-        });
+        document.body.insertAdjacentHTML('beforebegin', "<div id=\"block-screen-container\" class=\"block\">\n" +
+            "    <p class=\"block-text\">Blocked</p>\n" +
+            "</div>");
     }
 
     /**
