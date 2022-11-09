@@ -34,9 +34,8 @@ export let usePopupStore = defineStore("popup", {
             classCode: "",
             error: "",
             name: "",
-            email: "",
-            password: "",
             loading: false,
+            previousViews: <string[]>([])
         };
     },
 
@@ -45,7 +44,13 @@ export let usePopupStore = defineStore("popup", {
         /**
          * Change the current panel to the supplied one.
          */
-        changeView(panel: string) {
+        changeView(panel: string, addToHistory: boolean = true) {
+            if (addToHistory) {
+                this.previousViews.push(this.view)
+            }
+            if (panel === 'login' || panel === 'sessionTeacher' || panel === 'sessionStudent') {
+                this.previousViews = []
+            }
             this.resetStateFields();
             this.view = panel;
         },
@@ -56,8 +61,26 @@ export let usePopupStore = defineStore("popup", {
         resetStateFields() {
             this.error = "";
             this.name = "";
-            this.email = "";
-            this.password = "";
+        },
+
+        popPreviousView(): string
+        {
+            if (this.previousViews.length) {
+                // @ts-ignore
+                return this.previousViews.pop()
+            }
+            if (this.follower) {
+                return "sessionStudent"
+            }
+            if (this.name) {
+                return "sessionTeacher"
+            }
+            return "login"
+        },
+
+        back() {
+            console.log(this.previousViews)
+            this.changeView(this.popPreviousView(), false)
         },
 
         /**
@@ -119,12 +142,12 @@ export let usePopupStore = defineStore("popup", {
          * with the supplied display name. This is attached to the authentication portion of firebase instead of creating
          * a new user field.
          */
-        handleSignup() {
+        handleSignup(email: string, password: string) {
             if (getAuth().currentUser) {
                 this.createDashboard();
             } else {
                 const auth = getAuth();
-                createUserWithEmailAndPassword(auth, this.email, this.password)
+                createUserWithEmailAndPassword(auth, email, password)
                     .then(() => {
                         //Set the display name of the user
                         // @ts-ignore
@@ -147,7 +170,7 @@ export let usePopupStore = defineStore("popup", {
          * Handle the logging in of a teacher through email and password or through an external auth provider
          * id.
          */
-        handleLogin() {
+        handleLogin(email: string, password: string) {
             this.loading = true;
 
             //Create a temp variable to access within the callback options
@@ -156,7 +179,7 @@ export let usePopupStore = defineStore("popup", {
                 this.createDashboard();
             } else {
                 const auth = getAuth();
-                signInWithEmailAndPassword(auth, this.email, this.password)
+                signInWithEmailAndPassword(auth, email, password)
                     .then(() => {
                         this.loading = false;
                         setSyncStorage({"Teacher": true})
@@ -173,9 +196,9 @@ export let usePopupStore = defineStore("popup", {
         /**
          * Send the firebase password reset email off to the supplied user.
          */
-        handlePasswordReset() {
+        handlePasswordReset(email: string) {
             const auth = getAuth();
-            sendPasswordResetEmail(auth, this.email)
+            sendPasswordResetEmail(auth, email)
                 .then(() => {
                     // Password reset email sent!
                     // ..

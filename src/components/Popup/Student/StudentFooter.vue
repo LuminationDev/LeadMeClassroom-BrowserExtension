@@ -8,12 +8,12 @@ let popupPinia = usePopupStore();
     <button v-on:click="
       popupPinia.view !== 'permissions' && popupPinia.view !== 'leave'
       ?
-      popupPinia.view = 'sessionStudent'
+      popupPinia.changeView('sessionStudent')
       :
-      popupPinia.view = 'options'
+      popupPinia.changeView('options')
     ">back</button>
 
-    <button v-show="popupPinia.view !== 'leave'" v-on:click="popupPinia.view = 'options'">options</button>
+    <button v-show="popupPinia.view !== 'leave'" v-on:click="popupPinia.changeView('options')">options</button>
     <button v-show="popupPinia.view === 'leave'" v-on:click="popupPinia.handleEndSessionClick()">leave session</button>
   </div>
 </template>
