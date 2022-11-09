@@ -9,7 +9,7 @@
       <p>students!</p>
     </div>
     <div class="h-12 bg-gray-no-student rounded-b-sm flex">
-      <button class="w-full flex justify-center items-center cursor-default">
+      <button id="student_placeholder_view_button" class="w-full flex justify-center items-center cursor-default">
         <img class="w-9 h-5" src="@/assets/img/student-icon-eye.svg" alt="Icon"/>
       </button>
 
