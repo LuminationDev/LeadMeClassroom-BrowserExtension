@@ -159,17 +159,30 @@ const sessionEndedByLeader = () => {
   });
 }
 
+function minimise() {
+  chrome.tabs.query({ url: REQUESTS.ASSISTANT_MATCH_URL }, ([tab]) => {
+    if (tab && tab.windowId) {
+      chrome.windows.update(tab.windowId, { state: 'minimized' });
+    }
+  });
+}
+
 </script>
 
 <template>
-  <div id="assistant">
-    <h1>Assistant</h1>
-    <p>src\pages\assistant\assistant.html</p>
-    <p>Don't close me, I'm here for a persistant connection!</p>
-
-    <p id="updateMessage">{{ updateMessage }}</p>
-
-    <button id="endSessionBtn" @click="endSession">End Session</button>
+  <div id="assistant" class="font-poppins h-screen flex flex-col">
+    <div class="bg-white w-full px-5 py-5">
+      <img class="" src="@/assets/img/icon-popup-header.svg" alt="LeadMe Icon"/>
+    </div>
+    <div class="bg-blue-100 flex flex-col justify-center items-center px-10 sm:px-32 py-8 h-full">
+      <img class="w-32 xs:w-48" src="@/assets/img/happy_col.png" alt="Computer Icon"/>
+      <p v-if="!updateMessage" class="text-xl mt-5 mb-10">Don't close me! I need to stay open for <b>LeadMe Classroom</b> to maintain a connection.</p>
+      <p v-else class="text-xl mt-5 mb-10">{{ updateMessage }}</p>
+      <button
+          class="bg-blue-400 text-white rounded-full px-10 py-3 text-lg shadow"
+          @click="minimise"
+      >Minimise me</button>
+    </div>
   </div>
 </template>
 
@@ -180,6 +193,5 @@ const sessionEndedByLeader = () => {
   -moz-osx-font-smoothing: grayscale;
   text-align: center;
   color: #2c3e50;
-  margin-top: 60px;
 }
 </style>

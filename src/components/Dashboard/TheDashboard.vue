@@ -12,6 +12,7 @@ import ContentMain from "./Content/ContentMain.vue";
 import { onMounted, ref } from "vue";
 import { useDashboardStore } from "../../stores/dashboardStore";
 import { VOnboardingWrapper, VOnboardingStep, useVOnboarding } from 'v-onboarding'
+
 const dashboardPinia = useDashboardStore();
 
 const steps = ref([
