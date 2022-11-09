@@ -1,12 +1,44 @@
-<script setup>
-import Modal from "@/components/Modals/Modal.vue";
-import {ref} from "vue";
+<script setup lang="ts">
+import {Ref, ref} from "vue";
 
-import { useDashboardStore } from "@/stores/dashboardStore.ts";
+import {useDashboardStore} from "../../stores/dashboardStore";
+import StudentGridItem from "../Dashboard/ClassControl/GridItem/StudentGridItem.vue";
+import Modal from "./Modal.vue";
 let dashboardPinia = useDashboardStore();
 
 const showWebsiteModal = ref(false);
 const websiteLink = ref("");
+
+const shareTo = ref("all")
+
+const followersSelected: Ref<string[]> = ref([])
+
+function handleFollowerSelection(followerId: string, value: boolean) {
+  let index = followersSelected.value.findIndex(element => element === followerId)
+  if (value) {
+    if (index === -1) {
+      followersSelected.value.splice(0, 0, followerId)
+    }
+  } else {
+    if (index !== -1) {
+      followersSelected.value.splice(index, 1)
+    }
+  }
+}
+
+function submit()
+{
+  if (shareTo.value === 'all') {
+    dashboardPinia.launchWebsite(websiteLink.value);
+  }
+  if (shareTo.value === 'selected') {
+    followersSelected.value.forEach(id => {
+      dashboardPinia.launchWebsiteIndividual(id, websiteLink.value)
+    })
+  }
+
+  showWebsiteModal.value = false
+}
 </script>
 
 <template>
@@ -55,15 +87,19 @@ const websiteLink = ref("");
             <p class="ml-8 text-lg">Share to</p>
             <div class="flex">
               <label class="mr-14 flex justify-between items-center">
-                <input class="h-5 w-5 mr-4" name="shareTo" type="radio">
+                <input class="h-5 w-5 mr-4" name="shareTo" type="radio" v-model="shareTo" value="all">
                 <p class="text-base">All connected users</p>
               </label>
 
               <label class="mr-20 flex justify-between items-center">
-                <input class="h-5 w-5 mr-4" name="shareTo" type="radio">
+                <input class="h-5 w-5 mr-4" name="shareTo" type="radio" v-model="shareTo" value="selected">
                 <p class="text-base">Select users</p>
               </label>
             </div>
+          </div>
+          <div v-if="shareTo === 'selected'" class="mx-14 mt-8">
+            {{ followersSelected }}
+            <StudentGridItem v-for="follower in dashboardPinia.followers" :follower="follower" :controls="false" @update="(value) => { handleFollowerSelection(follower.getUniqueId(), value) }"/>
           </div>
         </div>
       </template>
@@ -75,7 +111,7 @@ const websiteLink = ref("");
           >Cancel</button>
           <button
               class="w-52 h-11 text-white bg-modal-blue rounded-lg text-base hover:bg-navy-side-menu"
-              v-on:click="dashboardPinia.launchWebsite(websiteLink); showWebsiteModal = false"
+              v-on:click="submit"
           >Share link</button>
         </footer>
       </template>

@@ -310,6 +310,11 @@ export let useDashboardStore = defineStore("dashboard", {
             this.firebase.requestAction(this.classCode, action);
         },
 
+        launchWebsiteIndividual(UUID: string, website: string) {
+            let action = { type: REQUESTS.WEBSITE, value: website };
+            this.firebase.requestIndividualAction(this.classCode, UUID, action);
+        },
+
         /**
          * Send an action to all connected students.
          * @param action
