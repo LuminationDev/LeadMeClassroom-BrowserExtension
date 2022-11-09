@@ -74,6 +74,21 @@ const steps = ref([
         placement: 'right-start'
       }
     }
+  },
+  {
+    attachTo: {
+      element: '#student_placeholder_view_button'
+    },
+    content: {
+      title: 'View their screen in real time',
+      description: 'Request to view a student\'s screen to stay on top',
+      image: '/src/assets/img/onboarding/keep_on_task.png'
+    },
+    options: {
+      popper: {
+        placement: 'right-start'
+      }
+    }
   }
 ])
 
