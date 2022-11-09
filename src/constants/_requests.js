@@ -9,6 +9,7 @@ export const CAPTURE = "capture";
 export const UPDATE_TAB = "updateTab";
 export const UPDATE_ACTIVE_TAB = "updateActiveTab";
 export const REMOVE_TAB = "removeTab";
+export const DELETE_TAB = "deleteTab";
 
 export const WEBSITE = "website";
 

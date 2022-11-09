@@ -8,11 +8,15 @@ import {defineProps, PropType, computed, ref} from 'vue'
 import * as REQUESTS from "@/constants/_requests.js";
 // @ts-ignore
 import { Firebase } from '@/controller';
+// @ts-ignore
+import * as MODELS from '@/models/index.js';
 import Follower from "../../../../models/_follower";
 import Tab from "../../../../models/_tab";
+import ClassControlStudentDetailModal from "../ClassControlStudentDetailModal.vue";
 
 const emit = defineEmits<{
   (e: 'removeFollower', follower: Follower): void
+  (e: 'deleteTab', tabId: string): void
 }>()
 
 const removing = ref(false)
@@ -58,6 +62,12 @@ function removeFollower () {
     emit('removeFollower', props.follower)
   }, 500)
 }
+
+function deleteTab (tabId: string) {
+  emit('deleteTab', tabId)
+}
+
+const showModal = ref(false);
 </script>
 
 <template>
@@ -110,7 +120,12 @@ function removeFollower () {
         <img class="w-9 h-5" src="@/assets/img/student-icon-eye.svg" alt="Icon"/>
       </button>
       <div class="h-10 mt-1 w-px bg-white"></div>
-      <button class="w-full flex justify-center items-center">
+      <ClassControlStudentDetailModal
+          :follower="follower"
+          :show-modal="showModal"
+          @hide="() => { showModal = false }"
+          @delete-tab="deleteTab"/>
+      <button class="w-full flex justify-center items-center" @click="() => { showModal = true }">
         <img class="w-5 h-3" src="@/assets/img/student-icon-ham-menu.svg" alt="Icon"/>
       </button>
     </div>
