@@ -114,7 +114,12 @@ class Leader {
         return (
             JSON.parse(
                 `{
-                    "${this.code}": "awaiting follower"
+                    "${this.code}": {
+                        "leader": {
+                            "message": "awaiting connection",
+                            "senderId": "0"
+                        }
+                    }
                 }`
             )
         );

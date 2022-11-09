@@ -1,10 +1,13 @@
 <script setup lang="ts">
 import '../../styles.css'
-import { onMounted, ref, computed } from 'vue'
+import { ref } from 'vue'
 import { ConnectionManager } from '../../controller'
 import * as REQUESTS from '../../constants/_requests.js'
 import Tab from "../../models/_tab";
 import Follower from "../../models/_follower";
+
+import { useWebRTCStore } from "../../stores/webRTCStore";
+const webRTCPinia = useWebRTCStore();
 
 const assistantListener = (data: any) => {
   if (data == null) {
@@ -18,18 +21,12 @@ const assistantListener = (data: any) => {
       monitorRequest();
       break;
 
-    case "ice":
-      console.log("ice");
-      if (MANAGER.value.webRTC) {
-        MANAGER.value.webRTC.readIceCandidate(data);
-      }
+    case REQUESTS.MONITORDATA:
+      webRTCPinia.readIceCandidate(data, followerData.uuid);
       break;
 
     case REQUESTS.MONITORENDED:
-      console.log(MANAGER)
-      if (MANAGER.value.webRTC) {
-        MANAGER.value.webRTC.stopFollowerStream();
-      }
+      webRTCPinia.stopTracks(followerData.uuid);
       break;
 
     case REQUESTS.CAPTURE:
@@ -84,10 +81,18 @@ chrome.runtime.onMessage.addListener(
 
 //Persistent connection to Firebase & WebRTC
 const MANAGER = ref(new ConnectionManager(assistantListener));
+//MANAGER.value.webRTC = webRTCPinia;
+
+//Hold a reference to the follower data
+const followerData = {
+  uuid: "",
+  classCode: ""
+}
 
 //Start the connection manager on page load
 chrome.storage.sync.get("follower", async (data) => {
   let f = new Follower(data.follower.code, data.follower.name)
+  setupWebRTCConnection(f.getUniqueId(), data.follower.code);
   chrome.tabs.query({}, (tabs) => {
     const tabsArr: Tab[] = tabs.map(tab => {
       return new Tab(tab.id + "", tab.title ?? "", tab.favIconUrl ?? "", tab.url ?? "")
@@ -97,16 +102,28 @@ chrome.storage.sync.get("follower", async (data) => {
   })
 });
 
+/**
+ * Set up a followers WebRTC connection.
+ * @param UUID
+ * @param classCode
+ */
+const setupWebRTCConnection = (UUID: string, classCode: string) => {
+  followerData.uuid = UUID;
+  followerData.classCode = classCode;
+  webRTCPinia.setConnectionDetails(sendIceCandidates, followerData.classCode, followerData.uuid);
+  webRTCPinia.createNewConnection(followerData.uuid, null);
+}
+
+const sendIceCandidates = (senderId: number, UUID: string, data: object) => {
+  MANAGER.value.firebase.sendIceCandidates(senderId, UUID, data, followerData.classCode);
+}
+
 const monitorRequest = () => {
   console.log("Leader has asked follower for permission");
   chrome.runtime.sendMessage({ "type": "maximize" });
   setTimeout(() => {
-    if (!MANAGER.value.webRTC) {
-      return
-    }
-    MANAGER.value.webRTC.prepareScreen()
-        .then((result) => {
-          console.log(result);
+    webRTCPinia.prepareScreen(followerData.uuid)
+        .then((result: string) => {
           MANAGER.value.sendResponse({ "type": REQUESTS.MONITORPERMISSION, message: result });
           chrome.runtime.sendMessage({ "type": "minimize" });
         });
@@ -136,6 +153,7 @@ let updateMessage = ref("")
  * session.
  */
 const sessionEndedByLeader = () => {
+  webRTCPinia.stopTracks(followerData.uuid);
   chrome.runtime.sendMessage({ "type": "maximize" });
 
   let count = 5;

@@ -1,10 +1,6 @@
 //General controls
 export const ENDSESSION = "end_session";
 
-export const MONITORPERMISSION = "video_permission";
-
-export const MONITORENDED = "video_ended";
-
 export const CAPTURE = "capture";
 export const UPDATE_TAB = "updateTab";
 export const UPDATE_ACTIVE_TAB = "updateActiveTab";
@@ -14,6 +10,13 @@ export const DELETE_TAB = "deleteTab";
 export const WEBSITE = "website";
 
 export const ASSISTANT_MATCH_URL = "chrome-extension://*/*/assistant.html";
+
+//Web RTC controls
+export const MONITORPERMISSION = "video_permission";
+
+export const MONITORDATA = "iceCandidates";
+
+export const MONITORENDED = "video_ended";
 
 //Tab controls
 export const MAXIMIZE = "maximize";

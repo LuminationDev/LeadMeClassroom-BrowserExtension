@@ -1,11 +1,9 @@
 import Firebase from './_firebase';
-import WebRTC from './_webRTC';
 import * as REQUESTS from "../constants/_requests";
 
 class ConnectionManager {
     constructor(callback) {
         this.firebase = new Firebase(callback);
-        this.webRTC;
         this.follower;
     }
 
@@ -39,9 +37,7 @@ class ConnectionManager {
      * Remove the connection to firebase. Used when signing out or tab becomes inactive.
      */
     disconnect = () => {
-        if (this.webRTC) {
-            this.firebase.unregisterListeners(this.follower.classCode, this.follower.uniqueId);
-        }
+        this.firebase.unregisterListeners(this.follower.classCode, this.follower.uniqueId);
     }
 
     /**
@@ -58,7 +54,6 @@ class ConnectionManager {
     connectionMethods = () => {
         this.firebase.registerListeners(this.follower.classCode, this.follower.uniqueId);
         this.captureScreen(this.follower.classCode, this.follower.uniqueId);
-        this.webRTC = new WebRTC(this.firebase.db, this.follower.classCode, this.follower.uniqueId);
     }
 
     /**
