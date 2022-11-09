@@ -1,15 +1,17 @@
 <script setup>
 import PopupSecondaryButton from "@/components/Buttons/PopupSecondaryButton.vue";
 import LoginTextInput from "@/components/Popup/Login/LoginTextInput.vue";
-
+import {ref} from "vue";
 import {usePopupStore} from "@/stores/popupStore.ts";
 let popupPinia = usePopupStore();
+
+const email = ref("")
 </script>
 
 <template>
   <div class="mt-6 pb-5">
     <div class="mb-4">
-      <LoginTextInput v-model="popupPinia.email" class="pl-3.5" type="text" placeholder="Email"/>
+      <LoginTextInput v-model="email" class="pl-3.5" type="text" placeholder="Email"/>
       <p class="text-red-400">{{ popupPinia.error }}</p>
     </div>
 
@@ -19,6 +21,6 @@ let popupPinia = usePopupStore();
     >
       Cancel
     </PopupSecondaryButton>
-    <PopupSecondaryButton class="mb-24" v-on:click="popupPinia.handlePasswordReset()">Send</PopupSecondaryButton>
+    <PopupSecondaryButton class="mb-24" v-on:click="popupPinia.handlePasswordReset(email)">Send</PopupSecondaryButton>
   </div>
 </template>

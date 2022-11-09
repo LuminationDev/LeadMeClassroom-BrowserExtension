@@ -1,31 +1,28 @@
-<script setup>
+<script setup lang="ts">
 import PopupSecondaryButton from "@/components/Buttons/PopupSecondaryButton.vue";
 import LoginTextInput from "./LoginTextInput.vue";
 import {ref} from "vue";
 
-import { usePopupStore } from "@/stores/popupStore.ts";
+import { usePopupStore } from "../../../stores/popupStore";
+
 let popupPinia = usePopupStore();
 
 const error = ref("");
+const password = ref("");
+const email = ref("");
 const termsError = ref(false);
 const authorise = ref(false);
 
 function validateInputs() {
   resetErrors();
 
-  if(popupPinia.signupName === "") {
-    //Invalid name input
-    error.value = "Please enter a name.";
-    return;
-  }
-
-  if(!validateEmail()) {
+  if(!validateEmail(email.value)) {
     //Invalid email address
     error.value = "Please enter a valid email address.";
     return;
   }
 
-  if(!validatePassword()) {
+  if(!validatePassword(password.value)) {
     //Password was not valid
     error.value = "Password must contain at least 6 characters.";
     return;
@@ -37,19 +34,21 @@ function validateInputs() {
     return;
   }
 
-  popupPinia.handleSignup();
+  popupPinia.handleSignup(email.value, password.value);
+  email.value = ""
+  password.value = ""
 }
 
-function validateEmail() {
-  return String(popupPinia.email)
+function validateEmail(email: string) {
+  return String(email)
       .toLowerCase()
       .match(
           /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
       );
 }
 
-function validatePassword() {
-  return popupPinia.password.length > 5;
+function validatePassword(password: string) {
+  return password.length > 5;
 }
 
 function resetErrors() {
@@ -62,8 +61,8 @@ function resetErrors() {
   <div class="mt-9 pb-7">
     <div>
       <LoginTextInput class="mb-2" type="text" placeholder="Name" v-model="popupPinia.name"/>
-      <LoginTextInput class="mb-2" type="text" placeholder="Email" v-model="popupPinia.email"/>
-      <LoginTextInput class="mb-3" type="password" placeholder="Password" v-model="popupPinia.password"/>
+      <LoginTextInput class="mb-2" type="text" placeholder="Email" v-model="email"/>
+      <LoginTextInput class="mb-3" type="password" placeholder="Password" v-model="password"/>
       <p class="text-red-400">{{ error }}</p>
     </div>
 

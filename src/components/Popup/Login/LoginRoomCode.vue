@@ -40,7 +40,7 @@ function resetErrorMessages() {
 
     <label class="inline-flex items-center mb-4">
       <input class="w-4 h-4" v-model="authorise" type="checkbox"/>
-      <p class="w-56 ml-4 text-xsm text-left text-gray-popup-text">I authorise the <span @click="popupPinia.changeView('permissions')" class="underline underline-offset-1 cursor-pointer">permissions</span> necessary for LeadMe Classroom to function</p>
+      <p class="w-56 ml-4 text-xsm text-left text-gray-popup-text">I authorise the <span @click.prevent="popupPinia.changeView('permissions')" class="underline underline-offset-1 cursor-pointer">permissions</span> necessary for LeadMe Classroom to function</p>
     </label>
 
     <PopupSecondaryButton v-on:click="checkInputs()">Enter</PopupSecondaryButton>
