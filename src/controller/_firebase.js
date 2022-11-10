@@ -18,9 +18,10 @@ import {
 import {browserLocalPersistence, getAuth, setPersistence} from "@firebase/auth";
 import * as REQUESTS from '../constants/_requests.js'
 
-//const config = process.env.NODE_ENV === 'production' ? prodConfig : devConfig;
+const config = process.env.NODE_ENV === 'production' ? prodConfig : devConfig;
 
-const config = testConfig;
+//Use if testing a new feature, remove before development end
+//const config = testConfig;
 
 class Firebase {
     constructor(callback) {
@@ -63,6 +64,7 @@ class Firebase {
      * @param followerResponse
      * @param {*} followerDisconnected
      * @param followerAdded
+     * @param readIceCandidate
      */
     followerListeners = (classCode, followerResponse, followerDisconnected, followerAdded, readIceCandidate) => {
         const followerRef = ref(this.db, `/followers/${classCode}`);
@@ -121,7 +123,6 @@ class Firebase {
      * @param followerResponse
      */
     reloadFollowers = (classCode, followerResponse) => {
-        // todo - use new method and load in the screenshot
         const followerRef = ref(this.db, `/followers/${classCode}`);
         get(followerRef).then((snapshot) => {
             snapshot.forEach(entry => {

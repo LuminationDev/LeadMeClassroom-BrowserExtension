@@ -39,6 +39,7 @@ const props = defineProps({
 function handleMonitorFollowerButton() {
   if (props.follower.monitoring) {
     console.log("Sending webRTC permission message to firebase");
+    props.follower.monitoring = false;
     dashboardPinia.requestIndividualAction(props.follower.getUniqueId(), { type: REQUESTS.MONITORENDED });
   } else {
     webRTCPinia.stopTracks(props.follower.getUniqueId()); //stop video call if exists
