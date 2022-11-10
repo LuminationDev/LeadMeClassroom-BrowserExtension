@@ -16,9 +16,11 @@ import {
     off
 } from 'firebase/database';
 import {browserLocalPersistence, getAuth, setPersistence} from "@firebase/auth";
+import * as REQUESTS from '../constants/_requests.js'
 
 const config = process.env.NODE_ENV === 'production' ? prodConfig : devConfig;
 
+//Use if testing a new feature, remove before development end
 //const config = testConfig;
 
 class Firebase {
@@ -62,8 +64,9 @@ class Firebase {
      * @param followerResponse
      * @param {*} followerDisconnected
      * @param followerAdded
+     * @param readIceCandidate
      */
-    followerListeners = (classCode, followerResponse, followerDisconnected, followerAdded) => {
+    followerListeners = (classCode, followerResponse, followerDisconnected, followerAdded, readIceCandidate) => {
         const followerRef = ref(this.db, `/followers/${classCode}`);
 
         onChildAdded(followerRef, (snapshot) => {
@@ -74,6 +77,12 @@ class Firebase {
             const individualRef = ref(this.db, `/followers/${classCode}/${id}`);
             onChildChanged(individualRef, (snapshot) => {
                 followerResponse(snapshot.val(), name, id, snapshot.key);
+            });
+
+            //Add ice listeners
+            const iceRef = ref(this.db, `ice/${classCode}/${id}`);
+            onChildAdded(iceRef, (snapshot) => {
+                readIceCandidate(snapshot, id)
             });
         });
 
@@ -114,7 +123,6 @@ class Firebase {
      * @param followerResponse
      */
     reloadFollowers = (classCode, followerResponse) => {
-        // todo - use new method and load in the screenshot
         const followerRef = ref(this.db, `/followers/${classCode}`);
         get(followerRef).then((snapshot) => {
             snapshot.forEach(entry => {
@@ -235,6 +243,13 @@ class Firebase {
         //Listen for individual actions
         const individualRef = ref(this.db, `followerMessages/${classCode}/${uuid}/request`);
         onChildAdded(individualRef, (snapshot) => this.callback(snapshot.val()));
+
+        //Listen for ice candidates
+        const iceRef = ref(this.db, `ice/${classCode}/${uuid}`);
+        onChildAdded(iceRef, (snapshot) => {
+            snapshot.type = REQUESTS.MONITORDATA;
+            this.callback(snapshot);
+        });
     }
 
     /**
@@ -245,6 +260,7 @@ class Firebase {
     unregisterListeners = (inputCode, uuid) => {
         off(ref(this.db, `classCode/${inputCode}/request`));
         off(ref(this.db, `followerMessages/${inputCode}/${uuid}/request`))
+        off(ref(this.db, `ice/${inputCode}/${uuid}`));
     }
 
     /**
@@ -335,6 +351,18 @@ class Firebase {
                     set(followerRef, url).then(() => console.log("Screenshot updated"))
                 })
             });
+    }
+
+    /**
+     * Send the latest ICE candidates to firebase.
+     * @param senderId
+     * @param UUID
+     * @param data
+     * @param classCode
+     */
+    sendIceCandidates = (senderId, UUID, data, classCode) => {
+        const msgRef = ref(this.db, `ice/${classCode}/${UUID}`);
+        push(msgRef, { sender: senderId, message: data }).then(msg => remove(msg));
     }
 }
 

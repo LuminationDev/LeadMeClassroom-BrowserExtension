@@ -5,12 +5,14 @@ const { getSyncStorage, setSyncStorage, removeSyncStorage } = useStorage();
 // @ts-ignore
 import * as REQUESTS from "@/constants/_requests.js";
 // @ts-ignore
-import { Firebase, WebRTC } from '@/controller/index.ts';
+import { Firebase } from '@/controller/index.ts';
 // @ts-ignore
 import * as MODELS from '@/models/index.ts';
 import { Follower, Tab, Leader } from '../models'
 const firebase = new Firebase();
 const leaderName = await firebase.getDisplayName();
+
+import { useWebRTCStore } from "./webRTCStore";
 
 /**
  * When the dashboard is first loaded or if the page is refreshed check to see if there was
@@ -42,6 +44,7 @@ export let useDashboardStore = defineStore("dashboard", {
             followers: <Follower[]>([]),
             webLink: "",
             leader: new Leader(leaderName),
+            webRTCPinia: useWebRTCStore(),
         }
     },
 
@@ -63,6 +66,27 @@ export let useDashboardStore = defineStore("dashboard", {
             this.firebase.connectAsLeader(this.leader);
             await setSyncStorage({"CurrentClass": this.classCode});
             await this.attachClassListeners(false);
+
+            this.webRTCPinia.setConnectionDetails(this.sendIceCandidates, this.classCode, "leader");
+        },
+
+        /**
+         * Send WebRTC ice candidates to the Firebase database
+         * @param senderId The unique ID of the sender to differentiate between the sender and receiver.
+         * @param UUID The unique ID of the student which acts as the database reference location
+         * @param data An object that contains the latest ice candidates
+         */
+        sendIceCandidates(senderId: number, UUID: string, data: object) {
+            this.firebase.sendIceCandidates(senderId, UUID, data, this.classCode);
+        },
+
+        /**
+         * Read the latest ice candidates and send them through to the WebRTC store for further action.
+         * @param snapshot A firebase snapshot containing the ice information.
+         * @param UUID The unique ID (key) of the student connection in the WebRTC connection objects
+         */
+        readIceCandidate(snapshot: any, UUID: string) {
+            this.webRTCPinia.readIceCandidate(snapshot, UUID)
         },
 
         async attachClassListeners(active: boolean) {
@@ -77,7 +101,8 @@ export let useDashboardStore = defineStore("dashboard", {
                 this.classCode,
                 this.followerResponse,
                 this.followerDisconnected,
-                this.followerAdded
+                this.followerAdded,
+                this.readIceCandidate
             );
             this.firebase.tabListeners(
                 this.classCode,
@@ -236,7 +261,6 @@ export let useDashboardStore = defineStore("dashboard", {
          */
         followerAdded(snapshot: any, id: string) {
             let follower = new Follower(this.classCode, snapshot.name, id)
-            follower.webRTC = new WebRTC(this.firebase.db, this.classCode, id)
             follower.monitoring = false
             follower.muted = false
             follower.muteAll = false
@@ -254,6 +278,11 @@ export let useDashboardStore = defineStore("dashboard", {
             } else {
                 this.followers.splice(index, 1, follower)
             }
+
+            //Wait so that the video element is created
+            setTimeout(() => {
+                this.webRTCPinia.createNewConnection(id, <HTMLVideoElement>document.getElementById(`video_${follower.getUniqueId()}`));
+            }, 1000);
         },
 
         /**
@@ -283,16 +312,12 @@ export let useDashboardStore = defineStore("dashboard", {
          * @param id
          */
         monitorRequestResponse(message: string, id: string) {
-            console.log(message);
-            console.log(id);
-
             let follower = this.followers.find(element => element.getUniqueId() === id)
             if (!follower) { return }
 
             if (message === "granted") {
                 follower.monitoring = true
-                follower.webRTC.setVideoElement(document.getElementById(`video_${follower.getUniqueId()}`))
-                follower.webRTC.startFollowerStream()
+                this.webRTCPinia.startFollowerStream(id);
             } else {
                 follower.monitoring = false
                 console.log("User has denied the monitor request");
@@ -328,9 +353,5 @@ export let useDashboardStore = defineStore("dashboard", {
         requestIndividualAction(UUID: string, action: object) {
             this.firebase.requestIndividualAction(this.classCode, UUID, action);
         },
-    },
-
-    getters: {
-
     }
 });

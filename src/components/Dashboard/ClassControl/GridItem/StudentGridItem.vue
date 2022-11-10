@@ -1,14 +1,16 @@
 <script setup lang="ts">
-import { useDashboardStore } from "../../../../stores/dashboardStore";
 import {defineProps, PropType, computed, ref} from 'vue'
 import * as REQUESTS from '../../../../constants/_requests'
-import { Firebase } from '../../../../controller'
 // @ts-ignore
 import * as MODELS from '@/models/index.ts';
 import { Tab, Follower } from "../../../../models";
 import ClassControlStudentDetailModal from "@/components/Dashboard/ClassControl/ClassControlStudentDetailModal.vue";
 
+import { useDashboardStore } from "../../../../stores/dashboardStore";
 let dashboardPinia = useDashboardStore();
+
+import { useWebRTCStore } from "../../../../stores/webRTCStore";
+let webRTCPinia = useWebRTCStore();
 
 const emit = defineEmits<{
   (e: 'removeFollower', follower: Follower): void
@@ -37,9 +39,10 @@ const props = defineProps({
 function handleMonitorFollowerButton() {
   if (props.follower.monitoring) {
     console.log("Sending webRTC permission message to firebase");
+    props.follower.monitoring = false;
     dashboardPinia.requestIndividualAction(props.follower.getUniqueId(), { type: REQUESTS.MONITORENDED });
   } else {
-    props.follower.webRTC.stopFollowerStream(); //stop video call if exists
+    webRTCPinia.stopTracks(props.follower.getUniqueId()); //stop video call if exists
     dashboardPinia.requestIndividualAction(props.follower.getUniqueId(), { type: REQUESTS.MONITORPERMISSION });
   }
 }
