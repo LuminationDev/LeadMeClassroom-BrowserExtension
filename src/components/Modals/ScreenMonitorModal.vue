@@ -76,8 +76,8 @@ function cancelMonitor() {
           </div>
 
           <!--Screenshot content-->
-          <div v-if="!follower.monitoring" class="max-w-4xl">
-            <img :id="`image_${follower.getUniqueId()}`" :src="follower.imageBase64" alt="Follower Screen shot"/>
+          <div v-if="!follower.monitoring" class="w-modal-width-xsm">
+            <img class="aspect-video" :id="`image_${follower.getUniqueId()}`" :src="follower.imageBase64" alt="Follower Screen shot"/>
           </div>
 
 
@@ -85,7 +85,7 @@ function cancelMonitor() {
             <!--Waiting for permission-->
             <div v-if="follower.permission !== 'granted'"
                  :class="{
-                    'w-modal-width-xsm bg-white flex flex-col justify-center items-center' : 'true',
+                    'w-modal-width-xsm aspect-video bg-white flex flex-col justify-center items-center' : 'true',
                     'hidden': follower.permission === 'granted'
             }">
 
@@ -110,10 +110,10 @@ function cancelMonitor() {
             </div>
 
             <!--Video content-->
-            <div class="max-w-4xl">
-              <video :class="{
+            <div :class="{
                       'hidden': follower.permission !== 'granted'
-                     }"
+                     }">
+              <video class="w-modal-width-xsm aspect-video"
                      :id="`video_${follower.getUniqueId()}`"
                      muted autoplay
               />
@@ -156,16 +156,14 @@ function cancelMonitor() {
 
 .lds-dual-ring {
   display: inline-block;
-  width: 128px;
-  height: 128px;
-  margin-right: 5px;
-  margin-bottom: 5px;
+  width: 150px;
+  height: 150px;
 }
 .lds-dual-ring:after {
   content: " ";
   display: block;
-  width: 128px;
-  height: 128px;
+  width: 150px;
+  height: 150px;
   border-radius: 50%;
   border: 2px solid #182B50;
   border-color: #182B50 transparent #182B50 transparent;

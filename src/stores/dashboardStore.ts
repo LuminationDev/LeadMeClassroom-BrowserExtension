@@ -67,6 +67,7 @@ export let useDashboardStore = defineStore("dashboard", {
             await setSyncStorage({"CurrentClass": this.classCode});
             await this.attachClassListeners(false);
 
+            // @ts-ignore
             this.webRTCPinia.setConnectionDetails(this.sendIceCandidates, this.classCode, "leader");
         },
 
