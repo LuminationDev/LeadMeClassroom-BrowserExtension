@@ -9,6 +9,7 @@ import { Firebase, WebRTC } from '@/controller/index.ts';
 // @ts-ignore
 import * as MODELS from '@/models/index.ts';
 import { Follower, Tab, Leader } from '../models'
+import {MUTETAB} from "../constants/_requests";
 const firebase = new Firebase();
 const leaderName = await firebase.getDisplayName();
 
@@ -137,7 +138,10 @@ export let useDashboardStore = defineStore("dashboard", {
          * @param key
          */
         followerTabChanged(response: any, followerId: string, key: string) {
-            this.updateFollowerTab(new Tab(key, response.name, response.favicon, response.url, response.lastActivated), followerId)
+            let newTab = new Tab(key, response.name, response.favicon, response.url, response.lastActivated)
+            newTab.audible = response.audible ?? false
+            newTab.muted = response.muted ?? false
+            this.updateFollowerTab(newTab, followerId)
         },
 
         /**
@@ -158,7 +162,10 @@ export let useDashboardStore = defineStore("dashboard", {
             let tabs: Array<Tab> = []
             Object.values(response).forEach((tab: any) => {
                 console.log("adding a tab", JSON.stringify(tab))
-                tabs.push(new Tab(tab.id, tab.name, tab.favicon, tab.url, tab.lastActivated))
+                let newTab = new Tab(tab.id, tab.name, tab.favicon, tab.url, tab.lastActivated)
+                newTab.audible = tab.audible ?? false
+                newTab.muted = tab.muted ?? false
+                tabs.push(newTab)
             })
             this.setFollowerTabs(tabs, followerId)
         },
@@ -213,6 +220,24 @@ export let useDashboardStore = defineStore("dashboard", {
                 const index = follower.tabs.findIndex(element => id === element.id)
                 if (index !== -1) {
                     follower.tabs[index].closing = true
+                }
+            }
+        },
+
+        /**
+         * Add new follower or update an existing one
+         * @param followerId
+         * @param id
+         */
+        requestUpdateMutingTab(followerId: string, tabId: string, newValue: boolean) {
+            let follower = this.followers.find(element => element.getUniqueId() === followerId)
+            if (follower) {
+                let action = { type: newValue ? REQUESTS.MUTETAB : REQUESTS.UNMUTETAB, tabId };
+                console.log(action)
+                this.firebase.requestIndividualAction(this.classCode, follower.getUniqueId(), action);
+                const index = follower.tabs.findIndex(element => tabId === element.id)
+                if (index !== -1) {
+                    follower.tabs[index].muting = true
                 }
             }
         },

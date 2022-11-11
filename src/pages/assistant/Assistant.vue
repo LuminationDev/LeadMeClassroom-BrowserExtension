@@ -90,7 +90,10 @@ chrome.storage.sync.get("follower", async (data) => {
   let f = new Follower(data.follower.code, data.follower.name)
   chrome.tabs.query({}, (tabs) => {
     const tabsArr: Tab[] = tabs.map(tab => {
-      return new Tab(tab.id + "", tab.title ?? "", tab.favIconUrl ?? "", tab.url ?? "")
+      let newTab = new Tab(tab.id + "", tab.title ?? "", tab.favIconUrl ?? "", tab.url ?? "")
+      newTab.audible = tab.audible ?? false
+      newTab.muted = tab.mutedInfo ? tab.mutedInfo.muted : false
+      return newTab
     })
     f.tabs = tabsArr
     MANAGER.value.connect(f);
