@@ -47,7 +47,10 @@ chrome.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
         return
     }
     chrome.tabs.query({ url: REQUESTS.ASSISTANT_MATCH_URL }, ([assistantTab]) => {
-        chrome.tabs.sendMessage(assistantTab.id, { "type": REQUESTS.UPDATE_TAB, tab: new Tab(tab.id + "", tab.title, tab.favIconUrl, tab.url) });
+        let newTab = new Tab(tab.id + "", tab.title, tab.favIconUrl, tab.url)
+        newTab.audible = tab.audible
+        newTab.muted = tab.mutedInfo ? tab.mutedInfo.muted : false
+        chrome.tabs.sendMessage(assistantTab.id, { "type": REQUESTS.UPDATE_TAB, tab: newTab });
     });
 
     if (changeInfo.url == null) {
@@ -201,10 +204,8 @@ const minimize = () => {
  * Mute the currently active tab or all tabs.
  */
 const muteTab = (request) => {
-    if (request.tabs === REQUESTS.SINGLETAB) {
-        chrome.tabs.query({ currentWindow: true, active: true }, function (tabs) {
-            chrome.tabs.update(tabs[0].id, { muted: true });
-        });
+    if (request.tabId) {
+        chrome.tabs.update(parseInt(request.tabId), { muted: true });
     } else if (request.tabs === REQUESTS.MULTITAB) {
         console.log("MULTITAB MUTE");
         chrome.tabs.query({}, function (tabs) {
@@ -221,10 +222,8 @@ const muteTab = (request) => {
  * Unmute the currently active tab or all tabs.
  */
 const unmuteTab = (request) => {
-    if (request.tabs === REQUESTS.SINGLETAB) {
-        chrome.tabs.query({ currentWindow: true, active: true }, function (tabs) {
-            chrome.tabs.update(tabs[0].id, { muted: false });
-        });
+    if (request.tabId) {
+        chrome.tabs.update(parseInt(request.tabId), { muted: false });
     } else if (request.tabs === REQUESTS.MULTITAB) {
         chrome.tabs.query({}, function (tabs) {
             tabs.forEach(tab => {
