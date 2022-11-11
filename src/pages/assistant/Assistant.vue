@@ -18,6 +18,7 @@ const assistantListener = (data: any) => {
 
   switch (data.type) {
     case REQUESTS.MONITORPERMISSION:
+      webRTCPinia.connectionStatus = true;
       monitorRequest();
       break;
 
@@ -26,6 +27,7 @@ const assistantListener = (data: any) => {
       break;
 
     case REQUESTS.MONITORENDED:
+      webRTCPinia.connectionStatus = false;
       webRTCPinia.stopTracks(followerData.uuid);
       break;
 
@@ -114,7 +116,7 @@ const setupWebRTCConnection = (UUID: string, classCode: string) => {
   followerData.uuid = UUID;
   followerData.classCode = classCode;
   webRTCPinia.setConnectionDetails(sendIceCandidates, followerData.classCode, followerData.uuid);
-  webRTCPinia.createNewConnection(followerData.uuid, null);
+  webRTCPinia.createNewConnection(followerData.uuid);
 }
 
 const sendIceCandidates = (senderId: number, UUID: string, data: object) => {
@@ -127,8 +129,8 @@ const monitorRequest = () => {
   setTimeout(() => {
     webRTCPinia.prepareScreen(followerData.uuid)
         .then((result: string) => {
-          MANAGER.value.sendResponse({ "type": REQUESTS.MONITORPERMISSION, message: result });
-          chrome.runtime.sendMessage({ "type": "minimize" });
+          MANAGER.value.sendResponse({"type": REQUESTS.MONITORPERMISSION, message: result});
+          chrome.runtime.sendMessage({"type": "minimize"});
         });
   }, 500);
 }

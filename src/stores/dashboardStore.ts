@@ -68,6 +68,7 @@ export let useDashboardStore = defineStore("dashboard", {
             await setSyncStorage({"CurrentClass": this.classCode});
             await this.attachClassListeners(false);
 
+            // @ts-ignore
             this.webRTCPinia.setConnectionDetails(this.sendIceCandidates, this.classCode, "leader");
         },
 
@@ -304,10 +305,7 @@ export let useDashboardStore = defineStore("dashboard", {
                 this.followers.splice(index, 1, follower)
             }
 
-            //Wait so that the video element is created
-            setTimeout(() => {
-                this.webRTCPinia.createNewConnection(id, <HTMLVideoElement>document.getElementById(`video_${follower.getUniqueId()}`));
-            }, 1000);
+            this.webRTCPinia.createNewConnection(id);
         },
 
         /**
@@ -336,15 +334,21 @@ export let useDashboardStore = defineStore("dashboard", {
          * @param message
          * @param id
          */
-        monitorRequestResponse(message: string, id: string) {
+        async monitorRequestResponse(message: string, id: string) {
             let follower = this.followers.find(element => element.getUniqueId() === id)
             if (!follower) { return }
 
             if (message === "granted") {
-                follower.monitoring = true
-                this.webRTCPinia.startFollowerStream(id);
+                follower.permission = "connecting";
+                await this.webRTCPinia.startFollowerStream(id);
+
+                //Wait while the webRTC connections are established in the background
+                setTimeout(() => {
+                    // @ts-ignore
+                    follower.permission = "granted";
+                }, 750);
             } else {
-                follower.monitoring = false
+                follower.permission = "declined";
                 console.log("User has denied the monitor request");
             }
         },

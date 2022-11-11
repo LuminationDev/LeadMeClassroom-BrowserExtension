@@ -15,6 +15,7 @@ class Follower {
     UUID: any;
     imageBase64: string|null|undefined;
     monitoring: boolean|null|undefined;
+    permission: string|null|undefined;
     muted: boolean|null|undefined;
     muteAll: boolean|null|undefined;
     disconnected: boolean = false;
@@ -24,6 +25,7 @@ class Follower {
         this.uniqueId = uniqueId;
         this.name = name;
         this.tabs = [];
+        this.permission = null;
     }
 
     updateIndividualTab(id: string, newTab: Tab)

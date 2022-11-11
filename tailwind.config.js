@@ -10,6 +10,7 @@ module.exports = {
         extend: {
             colors: {
                 'panel-background': '#F7F7FC',
+                'light-blue': '#B6DFFF',
                 'button-blue': '#1599F3',
                 'gray-separator': '#9C9C9C',
                 'gray-popup-text': '#424242',
@@ -37,10 +38,12 @@ module.exports = {
                 'options-panel-width': '45rem',
                 'modal-width': '80vw',
                 'onboarding-width': '32rem',
-                'modal-width-sm': '65vw'
+                'modal-width-sm': '65vw',
+                'modal-width-xsm': '55vw'
             },
             height: {
                 'student-options-small': '3.125rem',
+                'monitor-modal': '29rem',
             }
         },
     },
