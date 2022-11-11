@@ -16,6 +16,7 @@ const props = defineProps({
 
 const emit = defineEmits<{
   (e: 'deleteTab', id: string): void
+  (e: 'muteTab', id: string, action: boolean): void
   (e: 'hide'): void
 }>()
 </script>
@@ -39,11 +40,18 @@ const emit = defineEmits<{
                 <img class="flex-shrink-0 w-5 h-5 mr-2" :src="tab.favicon" />
                 <span class="flex-shrink overflow-ellipsis whitespace-nowrap overflow-hidden pr-10 mt-0.5">{{ tab.url }}</span>
               </div>
-              <div class="flex flex-shrink-0 flex-[1_1_auto] justify-center">
+              <div class="flex flex-shrink-0 flex-[1_1_auto] justify-end">
+                <div class="h-4 mr-4 flex flex-row justify-center">
+                  <div v-if="tab.muting" class="lds-dual-ring" />
+                  <button v-else-if="tab.audible" @click="() => { $emit('muteTab', tab.id, !tab.muted) }">
+                    <img v-if="tab.muted" src="@/assets/img/volume_off.svg" />
+                    <img v-else src="@/assets/img/volume_on.svg" />
+                  </button>
+                </div>
                 <button v-if="!tab.closing" @click="() => { $emit('deleteTab', tab.id) }">
-                  <img class="w-4 h-4" src="@/assets/img/cross.svg" />
+                  <img class="h-4" src="@/assets/img/cross.svg" />
                 </button>
-                <div class="lds-dual-ring w-4 h-4" v-else />
+                <div class="lds-dual-ring h-4" v-else />
               </div>
             </div>
           </div>

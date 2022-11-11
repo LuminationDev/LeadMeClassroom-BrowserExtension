@@ -13,6 +13,7 @@ let dashboardPinia = useDashboardStore();
 const emit = defineEmits<{
   (e: 'removeFollower', follower: Follower): void
   (e: 'deleteTab', tabId: string): void
+  (e: 'muteTab', tabId: string, action: boolean): void
   (e: 'update', value: boolean): void
 }>()
 
@@ -61,6 +62,11 @@ function deleteTab (tabId: string) {
 
 const showExtendedModal = ref(false);
 const showMonitorModal = ref(false);
+
+function muteTab (tabId: string, action: boolean) {
+  emit('muteTab', tabId, action)
+}
+
 </script>
 
 <template>
@@ -106,8 +112,9 @@ const showMonitorModal = ref(false);
           :follower="follower"
           :show-modal="showExtendedModal"
           @hide="() => { showExtendedModal = false }"
-          @delete-tab="deleteTab"/>
-      <button class="w-full flex justify-center items-center" @click="() => { showExtendedModal = true }">
+          @delete-tab="deleteTab"
+          @mute-tab="muteTab"/>
+      <button class="w-full flex justify-center items-center" @click="() => { showModal = true }">
         <img class="w-5 h-3" src="@/assets/img/student-icon-ham-menu.svg" alt="Icon"/>
       </button>
     </div>

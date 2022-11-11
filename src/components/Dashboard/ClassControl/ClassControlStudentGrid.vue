@@ -14,6 +14,11 @@ function deleteFollowerTab(follower: Follower, tabId: string) {
   dashboardPinia.requestDeleteFollowerTab(follower.getUniqueId(), tabId)
 }
 
+function muteOrUnmuteTab(follower: Follower, tabId: string, action: boolean) {
+  console.log('heard a mute request', action)
+  dashboardPinia.requestUpdateMutingTab(follower.getUniqueId(), tabId, action)
+}
+
 </script>
 
 <template>
@@ -30,6 +35,7 @@ function deleteFollowerTab(follower: Follower, tabId: string) {
           :key="follower.getUniqueId()"
           :follower="follower"
           @delete-tab="(tabId: string) => { deleteFollowerTab(follower, tabId) }"
+          @mute-tab="(tabId: string, action: boolean) => { muteOrUnmuteTab(follower, tabId, action) }"
           @remove-follower="removeFollower"/>
     </div>
   </div>
