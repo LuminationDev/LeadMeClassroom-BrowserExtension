@@ -18,10 +18,10 @@ import {
 import {browserLocalPersistence, getAuth, setPersistence} from "@firebase/auth";
 import * as REQUESTS from '../constants/_requests.js'
 
-const config = process.env.NODE_ENV === 'production' ? prodConfig : devConfig;
+// const config = process.env.NODE_ENV === 'production' ? prodConfig : devConfig;
 
 //Use if testing a new feature, remove before development end
-//const config = testConfig;
+const config = testConfig;
 
 class Firebase {
     constructor(callback) {

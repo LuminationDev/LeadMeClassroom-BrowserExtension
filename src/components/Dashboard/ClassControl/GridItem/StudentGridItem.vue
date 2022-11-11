@@ -5,12 +5,10 @@ import * as REQUESTS from '../../../../constants/_requests'
 import * as MODELS from '@/models/index.ts';
 import { Tab, Follower } from "../../../../models";
 import ClassControlStudentDetailModal from "@/components/Dashboard/ClassControl/ClassControlStudentDetailModal.vue";
+import ScreenMonitorModal from "@/components/Modals/ScreenMonitorModal.vue";
 
 import { useDashboardStore } from "../../../../stores/dashboardStore";
 let dashboardPinia = useDashboardStore();
-
-import { useWebRTCStore } from "../../../../stores/webRTCStore";
-let webRTCPinia = useWebRTCStore();
 
 const emit = defineEmits<{
   (e: 'removeFollower', follower: Follower): void
@@ -35,17 +33,6 @@ const props = defineProps({
     default: true
   }
 });
-
-function handleMonitorFollowerButton() {
-  if (props.follower.monitoring) {
-    console.log("Sending webRTC permission message to firebase");
-    props.follower.monitoring = false;
-    dashboardPinia.requestIndividualAction(props.follower.getUniqueId(), { type: REQUESTS.MONITORENDED });
-  } else {
-    webRTCPinia.stopTracks(props.follower.getUniqueId()); //stop video call if exists
-    dashboardPinia.requestIndividualAction(props.follower.getUniqueId(), { type: REQUESTS.MONITORPERMISSION });
-  }
-}
 
 function handleMuteFollowerButton() {
   dashboardPinia.requestIndividualAction(props.follower.getUniqueId(), { type: props.follower.muted ? REQUESTS.UNMUTETAB : REQUESTS.MUTETAB, tabs: REQUESTS.SINGLETAB });
@@ -72,7 +59,8 @@ function deleteTab (tabId: string) {
   emit('deleteTab', tabId)
 }
 
-const showModal = ref(false);
+const showExtendedModal = ref(false);
+const showMonitorModal = ref(false);
 </script>
 
 <template>
@@ -97,16 +85,6 @@ const showModal = ref(false);
           </div>
         </div>
       </div>
-
-      <!--Screenshot content-->
-<!--      <div>-->
-<!--        <img class="w-full h-full" :id="`image_${follower.getUniqueId()}`" :src="follower.imageBase64" alt="Follower Screen shot"/>-->
-<!--      </div>-->
-
-      <!--Video content-->
-<!--      <div>-->
-<!--        <video class="w-full h-full" :id="`video_${follower.getUniqueId()}`" muted autoplay/>-->
-<!--      </div>-->
     </div>
 
     <!--Dismiss button-->
@@ -118,32 +96,31 @@ const showModal = ref(false);
 
     <!--Student buttons-->
     <div v-else-if="controls" class="h-12 bg-navy-side-menu rounded-b-sm flex">
-      <button
-        class="w-full flex justify-center items-center"
-        v-on:click="handleMonitorFollowerButton()"
-      >
-        <img class="w-9 h-5" src="@/assets/img/student-icon-eye.svg" alt="Icon"/>
-      </button>
+      <ScreenMonitorModal
+          :follower="follower"
+      />
+
       <div class="h-10 mt-1 w-px bg-white"></div>
+
       <ClassControlStudentDetailModal
           :follower="follower"
-          :show-modal="showModal"
-          @hide="() => { showModal = false }"
+          :show-modal="showExtendedModal"
+          @hide="() => { showExtendedModal = false }"
           @delete-tab="deleteTab"/>
-      <button class="w-full flex justify-center items-center" @click="() => { showModal = true }">
+      <button class="w-full flex justify-center items-center" @click="() => { showExtendedModal = true }">
         <img class="w-5 h-3" src="@/assets/img/student-icon-ham-menu.svg" alt="Icon"/>
       </button>
     </div>
   </div>
 
-  <div class="h-36 w-36" :id="follower.getUniqueId()">
-    <img v-if="follower.imageBase64" :id="`image_${follower.getUniqueId()}`" :src="follower.imageBase64" alt="Follower Screen shot"/>
-    <video :id="`video_${follower.getUniqueId()}`" muted autoplay/>
-    <button @click="() => { handleMonitorFollowerButton() }">{{ follower.monitoring ? 'Stop Monitoring' : 'Request Monitoring' }}</button>
-    <button @click="() => { handleMuteFollowerButton() }">{{ follower.muted ? 'Unmute Tab' : 'Mute Tab' }}</button>
-    <button @click="() => { handleMuteAllFollowerButton() }">{{ follower.muteAll ? 'Unmute All Tab' : 'Mute All Tab' }}</button>
-    <button @click="() => { handleVideoButton(REQUESTS.VIDEOPLAY) }">Play</button>
-    <button @click="() => { handleVideoButton(REQUESTS.VIDEOPAUSE) }">Pause</button>
-    <button @click="() => { handleVideoButton(REQUESTS.VIDEOSTOP) }">Stop</button>
-  </div>
+<!--  <div class="h-36 w-36" :id="follower.getUniqueId()">-->
+<!--    <img v-if="follower.imageBase64" :id="`image_${follower.getUniqueId()}`" :src="follower.imageBase64" alt="Follower Screen shot"/>-->
+<!--    <video :id="`video_${follower.getUniqueId()}`" muted autoplay/>-->
+<!--    <button @click="() => { handleMonitorFollowerButton() }">{{ follower.monitoring ? 'Stop Monitoring' : 'Request Monitoring' }}</button>-->
+<!--    <button @click="() => { handleMuteFollowerButton() }">{{ follower.muted ? 'Unmute Tab' : 'Mute Tab' }}</button>-->
+<!--    <button @click="() => { handleMuteAllFollowerButton() }">{{ follower.muteAll ? 'Unmute All Tab' : 'Mute All Tab' }}</button>-->
+<!--    <button @click="() => { handleVideoButton(REQUESTS.VIDEOPLAY) }">Play</button>-->
+<!--    <button @click="() => { handleVideoButton(REQUESTS.VIDEOPAUSE) }">Pause</button>-->
+<!--    <button @click="() => { handleVideoButton(REQUESTS.VIDEOSTOP) }">Stop</button>-->
+<!--  </div>-->
 </template>

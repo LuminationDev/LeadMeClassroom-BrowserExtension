@@ -17,7 +17,6 @@ interface IConnectionDetails {
 
 interface IRTCConnection {
     peerConnection: RTCPeerConnection;
-    video: HTMLVideoElement;
     stream: MediaStream;
 }
 
@@ -27,7 +26,8 @@ export let useWebRTCStore = defineStore("webRTC", {
             servers: [{'urls': 'stun:stun.services.mozilla.com'}, {'urls': 'stun:stun.l.google.com:19302'}],
             connectionDetails: <IConnectionDetails>{},
             connections: new Map<string, IRTCConnection>(), //hold all the webrtc connections
-            callback: Function
+            callback: Function,
+            connectionStatus: false
         }
     },
 
@@ -57,15 +57,8 @@ export let useWebRTCStore = defineStore("webRTC", {
         readIceCandidate(data: any, UUID: string) {
             const connection = this.connections.get(UUID);
             if(connection == null) { return; }
-
-            console.log(data.val());
-            if(data.val() == null) {
-                return;
-            }
-
-            if(data.val().message === "awaiting connection") {
-                return;
-            }
+            if(data.val() == null) { return; }
+            if(data.val().message === "awaiting connection") { return; }
 
             let msg = JSON.parse(data.val().message);
             let sender = data.val().sender;
@@ -88,12 +81,10 @@ export let useWebRTCStore = defineStore("webRTC", {
         /**
          * Add a new connection to the connections object
          * @param UUID
-         * @param videoElement
          */
-        createNewConnection(UUID: string, videoElement?: HTMLVideoElement) {
+        createNewConnection(UUID: string) {
             const newObj = {
-                peerConnection: this.createNewPeerConnection(UUID, videoElement),
-                video: videoElement,
+                peerConnection: this.createNewPeerConnection(UUID),
                 stream: new MediaStream
             }
 
@@ -103,19 +94,9 @@ export let useWebRTCStore = defineStore("webRTC", {
         /**
          * Create a new peer connection and await ice candidates
          */
-        createNewPeerConnection(UUID: string, videoElement?: HTMLVideoElement) {
+        createNewPeerConnection(UUID: string) {
             let peerConnection = new RTCPeerConnection(configuration);
             peerConnection.onicecandidate = (event => event.candidate ? this.callback(this.connectionDetails.uniqueId, UUID, JSON.stringify({ 'ice': event.candidate })) : console.log("Sent All Ice"));
-            // peerConnection.ontrack = (e: RTCTrackEvent) => {
-            //     videoElement.srcObject = e.streams[0];
-            //     return false;
-            // }
-
-            if(videoElement != null) {
-                // @ts-ignore
-                peerConnection.onaddstream = (event => videoElement.srcObject = event.stream);
-            }
-
             return peerConnection;
         },
 
@@ -123,13 +104,16 @@ export let useWebRTCStore = defineStore("webRTC", {
          * Ask to capture the current screen that is visible.
          */
         async prepareScreen(UUID: string) {
-            console.log(UUID);
-            console.log(this.connections);
             const connection = this.connections.get(UUID);
             if(connection == null) { return; }
 
             return navigator.mediaDevices.getDisplayMedia({ audio: false, video: true })
                 .then(stream => {
+                    //Determine if the teacher has cancelled the connection in the meantime
+                    if(!this.connectionStatus) {
+                        stream.getTracks().forEach(track => track.stop());
+                        return "denied";
+                    }
 
                     //Keep track of the current media stream for the connection
                     connection.stream = stream;
@@ -146,15 +130,27 @@ export let useWebRTCStore = defineStore("webRTC", {
         /**
          * Create an offer to send to a specific follower.
          */
-        startFollowerStream(UUID: string) {
-            const connection = this.connections.get(UUID);
-            if(connection == null) { return; }
+        async startFollowerStream(UUID: string) {
+            return new Promise((resolve) => {
+                const connection = this.connections.get(UUID);
+                if(connection == null) { return; }
 
-            //Create offer for one way connection
-            const pc = connection.peerConnection;
-            connection.peerConnection.createOffer({ offerToReceiveVideo: true })
-                .then(offer => pc.setLocalDescription(offer))
-                .then(() => this.callback(this.connectionDetails.uniqueId, UUID, JSON.stringify({ 'sdp': connection.peerConnection.localDescription })));
+                //Attach the video element - wait for it to render first
+                setTimeout(() => {
+                    const videoElement = <HTMLVideoElement>document.getElementById(`video_${UUID}`);
+                    connection.peerConnection.ontrack = (e: RTCTrackEvent) => {
+                        videoElement.srcObject = e.streams[0];
+                        return false;
+                    }
+
+                    //Create offer for one way connection
+                    connection.peerConnection.createOffer({ offerToReceiveVideo: true })
+                        .then(offer => connection.peerConnection.setLocalDescription(offer))
+                        .then(() => this.callback(this.connectionDetails.uniqueId, UUID, JSON.stringify({ 'sdp': connection.peerConnection.localDescription })));
+
+                    resolve("Success");
+                }, 500);
+            });
         },
 
         /**
@@ -167,7 +163,7 @@ export let useWebRTCStore = defineStore("webRTC", {
             //Close the current stream then set up the video ready for the next stream
             connection.stream.getTracks().forEach(track => track.stop());
             connection.peerConnection.close()
-            connection.peerConnection = this.createNewPeerConnection(UUID, connection.video);
+            connection.peerConnection = this.createNewPeerConnection(UUID);
         },
     }
 });
