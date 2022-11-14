@@ -1,29 +1,45 @@
 <script setup lang="ts">
-import Modal from "@/components/Modals/Modal.vue";
-import {defineProps, PropType} from "vue";
+import Modal from "./Modal.vue";
+import {defineProps, PropType, ref} from "vue";
+import Follower from "../../models/_follower";
+import { useDashboardStore } from "../../stores/dashboardStore";
+let dashboardPinia = useDashboardStore();
 
-import Follower from "../../../models/_follower";
 const props = defineProps({
   follower: {
     type: Object as PropType<Follower>,
     required: true,
   },
-  showModal: {
-    type: Boolean,
-    required: true,
-  },
 });
 
-const emit = defineEmits<{
-  (e: 'deleteTab', id: string): void
-  (e: 'muteTab', id: string, action: boolean): void
-  (e: 'hide'): void
-}>()
+const showDetailModal = ref(false);
+
+function deleteFollowerTab(tabId: string) {
+  dashboardPinia.requestDeleteFollowerTab(props.follower.getUniqueId(), tabId)
+}
+
+function muteOrUnmuteTab(tabId: string, action: boolean) {
+  console.log('heard a mute request', action)
+  dashboardPinia.requestUpdateMutingTab(props.follower.getUniqueId(), tabId, action)
+}
+
+function changeActiveTab(tab: object) {
+  dashboardPinia.requestActiveTab(props.follower.getUniqueId(), tab)
+}
+
 </script>
 
 <template>
+  <!--Anchor button used to control the modal-->
+  <button class="w-full flex justify-center items-center"
+    v-on:click="showDetailModal = true"
+  >
+    <img class="w-5 h-3" src="@/assets/img/student-icon-ham-menu.svg" alt="Icon"/>
+  </button>
+
+  <!--Modal body using the Modal template, teleports the html to the bottom of the body tag-->
   <Teleport to="body">
-    <Modal :show="showModal" :rounded="false">
+    <Modal :show="showDetailModal" :rounded="false">
       <template v-slot:header>
         <header class="h-20 px-8 w-modal-width-sm bg-white flex justify-between items-center rounded-t-lg">
           <div class="h-9 bg-white flex items-center">
@@ -37,18 +53,21 @@ const emit = defineEmits<{
           <div v-for="(tab, index) in follower.tabs" class="py-3" :id="tab.id">
             <div class="flex flex-row w-full px-5 items-center justify-between">
               <div class="flex-[7_7_0%] flex flex-row overflow-ellipsis whitespace-nowrap overflow-hidden">
-                <img class="flex-shrink-0 w-5 h-5 mr-2" :src="tab.favicon" />
+                <img class="flex-shrink-0 w-5 h-5 mr-2 cursor-pointer"
+                  :src="tab.favicon"
+                  @click="changeActiveTab(tab)"
+                />
                 <span class="flex-shrink overflow-ellipsis whitespace-nowrap overflow-hidden pr-10 mt-0.5">{{ tab.url }}</span>
               </div>
               <div class="flex flex-shrink-0 flex-[1_1_auto] justify-end">
                 <div class="h-4 mr-4 flex flex-row justify-center">
                   <div v-if="tab.muting" class="lds-dual-ring" />
-                  <button v-else-if="tab.audible" @click="() => { $emit('muteTab', tab.id, !tab.muted) }">
+                  <button v-else-if="tab.audible" @click="muteOrUnmuteTab(tab.id, !tab.muted)">
                     <img v-if="tab.muted" src="@/assets/img/volume_off.svg" />
                     <img v-else src="@/assets/img/volume_on.svg" />
                   </button>
                 </div>
-                <button v-if="!tab.closing" @click="() => { $emit('deleteTab', tab.id) }">
+                <button v-if="!tab.closing" @click="deleteFollowerTab(tab.id)">
                   <img class="h-4" src="@/assets/img/cross.svg" />
                 </button>
                 <div class="lds-dual-ring h-4" v-else />
@@ -65,7 +84,9 @@ const emit = defineEmits<{
               <img class="w-9 h-5" src="@/assets/img/student-icon-eye.svg" alt="Icon"/>
             </button>
             <div class="h-10 mt-1 w-px bg-white"></div>
-            <button class="w-full flex justify-center items-center" @click="() => { $emit('hide') }">
+            <button class="w-full flex justify-center items-center"
+                v-on:click="showDetailModal = false"
+            >
               <img class="w-5 h-3" src="@/assets/img/minimize.svg" alt="Icon"/>
             </button>
           </div>

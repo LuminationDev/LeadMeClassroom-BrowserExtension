@@ -71,6 +71,8 @@ function cancelMonitor() {
 
       <template v-slot:content>
         <div class="w-auto inline-block max-h-monitor-modal mt-7 mx-9">
+
+          <!--todo fix this-->
           <div class="w-auto inline-block px-5 h-8 rounded-t-2xl bg-white">
             <p class="text-base font-bold">{{follower.name}}</p>
           </div>
@@ -95,7 +97,7 @@ function cancelMonitor() {
               </div>
 
               <div v-if="follower.permission === 'connecting'" class="flex flex-col items-center">
-                <p class="mt-20 lds-dual-ring" />
+                <p class="mt-20 lds-dual-ring-lg" />
                 <p class="mb-6 mt-8 text-sm font-bold">Connecting to student...</p>
               </div>
 
@@ -154,12 +156,12 @@ function cancelMonitor() {
   @apply visible z-50;
 }
 
-.lds-dual-ring {
+.lds-dual-ring-lg {
   display: inline-block;
   width: 150px;
   height: 150px;
 }
-.lds-dual-ring:after {
+.lds-dual-ring-lg:after {
   content: " ";
   display: block;
   width: 150px;
@@ -167,9 +169,9 @@ function cancelMonitor() {
   border-radius: 50%;
   border: 2px solid #182B50;
   border-color: #182B50 transparent #182B50 transparent;
-  animation: lds-dual-ring 1.2s linear infinite;
+  animation: lds-dual-ring-lg 1.2s linear infinite;
 }
-@keyframes lds-dual-ring {
+@keyframes lds-dual-ring-lg {
   0% {
     transform: rotate(0deg);
   }

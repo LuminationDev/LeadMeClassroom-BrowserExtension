@@ -287,9 +287,12 @@ class Firebase {
             .then(() => console.log("Tab updated"));
     }
 
-    updateActiveTab = (inputCode, inputUUID, tabId) => {
-        set(ref(this.db, `tabs/${inputCode}/${inputUUID}/${tabId}/lastActivated`), Date.now())
-            .then(() => console.log("Active tab updated"));
+    updateActiveTab = (inputCode, inputUUID, tab) => {
+        update(ref(this.db, `tabs/${inputCode}/${inputUUID}/${tab.id}`), {
+            index: tab.index,
+            windowId: tab.windowId,
+            lastActivated: Date.now()
+        }).then(() => console.log("Active tab updated"));
     }
 
     removeTab = (inputCode, inputUUID, tabId) => {

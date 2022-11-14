@@ -2,7 +2,7 @@ import * as REQUESTS from "../constants/_requests";
 import Tab from "@/models/_tab";
 
 import { useStorage } from "../hooks/useStorage";
-const { getSyncStorage, setSyncStorage, removeSyncStorage } = useStorage();
+const { getSyncStorage } = useStorage();
 
 //===========================================
 //RUNTIME LISTENERS
@@ -22,8 +22,12 @@ chrome.tabs.onActivated.addListener(async (activeInfo) => {
     if (data == null) { return; }
 
     checkStoragePermission(checkStorage);
-    chrome.tabs.query({ url: REQUESTS.ASSISTANT_MATCH_URL }, ([assistantTab]) => {
-        chrome.tabs.sendMessage(assistantTab.id, { "type": REQUESTS.UPDATE_ACTIVE_TAB, tabId: activeInfo.tabId });
+
+    //Need to collect the current tab details for the index number
+    chrome.tabs.query({ active: true, lastFocusedWindow: true }, ([currentTab]) => {
+        chrome.tabs.query({ url: REQUESTS.ASSISTANT_MATCH_URL }, ([assistantTab]) => {
+            chrome.tabs.sendMessage(assistantTab.id, { "type": REQUESTS.UPDATE_ACTIVE_TAB, tab: currentTab });
+        });
     });
 });
 
@@ -39,7 +43,6 @@ chrome.tabs.onRemoved.addListener(async (tabId, removeInfo) => {
 
 //Listen for when a tab url changes
 chrome.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
-    //todo Need to check if the user is in a current session and a student
     const data = await getSyncStorage("follower");
     if (data == null) { return; }
 
@@ -47,7 +50,7 @@ chrome.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
         return
     }
     chrome.tabs.query({ url: REQUESTS.ASSISTANT_MATCH_URL }, ([assistantTab]) => {
-        let newTab = new Tab(tab.id + "", tab.title, tab.favIconUrl, tab.url)
+        let newTab = new Tab(tab.id + "", tab.index, tab.windowId, tab.title, tab.favIconUrl, tab.url)
         newTab.audible = tab.audible
         newTab.muted = tab.mutedInfo ? tab.mutedInfo.muted : false
         chrome.tabs.sendMessage(assistantTab.id, { "type": REQUESTS.UPDATE_TAB, tab: newTab });
@@ -89,12 +92,10 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
             break;
 
         case REQUESTS.MUTETAB:
-            //REMOVE - SETTIMEOUT IS ONLY FOR LOCAL TESTING
             muteTab(request);
             break;
 
         case REQUESTS.UNMUTETAB:
-            //REMOVE - SETTIMEOUT IS ONLY FOR LOCAL TESTING
             unmuteTab(request);
             break;
 
@@ -137,13 +138,8 @@ const checkStoragePermission = (callback) => {
  */
 const checkStorage = () => {
     chrome.storage.sync.get("follower", async (data) => {
-        if (data == null) {
-            return;
-        }
-
-        if (data.follower == null) {
-            return;
-        }
+        if (data == null) { return; }
+        if (data.follower == null) { return; }
 
         captureScreen();
     });
