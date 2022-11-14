@@ -9,16 +9,6 @@ let dashboardPinia = useDashboardStore();
 function removeFollower(follower: Follower) {
   dashboardPinia.removeFollower(follower.getUniqueId())
 }
-
-// function deleteFollowerTab(follower: Follower, tabId: string) {
-//   dashboardPinia.requestDeleteFollowerTab(follower.getUniqueId(), tabId)
-// }
-//
-// function muteOrUnmuteTab(follower: Follower, tabId: string, action: boolean) {
-//   console.log('heard a mute request', action)
-//   dashboardPinia.requestUpdateMutingTab(follower.getUniqueId(), tabId, action)
-// }
-
 </script>
 
 <template>
