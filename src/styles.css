@@ -1,20 +1,3 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-
-.block {
-    position: fixed;
-    inset: 0;
-    display: grid;
-    place-items: center;
-    height: 100vh;
-    width: 100vw;
-    background-color: black;
-    z-index: 999;
-    font-family: Poppins,serif;
-}
-
-.block-text {
-    color: white;
-    font-size: large;
-}

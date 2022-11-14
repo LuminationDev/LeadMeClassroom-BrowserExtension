@@ -72,9 +72,9 @@ function cancelMonitor() {
       <template v-slot:content>
         <div class="w-auto inline-block max-h-monitor-modal mt-7 mx-9">
 
-          <!--todo fix this-->
-          <div class="w-auto inline-block px-5 h-8 rounded-t-2xl bg-white">
-            <p class="text-base font-bold">{{follower.name}}</p>
+          <!--Student name tag-->
+          <div class="w-auto px-5 h-8 rounded-t-2xl bg-white inline-grid content-center">
+            <p class="text-base">{{follower.name}}</p>
           </div>
 
           <!--Screenshot content-->
@@ -82,7 +82,7 @@ function cancelMonitor() {
             <img class="aspect-video" :id="`image_${follower.getUniqueId()}`" :src="follower.imageBase64" alt="Follower Screen shot"/>
           </div>
 
-
+          <!--Monitoring and permission content-->
           <div v-else>
             <!--Waiting for permission-->
             <div v-if="follower.permission !== 'granted'"
