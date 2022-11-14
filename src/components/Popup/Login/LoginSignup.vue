@@ -70,7 +70,7 @@ function resetErrors() {
       <input class="w-4 h-4" type="checkbox" v-model="authorise"/>
       <p :class="{
         'w-56 ml-4 text-xsm text-left': true,
-        'text-gray-popup-text': !termsError.value,
+        'text-gray-popup-text': !termsError,
         'text-red-400': termsError
       }">By signing up, I agree to LeadMe's <span class="underline  underline-offset-1">Terms and Conditions</span></p>
     </label>

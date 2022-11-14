@@ -13,15 +13,5 @@
       "tag": "scripting",
       "title": "Scripting",
       "description": "Grants the ability for the extension to inject JavaScript and CSS into websites."
-    },
-    {
-      "tag": "activeTab",
-      "title": "Active Tab",
-      "description": "Grants a Leader temporary control access to a currently active tab. Access to the tab lasts while the follower is logged into the extension."
-    },
-    {
-      "tag": "identity",
-      "title": "Identity",
-      "description": "Grants the ability to access saved OAuth2 access tokens."
     }
 ]

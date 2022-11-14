@@ -240,9 +240,7 @@ export let usePopupStore = defineStore("popup", {
                 permissions: [
                     "storage",
                     "tabs",
-                    "scripting",
-                    "activeTab",
-                    "identity"
+                    "scripting"
                 ]
             }, (granted: boolean) => {
                 console.log(granted);
