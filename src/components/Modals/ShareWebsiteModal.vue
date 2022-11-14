@@ -1,16 +1,13 @@
 <script setup lang="ts">
 import {Ref, ref} from "vue";
-
 import {useDashboardStore} from "../../stores/dashboardStore";
 import StudentGridItem from "../Dashboard/ClassControl/GridItem/StudentGridItem.vue";
 import Modal from "./Modal.vue";
-let dashboardPinia = useDashboardStore();
 
+const dashboardPinia = useDashboardStore();
 const showWebsiteModal = ref(false);
 const websiteLink = ref("");
-
 const shareTo = ref("all")
-
 const followersSelected: Ref<string[]> = ref([])
 
 function handleFollowerSelection(followerId: string, value: boolean) {
@@ -45,13 +42,12 @@ function submit()
   <!--Anchor button used to control the modal-->
   <button class="
     w-56 h-9 flex justify-center items-center
-    bg-gray-default hover:bg-navy-side-menu
-    text-gray-default-text
-    hover:text-white"
+    bg-blue-session-button hover:bg-blue-hover-session-button
+    text-white"
     v-on:click="showWebsiteModal = true"
     id="share_button"
   >
-    <img class="w-4 h-4 mr-3" src="@/assets/img/menu-placeholder.svg" alt="Icon"/>
+    <img class="w-4 h-4 mr-3" src="@/assets/img/session-icon-share.svg" alt="Icon"/>
     <p class="text-base">
       Share Website
     </p>
@@ -82,7 +78,7 @@ function submit()
               placeholder="Paste a URL..."
               v-model="websiteLink"
             />
-            <button class="w-52 h-11 mr-9 text-white bg-modal-blue rounded-lg text-base hover:bg-navy-side-menu">Done</button>
+            <button class="w-52 h-11 mr-9 text-white bg-modal-blue rounded-lg text-base hover:bg-button-hover-blue">Done</button>
           </div>
           <div class="mx-14 mt-8 h-20 bg-white flex items-center justify-between">
             <p class="ml-8 text-lg">Share to</p>
@@ -111,7 +107,7 @@ function submit()
                   v-on:click="showWebsiteModal = false"
           >Cancel</button>
           <button
-              class="w-52 h-11 text-white bg-modal-blue rounded-lg text-base hover:bg-navy-side-menu"
+              class="w-52 h-11 text-white bg-modal-blue rounded-lg text-base hover:bg-button-hover-blue"
               v-on:click="submit"
           >Share link</button>
         </footer>
