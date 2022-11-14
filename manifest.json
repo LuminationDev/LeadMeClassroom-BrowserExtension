@@ -1,6 +1,7 @@
 {
   "manifest_version": 3,
-  "name": "LeadMe Web",
+  "name": "LeadMe Classroom",
+  "description": "A lightweight classroom management tool. Push out content and get an overview of what your students are doing.",
   "version": "1.0.0",
   "action": {
     "default_popup": "src/popup/index.html",
@@ -12,9 +13,7 @@
   ],
   "optional_permissions": [
     "tabs",
-    "scripting",
-    "activeTab",
-    "identity"
+    "scripting"
   ],
   "host_permissions": [
     "*://*/*",

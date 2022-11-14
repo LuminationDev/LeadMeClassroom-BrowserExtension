@@ -100,7 +100,7 @@ function submit()
           </div>
           <div v-if="shareTo === 'selected'" class="mx-14 mt-8">
             {{ followersSelected }}
-            <StudentGridItem v-for="follower in dashboardPinia.followers" :follower="follower" :controls="false" @update="(value) => { handleFollowerSelection(follower.getUniqueId(), value) }"/>
+            <StudentGridItem v-for="follower in dashboardPinia.followers" :follower="follower" :controls="false" @update="(value: boolean) => { handleFollowerSelection(follower.getUniqueId(), value) }"/>
           </div>
         </div>
       </template>
