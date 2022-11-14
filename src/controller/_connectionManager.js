@@ -48,7 +48,7 @@ class ConnectionManager {
     }
 
     /**
-     * Register the appropriate firebase listeners for a follower, capture the current screen and setup
+     * Register the appropriate firebase listeners for a follower, capture the current screen and set up
      * a new WebRTC peer connection.
      */
     connectionMethods = () => {
@@ -66,12 +66,23 @@ class ConnectionManager {
         });
     }
 
+    /**
+     * Force the supplied tab into the active tab view.
+     * @param tab A Chrome tab object
+     */
+    forceActiveTab = (tab) => {
+        if (tab.id != null && tab.url != null) {
+            chrome.tabs.highlight({tabs: tab.index, windowId: tab.windowId},
+                () => chrome.windows.update(tab.windowId, { focused: true, state: 'maximized' }));
+        }
+    }
+
     updateTab = (tab) => {
         this.firebase.updateTab(this.follower.classCode, this.follower.uniqueId, tab);
     }
 
-    updateActiveTab = (tabId) => {
-        this.firebase.updateActiveTab(this.follower.classCode, this.follower.uniqueId, tabId);
+    updateActiveTab = (tab) => {
+        this.firebase.updateActiveTab(this.follower.classCode, this.follower.uniqueId, tab);
     }
 
     removeTab = (tabId) => {
@@ -84,7 +95,7 @@ class ConnectionManager {
     }
 
     /**
-     * Send a response back to a leader when a particular event occurs, i.e accepted/denied monitoring.
+     * Send a response back to a leader when a particular event occurs, i.e. accepted/denied monitoring.
      * @param {*} action 
      */
     sendResponse = (action) => {

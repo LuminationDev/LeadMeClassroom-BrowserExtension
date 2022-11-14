@@ -1,19 +1,17 @@
 import { defineStore } from "pinia";
 import { useStorage } from "../hooks/useStorage";
 const { getSyncStorage, setSyncStorage, removeSyncStorage } = useStorage();
-
-// @ts-ignore
-import * as REQUESTS from "@/constants/_requests.js";
+import * as REQUESTS from "../constants/_requests.js";
 // @ts-ignore
 import { Firebase } from '@/controller/index.ts';
 // @ts-ignore
 import * as MODELS from '@/models/index.ts';
-import { Follower, Tab, Leader } from '../models'
-import {MUTETAB} from "../constants/_requests";
+import { Follower, Tab, Leader } from '../models';
 const firebase = new Firebase();
 const leaderName = await firebase.getDisplayName();
 
 import { useWebRTCStore } from "./webRTCStore";
+import {FORCEACTIVETAB} from "../constants/_requests";
 
 /**
  * When the dashboard is first loaded or if the page is refreshed check to see if there was
@@ -164,7 +162,7 @@ export let useDashboardStore = defineStore("dashboard", {
          * @param key
          */
         followerTabChanged(response: any, followerId: string, key: string) {
-            let newTab = new Tab(key, response.name, response.favicon, response.url, response.lastActivated)
+            let newTab = new Tab(key, response.index, response.windowId, response.name, response.favicon, response.url, response.lastActivated)
             newTab.audible = response.audible ?? false
             newTab.muted = response.muted ?? false
             this.updateFollowerTab(newTab, followerId)
@@ -188,7 +186,7 @@ export let useDashboardStore = defineStore("dashboard", {
             let tabs: Array<Tab> = []
             Object.values(response).forEach((tab: any) => {
                 console.log("adding a tab", JSON.stringify(tab))
-                let newTab = new Tab(tab.id, tab.name, tab.favicon, tab.url, tab.lastActivated)
+                let newTab = new Tab(tab.id, tab.index, tab.windowId, tab.name, tab.favicon, tab.url, tab.lastActivated)
                 newTab.audible = tab.audible ?? false
                 newTab.muted = tab.muted ?? false
                 tabs.push(newTab)
@@ -253,7 +251,8 @@ export let useDashboardStore = defineStore("dashboard", {
         /**
          * Add new follower or update an existing one
          * @param followerId
-         * @param id
+         * @param tabId
+         * @param newValue
          */
         requestUpdateMutingTab(followerId: string, tabId: string, newValue: boolean) {
             let follower = this.followers.find(element => element.getUniqueId() === followerId)
@@ -265,6 +264,18 @@ export let useDashboardStore = defineStore("dashboard", {
                 if (index !== -1) {
                     follower.tabs[index].muting = true
                 }
+            }
+        },
+
+        /**
+         * Send a request to a follower that forces the selected tab to be highlighted (viewed)
+         * @param followerId
+         * @param tab
+         */
+        requestActiveTab(followerId: string, tab: object) {
+            let follower = this.followers.find(element => element.getUniqueId() === followerId)
+            if (follower) {
+                this.requestIndividualAction(followerId, {type: REQUESTS.FORCEACTIVETAB, tab: tab})
             }
         },
 

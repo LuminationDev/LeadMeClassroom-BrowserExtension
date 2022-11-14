@@ -1,19 +1,13 @@
 <script setup lang="ts">
 import {defineProps, PropType, computed, ref} from 'vue'
-import * as REQUESTS from '../../../../constants/_requests'
 // @ts-ignore
 import * as MODELS from '@/models/index.ts';
 import { Tab, Follower } from "../../../../models";
-import ClassControlStudentDetailModal from "@/components/Dashboard/ClassControl/ClassControlStudentDetailModal.vue";
+import StudentDetailModal from "@/components/Modals/StudentDetailModal.vue";
 import ScreenMonitorModal from "@/components/Modals/ScreenMonitorModal.vue";
-
-import { useDashboardStore } from "../../../../stores/dashboardStore";
-let dashboardPinia = useDashboardStore();
 
 const emit = defineEmits<{
   (e: 'removeFollower', follower: Follower): void
-  (e: 'deleteTab', tabId: string): void
-  (e: 'muteTab', tabId: string, action: boolean): void
   (e: 'update', value: boolean): void
 }>()
 
@@ -35,36 +29,11 @@ const props = defineProps({
   }
 });
 
-function handleMuteFollowerButton() {
-  dashboardPinia.requestIndividualAction(props.follower.getUniqueId(), { type: props.follower.muted ? REQUESTS.UNMUTETAB : REQUESTS.MUTETAB, tabs: REQUESTS.SINGLETAB });
-  props.follower.muted = !props.follower.muted
-}
-
-function handleMuteAllFollowerButton() {
-  dashboardPinia.requestIndividualAction(props.follower.getUniqueId(), { type: props.follower.muted ? REQUESTS.UNMUTETAB : REQUESTS.MUTETAB, tabs: REQUESTS.MULTITAB });
-  props.follower.muteAll = !props.follower.muteAll
-}
-
-function handleVideoButton(action: string) {
-  dashboardPinia.requestIndividualAction(props.follower.getUniqueId(), { type: REQUESTS.YOUTUBE, action });
-}
-
 function removeFollower () {
   removing.value = true
   setTimeout(() => {
     emit('removeFollower', props.follower)
   }, 500)
-}
-
-function deleteTab (tabId: string) {
-  emit('deleteTab', tabId)
-}
-
-const showExtendedModal = ref(false);
-const showMonitorModal = ref(false);
-
-function muteTab (tabId: string, action: boolean) {
-  emit('muteTab', tabId, action)
 }
 
 </script>
@@ -102,30 +71,17 @@ function muteTab (tabId: string, action: boolean) {
 
     <!--Student buttons-->
     <div v-else-if="controls" class="h-12 bg-navy-side-menu rounded-b-sm flex">
-      <ScreenMonitorModal
-          :follower="follower"
-      />
+      <!--Screenshot and WebRTC modal-->
+      <ScreenMonitorModal :follower="follower" />
 
       <div class="h-10 mt-1 w-px bg-white"></div>
 
-      <ClassControlStudentDetailModal
-          :follower="follower"
-          :show-modal="showExtendedModal"
-          @hide="() => { showExtendedModal = false }"
-          @delete-tab="deleteTab"
-          @mute-tab="muteTab"/>
-      <button class="w-full flex justify-center items-center" @click="() => { showModal = true }">
-        <img class="w-5 h-3" src="@/assets/img/student-icon-ham-menu.svg" alt="Icon"/>
-      </button>
+      <!--Expanded student details modal-->
+      <StudentDetailModal :follower="follower" />
     </div>
   </div>
 
 <!--  <div class="h-36 w-36" :id="follower.getUniqueId()">-->
-<!--    <img v-if="follower.imageBase64" :id="`image_${follower.getUniqueId()}`" :src="follower.imageBase64" alt="Follower Screen shot"/>-->
-<!--    <video :id="`video_${follower.getUniqueId()}`" muted autoplay/>-->
-<!--    <button @click="() => { handleMonitorFollowerButton() }">{{ follower.monitoring ? 'Stop Monitoring' : 'Request Monitoring' }}</button>-->
-<!--    <button @click="() => { handleMuteFollowerButton() }">{{ follower.muted ? 'Unmute Tab' : 'Mute Tab' }}</button>-->
-<!--    <button @click="() => { handleMuteAllFollowerButton() }">{{ follower.muteAll ? 'Unmute All Tab' : 'Mute All Tab' }}</button>-->
 <!--    <button @click="() => { handleVideoButton(REQUESTS.VIDEOPLAY) }">Play</button>-->
 <!--    <button @click="() => { handleVideoButton(REQUESTS.VIDEOPAUSE) }">Pause</button>-->
 <!--    <button @click="() => { handleVideoButton(REQUESTS.VIDEOSTOP) }">Stop</button>-->

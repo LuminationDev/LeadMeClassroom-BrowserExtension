@@ -10,14 +10,14 @@ function removeFollower(follower: Follower) {
   dashboardPinia.removeFollower(follower.getUniqueId())
 }
 
-function deleteFollowerTab(follower: Follower, tabId: string) {
-  dashboardPinia.requestDeleteFollowerTab(follower.getUniqueId(), tabId)
-}
-
-function muteOrUnmuteTab(follower: Follower, tabId: string, action: boolean) {
-  console.log('heard a mute request', action)
-  dashboardPinia.requestUpdateMutingTab(follower.getUniqueId(), tabId, action)
-}
+// function deleteFollowerTab(follower: Follower, tabId: string) {
+//   dashboardPinia.requestDeleteFollowerTab(follower.getUniqueId(), tabId)
+// }
+//
+// function muteOrUnmuteTab(follower: Follower, tabId: string, action: boolean) {
+//   console.log('heard a mute request', action)
+//   dashboardPinia.requestUpdateMutingTab(follower.getUniqueId(), tabId, action)
+// }
 
 </script>
 
@@ -34,8 +34,6 @@ function muteOrUnmuteTab(follower: Follower, tabId: string, action: boolean) {
           v-for="follower in dashboardPinia.followers"
           :key="follower.getUniqueId()"
           :follower="follower"
-          @delete-tab="(tabId: string) => { deleteFollowerTab(follower, tabId) }"
-          @mute-tab="(tabId: string, action: boolean) => { muteOrUnmuteTab(follower, tabId, action) }"
           @remove-follower="removeFollower"/>
     </div>
   </div>

@@ -36,12 +36,16 @@ const assistantListener = (data: any) => {
       MANAGER.value.captureScreen();
       break;
 
+    case REQUESTS.FORCEACTIVETAB:
+      MANAGER.value.forceActiveTab(data.tab);
+      break;
+
     case REQUESTS.UPDATE_TAB:
       MANAGER.value.updateTab(data.tab)
       break;
 
     case REQUESTS.UPDATE_ACTIVE_TAB:
-      MANAGER.value.updateActiveTab(data.tabId)
+      MANAGER.value.updateActiveTab(data.tab)
       break;
 
     case REQUESTS.REMOVE_TAB:
@@ -83,7 +87,6 @@ chrome.runtime.onMessage.addListener(
 
 //Persistent connection to Firebase & WebRTC
 const MANAGER = ref(new ConnectionManager(assistantListener));
-//MANAGER.value.webRTC = webRTCPinia;
 
 //Hold a reference to the follower data
 const followerData = {
@@ -97,7 +100,7 @@ chrome.storage.sync.get("follower", async (data) => {
   setupWebRTCConnection(f.getUniqueId(), data.follower.code);
   chrome.tabs.query({}, (tabs) => {
     const tabsArr: Tab[] = tabs.map(tab => {
-      let newTab = new Tab(tab.id + "", tab.title ?? "", tab.favIconUrl ?? "", tab.url ?? "")
+      let newTab = new Tab(tab.id + "", tab.index, tab.windowId, tab.title ?? "", tab.favIconUrl ?? "", tab.url ?? "")
       newTab.audible = tab.audible ?? false
       newTab.muted = tab.mutedInfo ? tab.mutedInfo.muted : false
       return newTab

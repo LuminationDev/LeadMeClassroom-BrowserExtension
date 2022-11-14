@@ -19,6 +19,8 @@ export const MONITORDATA = "iceCandidates";
 export const MONITORENDED = "video_ended";
 
 //Tab controls
+export const FORCEACTIVETAB = "force_active_tab";
+
 export const MAXIMIZE = "maximize";
 
 export const MINIMIZE = "minimize";
