@@ -53,7 +53,7 @@ function changeActiveTab(tab: object) {
 
   <!--Modal body using the Modal template, teleports the html to the bottom of the body tag-->
   <Teleport to="body">
-    <Modal :show="showDetailModal">
+    <Modal :show="showDetailModal" :rounded="false">
       <template v-slot:header>
         <header class="h-20 px-8 w-modal-width-sm bg-white flex justify-between items-center rounded-t-lg">
           <div class="h-9 bg-white flex items-center">
