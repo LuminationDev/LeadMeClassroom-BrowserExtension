@@ -33,8 +33,19 @@ class ScreenController extends Controller {
         //Check if the screen is already blocked
         if(document.getElementById('block-screen-container')) { return; }
 
-        document.body.insertAdjacentHTML('beforebegin', "<div id=\"block-screen-container\" class=\"block\">\n" +
-            "    <p class=\"block-text\">Blocked</p>\n" +
+        document.body.insertAdjacentHTML('beforebegin', "" +
+            "<div id=\"block-screen-container\" style=\"" +
+            "   position: fixed; " +
+            "   inset: 0; " +
+            "   display: grid; " +
+            "   place-items: center; " +
+            "   height: 100vh; " +
+            "   width: 100vw; " +
+            "   background-color: black; " +
+            "   z-index: 999999; " +
+            "   font-family: Poppins, serif;\"" +
+            ">\n" +
+            "    <p style=\"color: white; font-size: large;\">Blocked</p>\n" +
             "</div>");
     }
 

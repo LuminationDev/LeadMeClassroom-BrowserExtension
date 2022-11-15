@@ -6,8 +6,6 @@ import DashboardTitleBar from "./DashboardTitleBar.vue";
 import DashboardMain from "./ClassControl/ClassControlMain.vue";
 import AccountMain from "./Account/AccountMain.vue";
 import SettingsMain from "./Settings/SettingsMain.vue";
-import StudentsMain from "./Students/StudentsMain.vue";
-import ContentMain from "./Content/ContentMain.vue";
 
 import { onMounted, ref } from "vue";
 import { useDashboardStore } from "../../stores/dashboardStore";
@@ -127,8 +125,6 @@ onMounted(() => {
       <!--MainArea-->
       <div class="flex flex-col flex-grow bg-panel-background font-poppins">
         <DashboardMain v-show="dashboardPinia.view === 'dashboard'"/>
-        <StudentsMain v-show="dashboardPinia.view === 'students'"/>
-        <ContentMain v-show="dashboardPinia.view === 'content'"/>
         <AccountMain v-show="dashboardPinia.view === 'account'"/>
         <SettingsMain v-show="dashboardPinia.view === 'settings'"/>
       </div>

@@ -16,8 +16,8 @@ function closePopup ()
 
     <span
         v-else
-        class="mr-6 mt-3 ml-6 text-base cursor-pointer"
-        v-on:click="popupPinia.back">back</span>
+        class="mr-6 h-14 pt-4 ml-6 text-base font-poppins cursor-pointer"
+        v-on:click="popupPinia.back">Back</span>
 
     <span
         class="mr-6 mt-3 text-base cursor-pointer"

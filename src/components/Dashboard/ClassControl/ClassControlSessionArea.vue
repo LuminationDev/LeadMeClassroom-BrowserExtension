@@ -13,7 +13,6 @@ let dashboardPinia = useDashboardStore();
         rounded-md border-2 border-red-end-class"
     >End Class</button>
 
-    <!--todo clean these up later-->
     <button
         v-if="dashboardPinia.classCode"
         class="ml-3 h-12 w-56 bg-navy-side-menu
@@ -22,8 +21,8 @@ let dashboardPinia = useDashboardStore();
     >Class Code: {{ dashboardPinia.classCode }}</button>
 
     <button
+        v-else
         id="generate_class"
-        v-if="!dashboardPinia.classCode"
         v-on:click="dashboardPinia.generateSession()"
         class="ml-3 h-12 w-56 bg-navy-side-menu
         text-base text-white font-poppins font-bold

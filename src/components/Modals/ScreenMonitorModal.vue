@@ -72,9 +72,9 @@ function cancelMonitor() {
       <template v-slot:content>
         <div class="w-auto inline-block max-h-monitor-modal mt-7 mx-9">
 
-          <!--todo fix this-->
-          <div class="w-auto inline-block px-5 h-8 rounded-t-2xl bg-white">
-            <p class="text-base font-bold">{{follower.name}}</p>
+          <!--Student name tag-->
+          <div class="w-auto px-5 h-8 rounded-t-2xl bg-white inline-grid content-center">
+            <p class="text-base">{{follower.name}}</p>
           </div>
 
           <!--Screenshot content-->
@@ -82,7 +82,7 @@ function cancelMonitor() {
             <img class="aspect-video" :id="`image_${follower.getUniqueId()}`" :src="follower.imageBase64" alt="Follower Screen shot"/>
           </div>
 
-
+          <!--Monitoring and permission content-->
           <div v-else>
             <!--Waiting for permission-->
             <div v-if="follower.permission !== 'granted'"
@@ -106,7 +106,7 @@ function cancelMonitor() {
                 <p class="mb-6 mt-8 text-sm font-bold">Student has declined the permission...</p>
               </div>
 
-              <button class="mb-28 w-36 h-11 flex-shrink-0 text-white bg-button-blue text-base rounded-3xl hover:bg-gray-default"
+              <button class="mb-28 w-36 h-11 flex-shrink-0 text-white bg-blue-500 text-base rounded-3xl hover:bg-blue-400"
                       v-on:click="() => { cancelMonitor() }"
               >Cancel</button>
             </div>
@@ -128,8 +128,8 @@ function cancelMonitor() {
         <footer class="w-auto inline-block mt-11 mb-8 ml-9 flex flex-row items-center">
           <button
               :class="{
-                'w-56 h-11 flex-shrink-0 text-white bg-button-blue text-base rounded-lg hover:bg-light-blue': true,
-                'bg-light-blue': follower.permission !== 'granted' && follower.monitoring,
+                'w-56 h-11 flex-shrink-0 text-white bg-blue-500 text-base rounded-lg hover:bg-blue-400': true,
+                'bg-blue-400': follower.permission !== 'granted' && follower.monitoring,
               }"
               :disabled="follower.permission !== 'granted' && follower.monitoring"
               v-on:click="() => { handleMonitorFollowerButton() }"

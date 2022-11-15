@@ -18,6 +18,7 @@ class Follower {
     permission: string|null|undefined;
     muted: boolean|null|undefined;
     muteAll: boolean|null|undefined;
+    offTask: boolean|null|undefined;
     disconnected: boolean = false;
 
     constructor(classCode = "", name = "", uniqueId = uuidv4()) {
@@ -26,6 +27,7 @@ class Follower {
         this.name = name;
         this.tabs = [];
         this.permission = null;
+        this.offTask = false;
     }
 
     updateIndividualTab(id: string, newTab: Tab)

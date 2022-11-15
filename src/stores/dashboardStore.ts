@@ -11,7 +11,6 @@ const firebase = new Firebase();
 const leaderName = await firebase.getDisplayName();
 
 import { useWebRTCStore } from "./webRTCStore";
-import {FORCEACTIVETAB} from "../constants/_requests";
 
 /**
  * When the dashboard is first loaded or if the page is refreshed check to see if there was
@@ -44,6 +43,7 @@ export let useDashboardStore = defineStore("dashboard", {
             webLink: "",
             leader: new Leader(leaderName),
             webRTCPinia: useWebRTCStore(),
+            tasks: <String[]>([])
         }
     },
 
@@ -63,6 +63,7 @@ export let useDashboardStore = defineStore("dashboard", {
             console.log('generating')
             this.classCode = this.leader.getClassCode()
             this.firebase.connectAsLeader(this.leader);
+            await this.clearTasks();
             await setSyncStorage({"CurrentClass": this.classCode});
             await this.attachClassListeners(false);
 
@@ -127,6 +128,7 @@ export let useDashboardStore = defineStore("dashboard", {
             this.classCode = ""
             this.followers = [];
             await removeSyncStorage("CurrentClass");
+            await this.clearTasks();
         },
 
         /**
@@ -367,14 +369,34 @@ export let useDashboardStore = defineStore("dashboard", {
         /**
          * Set the website link in the firebase real-time database that the active students will navigate to.
          */
-        launchWebsite(website: string) {
+        async launchWebsite(website: string) {
             let action = { type: REQUESTS.WEBSITE, value: website };
+            await this.updateTasks(website);
             this.firebase.requestAction(this.classCode, action);
         },
 
         launchWebsiteIndividual(UUID: string, website: string) {
             let action = { type: REQUESTS.WEBSITE, value: website };
             this.firebase.requestIndividualAction(this.classCode, UUID, action);
+        },
+
+        /**
+         * Update or create the task array within local storage.
+         */
+        async updateTasks(task: string) {
+            let tasks = await getSyncStorage("tasks");
+            let temp = tasks ? JSON.parse(<string>tasks) : [];
+            temp.push(task);
+            this.tasks = temp;
+            await setSyncStorage({"tasks": JSON.stringify(temp)});
+        },
+
+        /**
+         * Clear the current tasks from the local storage
+         */
+        clearTasks() {
+            removeSyncStorage("tasks").then(() => console.log("Remove tasks"));
+            this.tasks = [];
         },
 
         /**
@@ -393,5 +415,10 @@ export let useDashboardStore = defineStore("dashboard", {
         requestIndividualAction(UUID: string, action: object) {
             this.firebase.requestIndividualAction(this.classCode, UUID, action);
         },
-    }
+    },
+
+    //Computed properties
+    getters: {
+
+    },
 });

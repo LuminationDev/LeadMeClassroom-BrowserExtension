@@ -1,6 +1,5 @@
 <script setup>
 import DashboardMenuItem from "@/components/Dashboard/DashboardMenuItem.vue";
-
 import { usePopupStore } from "@/stores/popupStore.ts";
 let popupPinia = usePopupStore();
 </script>
@@ -15,14 +14,12 @@ let popupPinia = usePopupStore();
 
     <!--Content options-->
     <div class="mt-28 child:mb-6">
-      <DashboardMenuItem view="dashboard">Dashboard</DashboardMenuItem>
-      <DashboardMenuItem view="students">Students</DashboardMenuItem>
-      <DashboardMenuItem view="content">Content</DashboardMenuItem>
-      <DashboardMenuItem view="account">Account</DashboardMenuItem>
-      <DashboardMenuItem view="settings">Settings</DashboardMenuItem>
+      <DashboardMenuItem icon="../../assets/img/menu-icon-dashboard.svg" view="dashboard">Dashboard</DashboardMenuItem>
+      <DashboardMenuItem icon="../../assets/img/menu-icon-account.svg" view="account">Account</DashboardMenuItem>
+      <DashboardMenuItem icon="../../assets/img/menu-icon-settings.svg" view="settings">Settings</DashboardMenuItem>
     </div>
 
     <!--Logout-->
-    <DashboardMenuItem class="fixed bottom-12" v-on:click="popupPinia.handleLogoutClick()">Log Out</DashboardMenuItem>
+    <DashboardMenuItem icon="../../assets/img/menu-icon-logout.svg" class="fixed bottom-12" v-on:click="popupPinia.handleLogoutClick()">Log Out</DashboardMenuItem>
   </div>
 </template>

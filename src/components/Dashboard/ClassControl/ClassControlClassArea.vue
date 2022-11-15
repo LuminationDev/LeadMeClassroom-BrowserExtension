@@ -1,9 +1,9 @@
 <script setup>
 import ShareWebsiteModal from "@/components/Modals/ShareWebsiteModal.vue";
-import * as REQUESTS from "@/constants/_requests";
+import * as REQUESTS from "../../../constants/_requests";
 import {ref} from "vue";
 
-import { useDashboardStore } from "@/stores/dashboardStore.ts";
+import { useDashboardStore } from "../../../stores/dashboardStore.ts";
 let dashboardPinia = useDashboardStore();
 
 let locked = ref(false);
@@ -22,14 +22,15 @@ function screenControl(action) {
       <ShareWebsiteModal />
 
       <button :class="{
-          'w-56 h-9 flex justify-center items-center': true,
-          'bg-navy-side-menu text-white': locked,
-          'bg-gray-default text-gray-default-text': !locked
+          'w-56 h-9 flex justify-center items-center text-white': true,
+          'bg-navy-side-menu hover:bg-navy-hover-session-button': locked,
+          'bg-blue-500 hover:bg-blue-400': !locked
           }"
            v-on:click="locked = !locked; screenControl(locked ? REQUESTS.BLOCK : REQUESTS.UNBLOCK);"
       >
-        <img class="w-4 h-4 mr-3" src="@/assets/img/menu-placeholder.svg" alt="Icon"/>
-        <p class="text-base">
+        <img v-if="locked" class="w-4 h-4" src="@/assets/img/session-icon-unlock.svg" alt="Icon"/>
+        <img v-else class="w-4 h-4" src="@/assets/img/session-icon-lock.svg" alt="Icon"/>
+        <p class="w-36 text-base">
           {{locked ? 'Unlock screens' : 'Lock screens'}}
         </p>
       </button>
