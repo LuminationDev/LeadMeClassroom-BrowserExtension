@@ -24,7 +24,7 @@ function screenControl(action) {
       <button :class="{
           'w-56 h-9 flex justify-center items-center text-white': true,
           'bg-navy-side-menu hover:bg-navy-hover-session-button': locked,
-          'bg-blue-session-button hover:bg-blue-hover-session-button': !locked
+          'bg-blue-500 hover:bg-blue-400': !locked
           }"
            v-on:click="locked = !locked; screenControl(locked ? REQUESTS.BLOCK : REQUESTS.UNBLOCK);"
       >

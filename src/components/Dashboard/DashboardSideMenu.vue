@@ -14,7 +14,7 @@ let popupPinia = usePopupStore();
 
     <!--Content options-->
     <div class="mt-28 child:mb-6">
-      <DashboardMenuItem icon="../../assets/img/menu-placeholder.svg" view="dashboard">Dashboard</DashboardMenuItem>
+      <DashboardMenuItem icon="../../assets/img/menu-icon-dashboard.svg" view="dashboard">Dashboard</DashboardMenuItem>
       <DashboardMenuItem icon="../../assets/img/menu-icon-account.svg" view="account">Account</DashboardMenuItem>
       <DashboardMenuItem icon="../../assets/img/menu-icon-settings.svg" view="settings">Settings</DashboardMenuItem>
     </div>

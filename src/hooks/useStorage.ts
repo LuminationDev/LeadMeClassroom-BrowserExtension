@@ -94,7 +94,7 @@ function useStorage() {
   }
 
   /**
-   *
+   * Watch the storage of a particular item for changes
    * @param key
    * @param callback
    */

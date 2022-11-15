@@ -19,7 +19,7 @@ defineProps({
       rounded-lg"
       v-on:click="dashboardPinia.changeView(view)"
   >
-    <img class="w-4 h-4 mr-3" :src="icon" alt="Icon"/>
+    <img class="w-5 h-5 mr-3" :src="icon" alt="Icon"/>
     <p class="text-base text-white">
       <slot></slot>
     </p>

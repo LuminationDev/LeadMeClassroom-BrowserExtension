@@ -16,7 +16,7 @@ const email = ref("")
     </div>
 
     <PopupSecondaryButton
-        class="mb-3 text-button-blue bg-white border border-button-blue border-3"
+        class="mb-3 text-blue-500 bg-white border border-blue-500 border-3"
         v-on:click="popupPinia.changeView('loginTeacher')"
     >
       Cancel

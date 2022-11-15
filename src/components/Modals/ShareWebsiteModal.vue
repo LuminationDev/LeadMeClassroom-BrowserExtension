@@ -42,15 +42,15 @@ function submit()
   <!--Anchor button used to control the modal-->
   <button class="
     w-56 h-9 flex justify-center items-center
-    bg-blue-session-button hover:bg-blue-hover-session-button
-    text-white"
+    bg-blue-500 hover:bg-blue-400
+    text-white text-base"
     v-on:click="showWebsiteModal = true"
     id="share_button"
   >
     <img class="w-4 h-4 mr-3" src="@/assets/img/session-icon-share.svg" alt="Icon"/>
-    <p class="text-base">
+
       Share Website
-    </p>
+
   </button>
 
   <!--Modal body using the Modal template, teleports the html to the bottom of the body tag-->
@@ -71,6 +71,7 @@ function submit()
 
       <template v-slot:content>
         <div>
+          {{ dashboardPinia.tasks }}
           <div class="mx-14 mt-8 h-20 bg-white flex items-center justify-between">
             <input
               class="h-11 ml-6 mr-24 px-4 flex-grow bg-panel-background text-base rounded-lg"
@@ -78,7 +79,7 @@ function submit()
               placeholder="Paste a URL..."
               v-model="websiteLink"
             />
-            <button class="w-52 h-11 mr-9 text-white bg-modal-blue rounded-lg text-base hover:bg-button-hover-blue">Done</button>
+            <button class="w-52 h-11 mr-9 text-white bg-blue-500 rounded-lg text-base hover:bg-blue-400">Done</button>
           </div>
           <div class="mx-14 mt-8 h-20 bg-white flex items-center justify-between">
             <p class="ml-8 text-lg">Share to</p>
@@ -103,11 +104,11 @@ function submit()
 
       <template v-slot:footer>
         <footer class="mt-11 mb-8 mr-24 text-right">
-          <button class="w-36 h-11 mr-4 text-modal-blue text-base rounded-lg hover:bg-gray-default"
+          <button class="w-36 h-11 mr-4 text-blue-500 text-base rounded-lg hover:bg-gray-default"
                   v-on:click="showWebsiteModal = false"
           >Cancel</button>
           <button
-              class="w-52 h-11 text-white bg-modal-blue rounded-lg text-base hover:bg-button-hover-blue"
+              class="w-52 h-11 text-white bg-blue-500 rounded-lg text-base hover:bg-blue-400"
               v-on:click="submit"
           >Share link</button>
         </footer>

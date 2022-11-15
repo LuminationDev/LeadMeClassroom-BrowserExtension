@@ -106,7 +106,7 @@ function cancelMonitor() {
                 <p class="mb-6 mt-8 text-sm font-bold">Student has declined the permission...</p>
               </div>
 
-              <button class="mb-28 w-36 h-11 flex-shrink-0 text-white bg-button-blue text-base rounded-3xl hover:bg-gray-default"
+              <button class="mb-28 w-36 h-11 flex-shrink-0 text-white bg-blue-500 text-base rounded-3xl hover:bg-blue-400"
                       v-on:click="() => { cancelMonitor() }"
               >Cancel</button>
             </div>
@@ -128,8 +128,8 @@ function cancelMonitor() {
         <footer class="w-auto inline-block mt-11 mb-8 ml-9 flex flex-row items-center">
           <button
               :class="{
-                'w-56 h-11 flex-shrink-0 text-white bg-button-blue text-base rounded-lg hover:bg-light-blue': true,
-                'bg-light-blue': follower.permission !== 'granted' && follower.monitoring,
+                'w-56 h-11 flex-shrink-0 text-white bg-blue-500 text-base rounded-lg hover:bg-blue-400': true,
+                'bg-blue-400': follower.permission !== 'granted' && follower.monitoring,
               }"
               :disabled="follower.permission !== 'granted' && follower.monitoring"
               v-on:click="() => { handleMonitorFollowerButton() }"

@@ -2,8 +2,8 @@
 import StudentPlaceholder from "@/components/Dashboard/ClassControl/GridItem/StudentPlaceholder.vue";
 import StudentGridItem from "@/components/Dashboard/ClassControl/GridItem/StudentGridItem.vue";
 
-import { useDashboardStore } from "../../../stores/dashboardStore";
 import { Follower } from "../../../models"
+import { useDashboardStore } from "../../../stores/dashboardStore";
 let dashboardPinia = useDashboardStore();
 
 function removeFollower(follower: Follower) {

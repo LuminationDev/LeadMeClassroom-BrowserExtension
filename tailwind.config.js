@@ -10,11 +10,11 @@ module.exports = {
         extend: {
             colors: {
                 'panel-background': '#F7F7FC',
-                'light-blue': '#B6DFFF',
-                'button-blue': '#1599F3',
-                'button-hover-blue': '#5D90EE',
-                'blue-session-button': '#008BF8',
-                'blue-hover-session-button': '#44A5F2',
+                // 'light-blue': '#B6DFFF',
+                // 'button-blue': '#1599F3',
+                // 'button-hover-blue': '#5D90EE',
+                // 'blue-session-button': '#008BF8',
+                // 'blue-hover-session-button': '#44A5F2',
                 'gray-separator': '#9C9C9C',
                 'gray-popup-text': '#424242',
                 'gray-form-outline': '#767676',
@@ -29,7 +29,7 @@ module.exports = {
                 'white-menu-overlay': 'rgb(255, 255, 255, 0.2)',
                 'red-end-class': '#E95858',
                 'modal-site-background': 'rgb(0, 0, 0, .4)',
-                'modal-blue': '#3676EB',
+                // 'modal-blue': '#3676EB',
             },
             fontFamily: {
                 'poppins': ['Poppins', 'sans-serif'],
