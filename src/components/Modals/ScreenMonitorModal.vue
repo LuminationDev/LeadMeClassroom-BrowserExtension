@@ -5,8 +5,8 @@ import Follower from "../../models/_follower";
 import * as REQUESTS from "../../constants/_requests";
 
 import {useDashboardStore} from "../../stores/dashboardStore";
-let dashboardPinia = useDashboardStore();
 import { useWebRTCStore } from "../../stores/webRTCStore";
+let dashboardPinia = useDashboardStore();
 let webRTCPinia = useWebRTCStore();
 
 const props = defineProps({
@@ -79,7 +79,7 @@ function cancelMonitor() {
 
           <!--Screenshot content-->
           <div v-if="!follower.monitoring" class="w-modal-width-xsm">
-            <img class="aspect-video" :id="`image_${follower.getUniqueId()}`" :src="follower.imageBase64" alt="Follower Screen shot"/>
+            <img class="aspect-video" :id="`image_${follower.getUniqueId()}`" :src="follower.imageBase64 ?? undefined" alt="Follower Screen shot"/>
           </div>
 
 
@@ -131,7 +131,7 @@ function cancelMonitor() {
                 'w-56 h-11 flex-shrink-0 text-white bg-button-blue text-base rounded-lg hover:bg-light-blue': true,
                 'bg-light-blue': follower.permission !== 'granted' && follower.monitoring,
               }"
-              :disabled="follower.permission !== 'granted' && follower.monitoring"
+              :disabled="!!(follower.permission !== 'granted' && follower.monitoring)"
               v-on:click="() => { handleMonitorFollowerButton() }"
           >{{follower.monitoring ? 'Stop screen share' : 'Request screen share'}}</button>
 

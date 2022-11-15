@@ -118,6 +118,7 @@ chrome.storage.sync.get("follower", async (data) => {
 const setupWebRTCConnection = (UUID: string, classCode: string) => {
   followerData.uuid = UUID;
   followerData.classCode = classCode;
+  // @ts-ignore
   webRTCPinia.setConnectionDetails(sendIceCandidates, followerData.classCode, followerData.uuid);
   webRTCPinia.createNewConnection(followerData.uuid);
 }
@@ -131,7 +132,7 @@ const monitorRequest = () => {
   chrome.runtime.sendMessage({ "type": "maximize" });
   setTimeout(() => {
     webRTCPinia.prepareScreen(followerData.uuid)
-        .then((result: string) => {
+        .then((result: string|undefined) => {
           MANAGER.value.sendResponse({"type": REQUESTS.MONITORPERMISSION, message: result});
           chrome.runtime.sendMessage({"type": "minimize"});
         });

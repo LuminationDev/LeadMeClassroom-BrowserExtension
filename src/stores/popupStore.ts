@@ -264,30 +264,28 @@ export let usePopupStore = defineStore("popup", {
             const follower = this.follower;
 
             //Queries the currently open tab and sends a message to it
-            chrome.tabs.query({ currentWindow: true, active: true }, () => {
-                firebase.checkForClassroom(userCode).then((result?: any) => {
-                    if (result) {
-                        setSyncStorage({
-                            "follower":
-                                {
-                                    "code": userCode,
-                                    "name": follower.name
-                                }
-                        }).then(result => console.log(result));
+            firebase.checkForClassroom(userCode).then((result?: any) => {
+                if (result) {
+                    setSyncStorage({
+                        "follower":
+                            {
+                                "code": userCode,
+                                "name": follower.name
+                            }
+                    }).then(result => console.log(result));
 
-                        chrome.windows.create({
-                            url: chrome.runtime.getURL("src/pages/assistant/assistant.html"),
-                            type: "popup",
-                            state: "minimized"
-                        }).then(result => console.log(result));
+                    chrome.windows.create({
+                        url: chrome.runtime.getURL("src/pages/assistant/assistant.html"),
+                        type: "popup",
+                        state: "minimized"
+                    }).then(result => console.log(result));
 
-                        //TODO Close the popup window or go to the student session?
-                        window.close();
-                        // this.view = 'sessionStudent';
-                    } else {
-                        this.error = "No Class found";
-                    }
-                });
+                    //TODO Close the popup window or go to the student session?
+                    window.close();
+                    // this.view = 'sessionStudent';
+                } else {
+                    this.error = "No Class found";
+                }
             });
         },
 
