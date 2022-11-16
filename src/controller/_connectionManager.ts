@@ -1,17 +1,20 @@
-import Firebase from './_firebase';
+import { Firebase } from './';
 import * as REQUESTS from "../constants/_requests";
+import {Follower, Tab} from "../models";
 
 class ConnectionManager {
-    constructor(callback) {
+    public firebase: Firebase;
+    private follower: Follower|undefined;
+
+    constructor(callback: Function) {
         this.firebase = new Firebase(callback);
-        this.follower;
     }
 
     /**
      * Create an initial connection with the firebase.
      * @param follower
      */
-    connect = async (follower) => {
+    connect = async (follower: Follower) => {
         this.follower = follower;
         let success = await this.checkForClassroom(follower.classCode);
 
@@ -29,22 +32,21 @@ class ConnectionManager {
                 }
         });
         this.firebase.addFollower(this.follower);
-
-        this.connectionMethods(this.follower.classCode, this.follower.uniqueId);
+        this.connectionMethods();
     }
 
     /**
      * Remove the connection to firebase. Used when signing out or tab becomes inactive.
      */
     disconnect = () => {
-        this.firebase.unregisterListeners(this.follower.classCode, this.follower.uniqueId);
+        this.firebase.unregisterListeners(this.follower!.classCode, this.follower!.uniqueId);
     }
 
     /**
      * Send a message to firebase that a follower has disconnected.
      */
     disconnectFollower = () => {
-        this.firebase.removeFollower(this.follower.classCode, this.follower.uniqueId);
+        this.firebase.removeFollower(this.follower!.classCode, this.follower!.uniqueId);
     }
 
     /**
@@ -52,8 +54,8 @@ class ConnectionManager {
      * a new WebRTC peer connection.
      */
     connectionMethods = () => {
-        this.firebase.registerListeners(this.follower.classCode, this.follower.uniqueId);
-        this.captureScreen(this.follower.classCode, this.follower.uniqueId);
+        this.firebase.registerListeners(this.follower!.classCode, this.follower!.uniqueId);
+        this.captureScreen();
     }
 
     /**
@@ -62,7 +64,7 @@ class ConnectionManager {
      */
     captureScreen = () => {
         chrome.runtime.sendMessage({ "type": REQUESTS.CAPTURE }, async (response) => {
-            this.firebase.uploadScreenshot(response, this.follower.classCode, this.follower.uniqueId);
+            this.firebase.uploadScreenshot(response, this.follower!.classCode, this.follower!.uniqueId);
         });
     }
 
@@ -70,37 +72,38 @@ class ConnectionManager {
      * Force the supplied tab into the active tab view.
      * @param tab A Chrome tab object
      */
-    forceActiveTab = (tab) => {
+    forceActiveTab = (tab: Tab) => {
         if (tab.id != null && tab.url != null) {
             chrome.tabs.highlight({tabs: tab.index, windowId: tab.windowId},
                 () => chrome.windows.update(tab.windowId, { focused: true, state: 'maximized' }));
         }
     }
 
-    updateTab = (tab) => {
-        this.firebase.updateTab(this.follower.classCode, this.follower.uniqueId, tab);
+    updateTab = (tab: Tab) => {
+        this.firebase.updateTab(this.follower!.classCode, this.follower!.uniqueId, tab);
     }
 
-    updateActiveTab = (tab) => {
-        this.firebase.updateActiveTab(this.follower.classCode, this.follower.uniqueId, tab);
+    updateActiveTab = (tab: Tab) => {
+        this.firebase.updateActiveTab(this.follower!.classCode, this.follower!.uniqueId, tab);
     }
 
-    removeTab = (tabId) => {
-        this.firebase.removeTab(this.follower.classCode, this.follower.uniqueId, tabId);
+    removeTab = (tabId: string) => {
+        this.firebase.removeTab(this.follower!.classCode, this.follower!.uniqueId, tabId);
     }
 
-    deleteTab = (tabId) => {
+    deleteTab = (tabId: string) => {
         chrome.tabs.remove(parseInt(tabId))
-        this.firebase.removeTab(this.follower.classCode, this.follower.uniqueId, tabId);
+        this.firebase.removeTab(this.follower!.classCode, this.follower!.uniqueId, tabId);
     }
 
     /**
      * Send a response back to a leader when a particular event occurs, i.e. accepted/denied monitoring.
      * @param {*} action 
      */
-    sendResponse = (action) => {
+    sendResponse = (action: object) => {
+        // @ts-ignore
         action.timeStamp = Date.now(); //Add a time stamp so that the response is always 'different' and the leader picks up it is a different message.
-        this.firebase.sendResponse(this.follower.classCode, this.follower.uniqueId, action);
+        this.firebase.sendResponse(this.follower!.classCode, this.follower!.uniqueId, action);
     }
 
     /**
@@ -108,7 +111,7 @@ class ConnectionManager {
      * @param {*} code 
      * @returns 
      */
-    checkForClassroom = async (code) => {
+    checkForClassroom = async (code: string) => {
         return await this.firebase.checkForClassroom(code);
     }
 }

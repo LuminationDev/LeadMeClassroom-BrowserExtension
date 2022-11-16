@@ -1,12 +1,10 @@
 import { defineStore } from "pinia";
 import { useStorage } from "../hooks/useStorage";
-const { getSyncStorage, setSyncStorage, removeSyncStorage } = useStorage();
+const { getSyncStorage, setSyncStorage, removeSyncStorage, removeLocalStorage } = useStorage();
 import * as REQUESTS from "../constants/_requests.js";
-// @ts-ignore
-import { Firebase } from '@/controller/index.ts';
-// @ts-ignore
-import * as MODELS from '@/models/index.ts';
+import { Firebase } from '../controller';
 import { Follower, Tab, Leader } from '../models';
+
 const firebase = new Firebase();
 const leaderName = await firebase.getDisplayName();
 
@@ -60,6 +58,9 @@ export let useDashboardStore = defineStore("dashboard", {
          * the firebase real-time database.
          */
         async generateSession() {
+            //Remove the strange firebase bug from application storage
+            await removeLocalStorage("firebase:previous_websocket_failure");
+
             console.log('generating')
             this.classCode = this.leader.getClassCode()
             this.firebase.connectAsLeader(this.leader);

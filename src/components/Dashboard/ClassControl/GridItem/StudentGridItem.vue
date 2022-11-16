@@ -140,10 +140,4 @@ function removeFollower () {
       <StudentDetailModal :follower="follower" />
     </div>
   </div>
-
-<!--  <div class="h-36 w-36" :id="follower.getUniqueId()">-->
-<!--    <button @click="() => { handleVideoButton(REQUESTS.VIDEOPLAY) }">Play</button>-->
-<!--    <button @click="() => { handleVideoButton(REQUESTS.VIDEOPAUSE) }">Pause</button>-->
-<!--    <button @click="() => { handleVideoButton(REQUESTS.VIDEOSTOP) }">Stop</button>-->
-<!--  </div>-->
 </template>
