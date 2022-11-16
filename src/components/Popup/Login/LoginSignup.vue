@@ -27,6 +27,16 @@ const rules = {
 
 const v$ = useVuelidate(rules, { password, email, name, terms })
 
+const termsModel = computed({
+  get() {
+    return !!v$.value.terms.$model
+  },
+  set(newValue) {
+    // @ts-ignore
+    v$.value.terms.$model = newValue
+  }
+})
+
 function validateInputs() {
   !v$.value.$validate().then((result: boolean) => {
     if (!result) {
@@ -35,7 +45,7 @@ function validateInputs() {
     popupPinia.handleSignup(email.value, password.value);
     email.value = ''
     password.value = ''
-    v$.$reset()
+    v$.value.$reset()
   })
 }
 </script>
@@ -51,7 +61,7 @@ function validateInputs() {
 
     <div class="mb-4">
       <label class="inline-flex items-center">
-        <input class="w-4 h-4" type="checkbox" v-model="v$.terms.$model"/>
+        <input class="w-4 h-4" type="checkbox" v-model="termsModel"/>
         <p :class="{
         'w-56 ml-4 text-xsm text-left': true,
         'text-gray-popup-text': terms,
