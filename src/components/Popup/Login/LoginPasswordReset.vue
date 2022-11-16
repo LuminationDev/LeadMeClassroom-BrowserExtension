@@ -3,9 +3,27 @@ import PopupSecondaryButton from "@/components/Buttons/PopupSecondaryButton.vue"
 import LoginTextInput from "@/components/Popup/Login/LoginTextInput.vue";
 import {ref} from "vue";
 import {usePopupStore} from "@/stores/popupStore.ts";
+import useVuelidate from "@vuelidate/core";
+import { required, email as emailRule } from "@vuelidate/validators";
+
 let popupPinia = usePopupStore();
 
 const email = ref("")
+
+const rules = {
+  email: { required, emailRule, $lazy: true }
+}
+
+const v$ = useVuelidate(rules, { email })
+
+function validateAndSubmit() {
+  !v$.value.$validate().then((result) => {
+    if (!result) {
+      return;
+    }
+    popupPinia.handlePasswordReset(email.value)
+  })
+}
 </script>
 
 <template>
@@ -21,6 +39,6 @@ const email = ref("")
     >
       Cancel
     </PopupSecondaryButton>
-    <PopupSecondaryButton class="mb-24" v-on:click="popupPinia.handlePasswordReset(email)">Send</PopupSecondaryButton>
+    <PopupSecondaryButton class="mb-24" v-on:click="validateAndSubmit">Send</PopupSecondaryButton>
   </div>
 </template>

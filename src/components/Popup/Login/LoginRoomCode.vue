@@ -1,34 +1,39 @@
-<script setup>
-import PopupSecondaryButton from "@/components/Buttons/PopupSecondaryButton.vue";
+<script setup lang="ts">
 import VOtpInput from 'vue3-otp-input'
-import {ref} from "vue";
-
-import { usePopupStore } from "@/stores/popupStore.ts";
+import {computed, ref} from "vue";
+import useVuelidate from "@vuelidate/core";
+import { required, sameAs, helpers } from "@vuelidate/validators";
+import {usePopupStore} from "../../../stores/popupStore";
+import PopupSecondaryButton from "../../Buttons/PopupSecondaryButton.vue";
 let popupPinia = usePopupStore();
 
 const error = ref("");
 const authorise = ref(false);
 
-function checkInputs() {
-  resetErrorMessages();
+const classCode = computed(() => {
+  return popupPinia.classCode
+})
 
-  if(!authorise.value) {
-    error.value = "Please authorise the permissions.";
-    return;
-  }
-
-  popupPinia.connect();
+const rules = {
+  classCode: { required, $autoDirty: true },
+  authorise: { required, sameAs: helpers.withMessage("You must accept the permissions", sameAs(true)), $autoDirty: true }
 }
 
-function resetErrorMessages() {
-  error.value = "";
-  popupPinia.classError = "";
+const v$ = useVuelidate(rules, { classCode, authorise })
+
+function validateAndSubmit() {
+  !v$.value.$validate().then((result: boolean) => {
+    if (!result) {
+      return;
+    }
+    popupPinia.connect();
+  })
 }
 </script>
 
 <template>
   <div class="mt-9 pb-7">
-    <div class="flex flex-row justify-center mb-4">
+    <div class="flex flex-col justify-center mb-4">
       <VOtpInput
           class="mr-3"
           :num-inputs="4"
@@ -36,14 +41,22 @@ function resetErrorMessages() {
           input-classes="w-11 h-16 text-center font-bold text-4xl rounded-lg border-black-form-border border-2 ml-3"
           @on-change="(code) => { popupPinia.classCode = code }"
           separator=""/>
+      <div class="mt-2" v-if="v$.classCode && v$.classCode.$error">
+        <span class="text-red-800" v-for="error in v$.classCode.$errors">{{ error.$message }}</span>
+      </div>
     </div>
 
-    <label class="inline-flex items-center mb-4">
-      <input class="w-4 h-4" v-model="authorise" type="checkbox"/>
-      <p class="w-56 ml-4 text-xsm text-left text-gray-popup-text">I authorise the <span @click.prevent="popupPinia.changeView('permissions')" class="underline underline-offset-1 cursor-pointer">permissions</span> necessary for LeadMe Classroom to function</p>
-    </label>
+    <div class="mb-4">
+      <label class="inline-flex items-center">
+        <input class="w-4 h-4" v-model="v$.authorise.$model" type="checkbox"/>
+        <p class="w-56 ml-4 text-xsm text-left text-gray-popup-text">I authorise the <span @click.prevent="popupPinia.changeView('permissions')" class="underline underline-offset-1 cursor-pointer">permissions</span> necessary for LeadMe Classroom to function</p>
+      </label>
+      <div v-if="v$.authorise && v$.authorise.$error">
+        <span class="text-red-800" v-for="error in v$.authorise.$errors">{{ error.$message }}</span>
+      </div>
+    </div>
 
-    <PopupSecondaryButton v-on:click="checkInputs()">Enter</PopupSecondaryButton>
+    <PopupSecondaryButton v-on:click="validateAndSubmit">Enter</PopupSecondaryButton>
     <p class="text-red-400">{{ error }}</p>
     <p class="text-red-400">{{ popupPinia.classError }}</p>
 
