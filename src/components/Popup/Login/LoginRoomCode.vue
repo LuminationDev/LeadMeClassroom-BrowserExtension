@@ -21,6 +21,16 @@ const rules = {
 
 const v$ = useVuelidate(rules, { classCode, authorise })
 
+const authoriseModel = computed({
+  get() {
+    return !!v$.value.authorise.$model
+  },
+  set(newValue) {
+    // @ts-ignore
+    v$.value.authorise.$model = newValue
+  }
+})
+
 function validateAndSubmit() {
   !v$.value.$validate().then((result: boolean) => {
     if (!result) {
@@ -39,7 +49,7 @@ function validateAndSubmit() {
           :num-inputs="4"
           input-type="letter-numeric"
           input-classes="w-11 h-16 text-center font-bold text-4xl rounded-lg border-black-form-border border-2 ml-3"
-          @on-change="(code) => { popupPinia.classCode = code }"
+          @on-change="(code: string) => { popupPinia.classCode = code }"
           separator=""/>
       <div class="mt-2" v-if="v$.classCode && v$.classCode.$error">
         <span class="text-red-800" v-for="error in v$.classCode.$errors">{{ error.$message }}</span>
@@ -48,7 +58,7 @@ function validateAndSubmit() {
 
     <div class="mb-4">
       <label class="inline-flex items-center">
-        <input class="w-4 h-4" v-model="v$.authorise.$model" type="checkbox"/>
+        <input class="w-4 h-4" v-model="authoriseModel" type="checkbox"/>
         <p class="w-56 ml-4 text-xsm text-left text-gray-popup-text">I authorise the <span @click.prevent="popupPinia.changeView('permissions')" class="underline underline-offset-1 cursor-pointer">permissions</span> necessary for LeadMe Classroom to function</p>
       </label>
       <div v-if="v$.authorise && v$.authorise.$error">
@@ -58,7 +68,6 @@ function validateAndSubmit() {
 
     <PopupSecondaryButton v-on:click="validateAndSubmit">Enter</PopupSecondaryButton>
     <p class="text-red-400">{{ error }}</p>
-    <p class="text-red-400">{{ popupPinia.classError }}</p>
 
     <p class="mt-14 text-gray-separator cursor-pointer" v-on:click="popupPinia.changeView('loginTeacher')">Teacher Login</p>
   </div>
