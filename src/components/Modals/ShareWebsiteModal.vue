@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import {Ref, ref} from "vue";
 import {useDashboardStore} from "../../stores/dashboardStore";
+import useVuelidate from "@vuelidate/core";
+import {required} from "@vuelidate/validators";
 import StudentGridItem from "../Dashboard/ClassControl/GridItem/StudentGridItem.vue";
 import Modal from "./Modal.vue";
 
@@ -9,6 +11,21 @@ const showWebsiteModal = ref(false);
 const websiteLink = ref("");
 const shareTo = ref("all")
 const followersSelected: Ref<string[]> = ref([])
+
+const rules = {
+  websiteLink: { required }
+}
+
+const v$ = useVuelidate(rules, { websiteLink })
+
+function validateAndSubmit() {
+  !v$.value.$validate().then((result: boolean) => {
+    if (!result) {
+      return;
+    }
+    submit()
+  })
+}
 
 function handleFollowerSelection(followerId: string, value: boolean) {
   let index = followersSelected.value.findIndex(element => element === followerId)
@@ -72,14 +89,19 @@ function submit()
       <template v-slot:content>
         <div>
           {{ dashboardPinia.tasks }}
-          <div class="mx-14 mt-8 h-20 bg-white flex items-center justify-between">
-            <input
-              class="h-11 ml-6 mr-24 px-4 flex-grow bg-panel-background text-base rounded-lg"
-              type="text"
-              placeholder="Paste a URL..."
-              v-model="websiteLink"
-            />
-            <button class="w-52 h-11 mr-9 text-white bg-blue-500 rounded-lg text-base hover:bg-blue-400">Done</button>
+          <div class="mx-14 mt-8 py-6 bg-white flex flex-col">
+            <div class="flex items-center justify-between">
+              <input
+                  class="h-11 ml-6 mr-24 px-4 flex-grow bg-panel-background text-base rounded-lg"
+                  type="text"
+                  placeholder="Paste a URL..."
+                  v-model="v$.websiteLink.$model"
+              />
+              <button class="w-52 h-11 mr-9 text-white bg-blue-500 rounded-lg text-base hover:bg-blue-400">Done</button>
+            </div>
+            <div class="mt-1 ml-6" v-if="v$.websiteLink && v$.websiteLink.$error">
+              <span class="text-red-800" v-for="error in v$.websiteLink.$errors">{{ error.$message }}</span>
+            </div>
           </div>
           <div class="mx-14 mt-8 h-20 bg-white flex items-center justify-between">
             <p class="ml-8 text-lg">Share to</p>
@@ -109,7 +131,7 @@ function submit()
           >Cancel</button>
           <button
               class="w-52 h-11 text-white bg-blue-500 rounded-lg text-base hover:bg-blue-400"
-              v-on:click="submit"
+              v-on:click="validateAndSubmit"
           >Share link</button>
         </footer>
       </template>

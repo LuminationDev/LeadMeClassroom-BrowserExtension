@@ -1,79 +1,67 @@
 <script setup lang="ts">
 import PopupSecondaryButton from "@/components/Buttons/PopupSecondaryButton.vue";
 import LoginTextInput from "./LoginTextInput.vue";
-import {ref} from "vue";
+import { ref, computed } from "vue";
 
 import { usePopupStore } from "../../../stores/popupStore";
+import useVuelidate from "@vuelidate/core";
+import { required, email as emailRule, sameAs, helpers } from "@vuelidate/validators";
 
 let popupPinia = usePopupStore();
 
 const error = ref("");
 const password = ref("");
 const email = ref("");
-const termsError = ref(false);
-const authorise = ref(false);
+const terms = ref(false);
+
+const name = computed(() => {
+  return popupPinia.name
+})
+
+const rules = {
+  password: { required },
+  email: { required, emailRule, $lazy: true },
+  name: { required, $autoDirty: true },
+  terms: { required, sameAs: helpers.withMessage("You must accept the terms and conditions", sameAs(true)) }
+}
+
+const v$ = useVuelidate(rules, { password, email, name, terms })
 
 function validateInputs() {
-  resetErrors();
-
-  if(!validateEmail(email.value)) {
-    //Invalid email address
-    error.value = "Please enter a valid email address.";
-    return;
-  }
-
-  if(!validatePassword(password.value)) {
-    //Password was not valid
-    error.value = "Password must contain at least 6 characters.";
-    return;
-  }
-
-  if(!authorise.value) {
-    //Did not agree to terms and conditions
-    termsError.value = true;
-    return;
-  }
-
-  popupPinia.handleSignup(email.value, password.value);
-  email.value = ""
-  password.value = ""
-}
-
-function validateEmail(email: string) {
-  return String(email)
-      .toLowerCase()
-      .match(
-          /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
-      );
-}
-
-function validatePassword(password: string) {
-  return password.length > 5;
-}
-
-function resetErrors() {
-  error.value = "";
-  termsError.value = false;
+  !v$.value.$validate().then((result: boolean) => {
+    if (!result) {
+      return;
+    }
+    popupPinia.handleSignup(email.value, password.value);
+    email.value = ''
+    password.value = ''
+    v$.$reset()
+  })
 }
 </script>
 
 <template>
   <div class="mt-9 pb-7">
     <div>
-      <LoginTextInput class="mb-2" type="text" placeholder="Name" v-model="popupPinia.name"/>
-      <LoginTextInput class="mb-2" type="text" placeholder="Email" v-model="email"/>
-      <LoginTextInput class="mb-3" type="password" placeholder="Password" v-model="password"/>
+      <LoginTextInput class="mb-2" type="text" placeholder="Name" :v$="v$.name" v-model="popupPinia.name"/>
+      <LoginTextInput class="mb-2" type="text" placeholder="Email" :v$="v$.email" v-model="v$.email.$model"/>
+      <LoginTextInput class="mb-3" type="password" placeholder="Password" :v$="v$.password" v-model="v$.password.$model"/>
       <p class="text-red-400">{{ error }}</p>
     </div>
 
-    <label class="inline-flex items-center mb-4">
-      <input class="w-4 h-4" type="checkbox" v-model="authorise"/>
-      <p :class="{
+    <div class="mb-4">
+      <label class="inline-flex items-center">
+        <input class="w-4 h-4" type="checkbox" v-model="v$.terms.$model"/>
+        <p :class="{
         'w-56 ml-4 text-xsm text-left': true,
-        'text-gray-popup-text': !termsError,
-        'text-red-400': termsError
+        'text-gray-popup-text': terms,
+        'text-red-800': !terms && v$.terms.$dirty
       }">By signing up, I agree to LeadMe's <span class="underline  underline-offset-1">Terms and Conditions</span></p>
-    </label>
+      </label>
+      <div v-if="v$.terms && v$.terms.$error">
+        <span class="text-red-800" v-for="error in v$.terms.$errors">{{ error.$message }}</span>
+      </div>
+    </div>
 
     <label class="inline-flex items-center mb-4">
       <input class="w-4 h-4" type="checkbox"/>
