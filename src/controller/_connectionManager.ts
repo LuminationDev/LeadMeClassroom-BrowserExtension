@@ -4,7 +4,7 @@ import {Follower, Tab} from "../models";
 
 class ConnectionManager {
     public firebase: Firebase;
-    private follower: Follower|undefined;
+    private follower!: Follower;
 
     constructor(callback: Function) {
         this.firebase = new Firebase(callback);
@@ -39,14 +39,14 @@ class ConnectionManager {
      * Remove the connection to firebase. Used when signing out or tab becomes inactive.
      */
     disconnect = () => {
-        this.firebase.unregisterListeners(this.follower!.classCode, this.follower!.uniqueId);
+        this.firebase.unregisterListeners(this.follower.classCode, this.follower.uniqueId);
     }
 
     /**
      * Send a message to firebase that a follower has disconnected.
      */
     disconnectFollower = () => {
-        this.firebase.removeFollower(this.follower!.classCode, this.follower!.uniqueId);
+        this.firebase.removeFollower(this.follower.classCode, this.follower.uniqueId);
     }
 
     /**
@@ -54,7 +54,7 @@ class ConnectionManager {
      * a new WebRTC peer connection.
      */
     connectionMethods = () => {
-        this.firebase.registerListeners(this.follower!.classCode, this.follower!.uniqueId);
+        this.firebase.registerListeners(this.follower.classCode, this.follower.uniqueId);
         this.captureScreen();
     }
 
@@ -64,7 +64,7 @@ class ConnectionManager {
      */
     captureScreen = () => {
         chrome.runtime.sendMessage({ "type": REQUESTS.CAPTURE }, async (response) => {
-            this.firebase.uploadScreenshot(response, this.follower!.classCode, this.follower!.uniqueId);
+            this.firebase.uploadScreenshot(response, this.follower.classCode, this.follower.uniqueId);
         });
     }
 
@@ -80,20 +80,20 @@ class ConnectionManager {
     }
 
     updateTab = (tab: Tab) => {
-        this.firebase.updateTab(this.follower!.classCode, this.follower!.uniqueId, tab);
+        this.firebase.updateTab(this.follower.classCode, this.follower.uniqueId, tab);
     }
 
     updateActiveTab = (tab: Tab) => {
-        this.firebase.updateActiveTab(this.follower!.classCode, this.follower!.uniqueId, tab);
+        this.firebase.updateActiveTab(this.follower.classCode, this.follower.uniqueId, tab);
     }
 
     removeTab = (tabId: string) => {
-        this.firebase.removeTab(this.follower!.classCode, this.follower!.uniqueId, tabId);
+        this.firebase.removeTab(this.follower.classCode, this.follower.uniqueId, tabId);
     }
 
     deleteTab = (tabId: string) => {
         chrome.tabs.remove(parseInt(tabId))
-        this.firebase.removeTab(this.follower!.classCode, this.follower!.uniqueId, tabId);
+        this.firebase.removeTab(this.follower.classCode, this.follower.uniqueId, tabId);
     }
 
     /**
@@ -103,7 +103,7 @@ class ConnectionManager {
     sendResponse = (action: object) => {
         // @ts-ignore
         action.timeStamp = Date.now(); //Add a time stamp so that the response is always 'different' and the leader picks up it is a different message.
-        this.firebase.sendResponse(this.follower!.classCode, this.follower!.uniqueId, action);
+        this.firebase.sendResponse(this.follower.classCode, this.follower.uniqueId, action);
     }
 
     /**
