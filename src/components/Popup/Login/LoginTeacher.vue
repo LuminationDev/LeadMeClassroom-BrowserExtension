@@ -35,11 +35,11 @@ function validateAndSubmit() {
 <template>
   <div class="mt-6 pb-5">
     <div class="mb-2">
-      <LoginTextInput v-model="v$.email.$model" class="pl-3.5" type="email" placeholder="Email" :v$="v$.email"/>
+      <LoginTextInput v-model="v$.email.$model" type="email" placeholder="Email" :v$="v$.email"/>
     </div>
 
     <div class="mb-3">
-      <LoginTextInput v-model="v$.password.$model" class="pl-3.5" type="password" placeholder="Password" :v$="v$.password"/>
+      <LoginTextInput v-model="v$.password.$model" type="password" placeholder="Password" :v$="v$.password"/>
       <p class="text-red-400">{{ popupPinia.error }}</p>
     </div>
 
