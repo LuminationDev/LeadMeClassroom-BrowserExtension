@@ -107,7 +107,7 @@ function changeActiveTab(tab: object) {
               <div :class="{
                   'w-full h-9 px-5 flex flex-row items-center overflow-ellipsis whitespace-nowrap': true,
                   'overflow-hidden rounded-lg cursor-pointer': true,
-                  'hover:bg-opacity-50 hover:bg-white': selectedTab.id !== tab.id,
+                  'hover:bg-opacity-50 hover:bg-gray-300': selectedTab.id !== tab.id,
                   'bg-white': selectedTab.id === tab.id,
                   }"
                   @click="selectedTabId = tab.id"
