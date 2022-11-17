@@ -166,11 +166,24 @@ const captureScreen = () => {
  * @param {*} message
  */
 const updateTabURL = (message) => {
-    chrome.tabs.query({ currentWindow: true, active: true }, function (tabs) {
-        const activeTab = tabs[0];
-        // chrome.tabs.sendMessage(activeTab.id, message);
-        chrome.tabs.update(activeTab.id, { url: `https://${message.value}` });
-        chrome.windows.update(activeTab.windowId, { state: 'maximized', focused: true });
+    chrome.tabs.query({ active: true }, function (tabs) {
+        chrome.windows.getCurrent().then(window => {
+            const currentWindowTabs = tabs.filter(element => element.windowId === window.id)
+            let activeTab
+            if (currentWindowTabs.length > 0 && !currentWindowTabs[0].url.includes("assistant.html")) {
+                activeTab = currentWindowTabs[0]
+            } else {
+                activeTab = tabs.filter(element => !element.url.includes("assistant.html"))[0]
+            }
+            if (!activeTab) {
+                chrome.windows.create({ url: `https://${message.value}`, focused: true, state: 'maximized' })
+            } else {
+                chrome.tabs.update(activeTab.id, { url: `https://${message.value}` });
+                chrome.windows.update(activeTab.windowId, { state: 'maximized', focused: true });
+
+            }
+            // chrome.tabs.sendMessage(activeTab.id, message);
+        })
     });
 }
 
