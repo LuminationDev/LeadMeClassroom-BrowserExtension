@@ -24,8 +24,8 @@ onMounted(() => {
     <div v-for="(permission, index) in permissionJson">
       <StudentPermission
           :name="permission.tag"
-          :checked="permissionPinia.permissions[permission.tag]"
-          @update="newValue => permissionPinia.setPermission(permission.tag, newValue)">
+          :checked-prop="permissionPinia.permissions[permission.tag]"
+          @update="(newValue: boolean) => permissionPinia.setPermission(permission.tag, newValue)">
 
         <template v-slot:title>
           <p class="text-sm">{{permission.title}}</p>

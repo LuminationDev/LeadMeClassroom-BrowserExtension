@@ -27,7 +27,7 @@ function validateAndSubmit() {
     popupPinia.handleLogin(email.value, password.value)
     email.value = ''
     password.value = ''
-    v$.$reset()
+    v$.value.$reset()
   })
 }
 </script>
