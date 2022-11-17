@@ -13,7 +13,7 @@ class Leader {
     constructor(name: string) {
         this.uniqueId = uuidv4();
         this.name = name;
-        this.code = this.generateCode();
+        this.code = this.generateCode(4);
     }
 
     /**
@@ -36,8 +36,14 @@ class Leader {
      * Generate a random character (digit or letter) code that represents the classroom.
      * @returns A 4 character string that acts as the class code.
      */
-     generateCode = () => {
-        return Math.random().toString(36).slice(2, 6);
+     generateCode = (length: number) => {
+         let result = ''
+         const characters = 'abcdefghjkmnpqrstuvwxyz23456789'
+         const charactersLength = characters.length
+         for (let i = 0; i < length; i++) {
+             result += characters.charAt((Math.floor(Math.random() * charactersLength)))
+         }
+         return result
     }
 
     /**
