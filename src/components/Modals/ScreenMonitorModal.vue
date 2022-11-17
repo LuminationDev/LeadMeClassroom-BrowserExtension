@@ -87,7 +87,12 @@ function closeModal() {
 
           <!--Screenshot content-->
           <div v-if="!follower.monitoring" class="w-modal-width-xsm">
-            <img class="aspect-video" :id="`image_${follower.getUniqueId()}`" :src="follower.imageBase64 ?? undefined" alt="Follower Screen shot"/>
+            <div v-if="follower.imageBase64 === undefined" class="flex flex-col items-center">
+              <p class="mt-20 lds-dual-ring-lg" />
+              <p class="mb-6 mt-8 text-sm font-bold">Collecting current screenshot...</p>
+            </div>
+
+            <img v-else class="aspect-video" :id="`image_${follower.getUniqueId()}`" :src="follower.imageBase64 ?? undefined" alt="Follower Screen shot"/>
           </div>
 
           <!--Monitoring and permission content-->

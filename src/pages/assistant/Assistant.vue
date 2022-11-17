@@ -7,13 +7,10 @@ import Tab from "../../models/_tab";
 import Follower from "../../models/_follower";
 
 import {useWebRTCStore} from "../../stores/webRTCStore";
-
 const webRTCPinia = useWebRTCStore();
 
 const assistantListener = (data: any) => {
-  if (data == null) {
-    return;
-  }
+  if (data == null) { return; }
 
   console.log(data);
 

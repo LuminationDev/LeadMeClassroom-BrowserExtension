@@ -56,11 +56,12 @@ function closeModal() {
 
   <!--Modal body using the Modal template, teleports the html to the bottom of the body tag-->
   <Teleport to="body">
-    <Modal :show="showDetailModal" :rounded="false" @close="closeModal">
+    <Modal :show="showDetailModal" @close="closeModal">
       <template v-slot:header>
         <header class="h-20 px-8 w-modal-width-sm bg-white flex justify-between items-center rounded-t-lg">
-          <div class="h-9 bg-white flex items-center">
-            <span class="text-lg text-black">{{ follower.name }} - Tab Control</span>
+          <div class="bg-white flex flex-col">
+            <span class="text-base font-bold text-black">Tab Control</span>
+            <p class="mt-1 text-xs text-zinc-700">{{ follower.name }}</p>
           </div>
         </header>
       </template>
