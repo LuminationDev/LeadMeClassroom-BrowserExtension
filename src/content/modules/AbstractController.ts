@@ -11,7 +11,7 @@
         }
     }
   
-    determineAction() {
+    determineAction(action: string) {
         throw new Error("Method 'determineAction()' must be implemented.");
     }
   

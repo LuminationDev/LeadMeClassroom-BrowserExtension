@@ -1,8 +1,8 @@
-<script setup>
-import PopupPrimaryButton from "@/components/Buttons/PopupPrimaryButton.vue";
-import PopupSecondaryButton from "@/components/Buttons/PopupSecondaryButton.vue";
+<script setup lang="ts">
+import PopupPrimaryButton from "../../../components/Buttons/PopupPrimaryButton.vue";
+import PopupSecondaryButton from "../../../components/Buttons/PopupSecondaryButton.vue";
 
-import { usePopupStore } from "@/stores/popupStore.ts";
+import { usePopupStore } from "../../../stores/popupStore";
 let popupPinia = usePopupStore();
 </script>
 

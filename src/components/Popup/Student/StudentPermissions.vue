@@ -1,9 +1,9 @@
-<script setup>
-import StudentPermission from "@/components/Popup/Student/StudentPermission.vue";
-import permissionData from "@/config/permissions.json";
+<script setup lang="ts">
+import StudentPermission from "../../../components/Popup/Student/StudentPermission.vue";
+import permissionData from "../../../config/permissions.json";
 import { onMounted } from "vue";
 
-import { usePermissionStore } from "@/stores/permissionStore.ts";
+import { usePermissionStore } from "../../../stores/permissionStore";
 let permissionPinia = usePermissionStore();
 
 const permissionJson = permissionData;
@@ -11,6 +11,7 @@ const permissionJson = permissionData;
 onMounted(() => {
   chrome.permissions.getAll((granted) => {
     permissionJson.forEach(permission => {
+      // @ts-ignore
       permissionPinia.permissions[permission.tag] = granted.permissions?.includes(permission.tag);
     });
   });

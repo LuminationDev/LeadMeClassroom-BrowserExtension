@@ -1,10 +1,10 @@
-<script setup>
-import PopupSecondaryButton from "@/components/Buttons/PopupSecondaryButton.vue";
-import LoginTextInput from "@/components/Popup/Login/LoginTextInput.vue";
+<script setup lang="ts">
+import PopupSecondaryButton from "../../../components/Buttons/PopupSecondaryButton.vue";
+import LoginTextInput from "../../../components/Popup/Login/LoginTextInput.vue";
 
-import {usePopupStore} from "@/stores/popupStore.ts";
-import {computed} from "vue";
-import {required} from "@vuelidate/validators";
+import { usePopupStore } from "../../../stores/popupStore";
+import { computed } from "vue";
+import { required } from "@vuelidate/validators";
 import useVuelidate from "@vuelidate/core";
 let popupPinia = usePopupStore();
 

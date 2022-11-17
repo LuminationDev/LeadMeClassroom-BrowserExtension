@@ -1,5 +1,5 @@
-<script setup>
-import { usePopupStore } from "@/stores/popupStore.ts";
+<script setup lang="ts">
+import { usePopupStore } from "../../stores/popupStore";
 let popupPinia = usePopupStore();
 
 function closePopup ()

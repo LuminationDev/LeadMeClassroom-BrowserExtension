@@ -1,5 +1,5 @@
-<script setup>
-import StudentPermissions from "@/components/Popup/Student/StudentPermissions.vue";
+<script setup lang="ts">
+import StudentPermissions from "../../components/Popup/Student/StudentPermissions.vue";
 </script>
 
 <template>

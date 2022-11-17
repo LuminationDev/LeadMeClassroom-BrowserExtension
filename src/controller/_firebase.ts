@@ -1,7 +1,8 @@
 import {devConfig, prodConfig, testConfig} from './_service';
-import { initializeApp } from 'firebase/app';
-import { getStorage, ref as storageRef, uploadString, getDownloadURL } from 'firebase/storage'
+import { initializeApp, FirebaseApp } from 'firebase/app';
+import { FirebaseStorage, getStorage, ref as storageRef, uploadString, getDownloadURL } from 'firebase/storage'
 import {
+    Database,
     getDatabase,
     ref,
     onChildAdded,
@@ -16,7 +17,8 @@ import {
     off
 } from 'firebase/database';
 import {browserLocalPersistence, getAuth, setPersistence} from "@firebase/auth";
-import * as REQUESTS from '../constants/_requests.js'
+import * as REQUESTS from '../constants/_requests';
+import {Follower, Leader, Tab} from "../models";
 
 const config = process.env.NODE_ENV === 'production' ? prodConfig : devConfig;
 
@@ -24,13 +26,17 @@ const config = process.env.NODE_ENV === 'production' ? prodConfig : devConfig;
 //const config = testConfig;
 
 class Firebase {
-    constructor(callback) {
+    private readonly callback: Function|null;
+    private readonly firebase: FirebaseApp|undefined;
+    private readonly db: Database;
+    private readonly storage: FirebaseStorage;
+
+    constructor(callback: any = null) {
         this.callback = callback;
-        this.firebase = null;
 
         try {
             this.firebase = initializeApp(config);
-        } catch (err) {
+        } catch (err: any) {
             if (!/already exists/.test(err.message)) {
                 console.error('Firebase initialization error', err.stack);
             }
@@ -54,7 +60,7 @@ class Firebase {
      * Update the Real Time Database with the pass object.
      * @param {*} leader An object representing the current leader
      */
-    connectAsLeader = (leader) => {
+    connectAsLeader = (leader: Leader) => {
         this.generateRoom(leader);
     }
 
@@ -66,7 +72,7 @@ class Firebase {
      * @param followerAdded
      * @param readIceCandidate
      */
-    followerListeners = (classCode, followerResponse, followerDisconnected, followerAdded, readIceCandidate) => {
+    followerListeners = (classCode: string, followerResponse: Function, followerDisconnected: Function, followerAdded: Function, readIceCandidate: Function) => {
         const followerRef = ref(this.db, `/followers/${classCode}`);
 
         onChildAdded(followerRef, (snapshot) => {
@@ -98,7 +104,7 @@ class Firebase {
      * @param followerTabRemoved
      * @param followerTabsAdded
      */
-    tabListeners = (classCode, followerTabChanged, followerTabRemoved, followerTabsAdded) => {
+    tabListeners = (classCode: string, followerTabChanged: Function, followerTabRemoved: Function, followerTabsAdded: Function) => {
         const tabRef = ref(this.db, `/tabs/${classCode}`);
 
         onChildAdded(tabRef, (snapshot) => {
@@ -122,7 +128,7 @@ class Firebase {
      * @param classCode
      * @param followerResponse
      */
-    reloadFollowers = (classCode, followerResponse) => {
+    reloadFollowers = (classCode: string, followerResponse: Function) => {
         const followerRef = ref(this.db, `/followers/${classCode}`);
         get(followerRef).then((snapshot) => {
             snapshot.forEach(entry => {
@@ -134,7 +140,7 @@ class Firebase {
     /**
      * Attempt to find a class code matching the input, return whether the attempt was successful or not
      */
-    async checkForClassroom(inputCode) {
+    async checkForClassroom(inputCode: string) {
         const classRef = ref(this.db, `/classCode/${inputCode}/classCode`);
         return await get(classRef).then((snapshot) => {
             return snapshot.val() === inputCode;
@@ -145,23 +151,10 @@ class Firebase {
     }
 
     /**
-     * Attempt to find a follower uuid matching the input, return whether the attempt was successful or not
-     */
-    async checkForFollower(inputCode, inputUUID) {
-        const followerRef = ref(this.db, `/followers/${inputCode}/${inputUUID}`);
-        return await get(followerRef).then((snapshot) => {
-            return snapshot.exists();
-        }).catch((error) => {
-            console.log(error);
-            return false;
-        });
-    }
-
-    /**
      * Add a follower object to the classrooms followers array.
      * @param {*} data A Follower object.
      */
-    addFollower = (data) => {
+    addFollower = (data: Follower) => {
         const followerRef = ref(this.db, `/followers/${data.getClassCode()}`);
         update(followerRef, data.getFollowerObject()).then(() => console.log("Follower object added"));
         onDisconnect(followerRef).remove().then(() => console.log("Follower object removed"));
@@ -176,7 +169,7 @@ class Firebase {
      * @param {*} classCode 
      * @param {*} uuid 
      */
-    async removeFollower(classCode, uuid) {
+    async removeFollower(classCode: string, uuid: string|null) {
         const followerRef = ref(this.db, `/followers/${classCode}/${uuid}`);
         return await remove(followerRef).then(() => {
             return true;
@@ -190,7 +183,7 @@ class Firebase {
      * Update the Real Time Database with the pass object.
      * @param {*} leader A JSON structured object to be uploaded into the database.
      */
-    generateRoom = (leader) => {
+    generateRoom = (leader: Leader) => {
         update(ref(this.db, `classCode`), leader.getClassroomObject()).then(() => console.log("Database: Class code updated"));
         update(ref(this.db, `followers`), leader.getDefaultFollowersObject()).then(() => console.log("Database: Follower object updated"));
         update(ref(this.db, `followerMessages`), leader.getDefaultFollowerMessagesObject()).then(() => console.log("Database: Follower messages updated"));
@@ -203,7 +196,7 @@ class Firebase {
      * @param classCode
      * @param {*} type
      */
-    requestAction = async (classCode, type) => {
+    requestAction = async (classCode: string, type: object) => {
         const msg = push(ref(this.db, `classCode/${classCode}/request`), type);
         await remove(msg);
     }
@@ -214,7 +207,7 @@ class Firebase {
      * @param uuid
      * @param {*} type
      */
-    requestIndividualAction = async (classCode, uuid, type) => {
+    requestIndividualAction = async (classCode: string, uuid: string, type: object) => {
         const msg = push(ref(this.db, `followerMessages/${classCode}/${uuid}/request`), type);
         await remove(msg);
     }
@@ -225,7 +218,7 @@ class Firebase {
      * @param uuid
      * @param action
      */
-    sendResponse = (classCode, uuid, action) => {
+    sendResponse = (classCode: string, uuid: string, action: object) => {
         set(ref(this.db, `followers/${classCode}/${uuid}/response`), action)
             .then(result => console.log(result));
     }
@@ -235,20 +228,21 @@ class Firebase {
      * @param {*} classCode A string representing the class a user is registered to.
      * @param uuid
      */
-    registerListeners = (classCode, uuid) => {
+    registerListeners = (classCode: string, uuid: string) => {
         //Listen for group actions
         const groupRef = ref(this.db, `classCode/${classCode}/request`);
-        onChildAdded(groupRef, (snapshot) => this.callback(snapshot.val()));
+        onChildAdded(groupRef, (snapshot) => this.callback?.(snapshot.val()));
 
         //Listen for individual actions
         const individualRef = ref(this.db, `followerMessages/${classCode}/${uuid}/request`);
-        onChildAdded(individualRef, (snapshot) => this.callback(snapshot.val()));
+        onChildAdded(individualRef, (snapshot) => this.callback?.(snapshot.val()));
 
         //Listen for ice candidates
         const iceRef = ref(this.db, `ice/${classCode}/${uuid}`);
         onChildAdded(iceRef, (snapshot) => {
+            // @ts-ignore
             snapshot.type = REQUESTS.MONITORDATA;
-            this.callback(snapshot);
+            this.callback?.(snapshot);
         });
     }
 
@@ -257,7 +251,7 @@ class Firebase {
      * @param {*} inputCode A string representing the class a user is registered to.
      * @param uuid
      */
-    unregisterListeners = (inputCode, uuid) => {
+    unregisterListeners = (inputCode: string, uuid: string) => {
         off(ref(this.db, `classCode/${inputCode}/request`));
         off(ref(this.db, `followerMessages/${inputCode}/${uuid}/request`))
         off(ref(this.db, `ice/${inputCode}/${uuid}`));
@@ -268,26 +262,14 @@ class Firebase {
      * entry.
      * @param {*} inputCode A string representing the class a user is registered to.
      * @param {*} inputUUID A string representing the unique ID of a follower.
-     * @param base64
-     */
-    sendScreenShot = (inputCode, inputUUID, base64) => {
-        set(ref(this.db, `followers/${inputCode}/${inputUUID}/screenshot`), base64)
-            .then(() => console.log("Screen shot sent"));
-    }
-
-    /**
-     * Upload a screenshot of the followers computer to firebase as a base 64 message under that direct follower's
-     * entry.
-     * @param {*} inputCode A string representing the class a user is registered to.
-     * @param {*} inputUUID A string representing the unique ID of a follower.
      * @param tab
      */
-    updateTab = (inputCode, inputUUID, tab) => {
+    updateTab = (inputCode: string, inputUUID: string, tab: Tab) => {
         set(ref(this.db, `tabs/${inputCode}/${inputUUID}/${tab.id}`), tab)
             .then(() => console.log("Tab updated"));
     }
 
-    updateActiveTab = (inputCode, inputUUID, tab) => {
+    updateActiveTab = (inputCode: string, inputUUID: string, tab: Tab) => {
         update(ref(this.db, `tabs/${inputCode}/${inputUUID}/${tab.id}`), {
             index: tab.index,
             windowId: tab.windowId,
@@ -295,7 +277,7 @@ class Firebase {
         }).then(() => console.log("Active tab updated"));
     }
 
-    removeTab = (inputCode, inputUUID, tabId) => {
+    removeTab = (inputCode: string, inputUUID: string, tabId: string) => {
         remove(ref(this.db, `tabs/${inputCode}/${inputUUID}/${tabId}`))
             .then(() => console.log("Remove tab"));
     }
@@ -304,7 +286,7 @@ class Firebase {
      * Remove the entity of a class entry, at the end of a session the details of the connects will be erased.
      * @param {*} classCode 
      */
-    removeClass = (classCode) => {
+    removeClass = (classCode: string) => {
         const classRef = ref(this.db, `classCode/${classCode}`);
         const followersRef = ref(this.db, `followers/${classCode}`);
         const followerMessagesRef = ref(this.db, `followerMessages/${classCode}`);
@@ -344,7 +326,7 @@ class Firebase {
      * @param classCode
      * @param followerId
      */
-    uploadScreenshot = (base64, classCode, followerId) => {
+    uploadScreenshot = (base64: string, classCode: string, followerId: string) => {
         const screenshotRef = storageRef(this.storage, `${classCode}/${followerId}`);
         const followerRef = ref(this.db, `followers/${classCode}/${followerId}/screenshot`);
 
@@ -363,7 +345,7 @@ class Firebase {
      * @param data
      * @param classCode
      */
-    sendIceCandidates = (senderId, UUID, data, classCode) => {
+    sendIceCandidates = (senderId: number, UUID: string, data: object, classCode: string) => {
         const msgRef = ref(this.db, `ice/${classCode}/${UUID}`);
         push(msgRef, { sender: senderId, message: data }).then(msg => remove(msg));
     }

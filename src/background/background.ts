@@ -1,5 +1,5 @@
 import * as REQUESTS from "../constants/_requests";
-import Tab from "@/models/_tab";
+import { Tab } from "../models";
 
 import { useStorage } from "../hooks/useStorage";
 const { getSyncStorage } = useStorage();
@@ -7,17 +7,15 @@ const { getSyncStorage } = useStorage();
 //===========================================
 //RUNTIME LISTENERS
 //===========================================
-//Send the user to the onboarding page when first installing the extension
-chrome.runtime.onInstalled.addListener((reason) => {
-    if (reason === chrome.runtime.OnInstalledReason.INSTALL) {
-        chrome.tabs.create({
-            url: 'onboarding.html'
-        });
+//Send the user to the on boarding page when first installing the extension
+chrome.runtime.onInstalled.addListener((details) => {
+    if (details.reason === chrome.runtime.OnInstalledReason.INSTALL) {
+        void chrome.tabs.create({ url: 'onboarding.html' });
     }
 });
 
 //Listen for when a tab becomes inactive
-chrome.tabs.onActivated.addListener(async (activeInfo) => {
+chrome.tabs.onActivated.addListener(async () => {
     const data = await getSyncStorage("follower");
     if (data == null) { return; }
 
@@ -26,18 +24,18 @@ chrome.tabs.onActivated.addListener(async (activeInfo) => {
     //Need to collect the current tab details for the index number
     chrome.tabs.query({ active: true, lastFocusedWindow: true }, ([currentTab]) => {
         chrome.tabs.query({ url: REQUESTS.ASSISTANT_MATCH_URL }, ([assistantTab]) => {
-            chrome.tabs.sendMessage(assistantTab.id, { "type": REQUESTS.UPDATE_ACTIVE_TAB, tab: currentTab });
+            chrome.tabs.sendMessage(<number>assistantTab.id, { "type": REQUESTS.UPDATE_ACTIVE_TAB, tab: currentTab });
         });
     });
 });
 
-chrome.tabs.onRemoved.addListener(async (tabId, removeInfo) => {
+chrome.tabs.onRemoved.addListener(async (tabId) => {
     const data = await getSyncStorage("follower");
     if (data == null) { return; }
 
     checkStoragePermission(checkStorage);
     chrome.tabs.query({ url: REQUESTS.ASSISTANT_MATCH_URL }, ([assistantTab]) => {
-        chrome.tabs.sendMessage(assistantTab.id, { "type": REQUESTS.REMOVE_TAB, tabId: tabId });
+        chrome.tabs.sendMessage(<number>assistantTab.id, { "type": REQUESTS.REMOVE_TAB, tabId: tabId });
     });
 });
 
@@ -46,21 +44,19 @@ chrome.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
     const data = await getSyncStorage("follower");
     if (data == null) { return; }
 
-    if (tab.url.includes("assistant.html")) {
-        return
-    }
+    let url = <string>tab.url;
+    if (url.includes("assistant.html")) { return }
+
     chrome.tabs.query({ url: REQUESTS.ASSISTANT_MATCH_URL }, ([assistantTab]) => {
-        let newTab = new Tab(tab.id + "", tab.index, tab.windowId, tab.title, tab.favIconUrl, tab.url)
-        newTab.audible = tab.audible
+        let newTab = new Tab(tab.id + "", tab.index, tab.windowId, <string>tab.title, <string>tab.favIconUrl, <string>tab.url)
+        newTab.audible = <boolean>tab.audible
         newTab.muted = tab.mutedInfo ? tab.mutedInfo.muted : false
-        chrome.tabs.sendMessage(assistantTab.id, { "type": REQUESTS.UPDATE_TAB, tab: newTab });
+        chrome.tabs.sendMessage(<number>assistantTab.id, { "type": REQUESTS.UPDATE_TAB, tab: newTab });
     });
 
-    if (changeInfo.url == null) {
-        return;
-    }
+    if (changeInfo.url == null) { return; }
 
-    // read changeInfo data and do something with it as long as it isnt the assistant page
+    // read changeInfo data and do something with it as long as it isn't the assistant page
     if (!changeInfo.url.includes("assistant")) {
         // do something here
         checkStoragePermission(checkStorage);
@@ -121,7 +117,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
  * Check if the storage permission has been enabled before trying to
  * access the chrome sync or local storage
  */
-const checkStoragePermission = (callback) => {
+const checkStoragePermission = (callback: Function) => {
     chrome.permissions.contains({
         permissions: ["storage"]
     }, (granted) => {
@@ -154,7 +150,7 @@ const captureScreen = () => {
     setTimeout(function () {
         //Send a message to the assistant page
         chrome.tabs.query({ url: REQUESTS.ASSISTANT_MATCH_URL }, ([tab]) => {
-            chrome.tabs.sendMessage(tab.id, { "type": REQUESTS.CAPTURE });
+            void chrome.tabs.sendMessage(<number>tab.id, { "type": REQUESTS.CAPTURE });
         });
     }, 500);
 }
@@ -194,7 +190,7 @@ const updateTabURL = (message) => {
 const maximize = () => {
     //Send a message to the assistant page
     chrome.tabs.query({ url: REQUESTS.ASSISTANT_MATCH_URL }, ([tab]) => {
-        chrome.windows.update(tab.windowId, { state: 'maximized' });
+        void chrome.windows.update(tab.windowId, { state: 'maximized' });
     });
 }
 
@@ -205,23 +201,23 @@ const maximize = () => {
 const minimize = () => {
     //Send a message to the assistant page
     chrome.tabs.query({ url: REQUESTS.ASSISTANT_MATCH_URL }, ([tab]) => {
-        chrome.windows.update(tab.windowId, { state: 'minimized' });
+        void chrome.windows.update(tab.windowId, { state: 'minimized' });
     });
 }
 
 /**
  * Mute the currently active tab or all tabs.
  */
-const muteTab = (request) => {
+const muteTab = (request: any) => {
     if (request.tabId) {
-        chrome.tabs.update(parseInt(request.tabId), { muted: true });
+        void chrome.tabs.update(parseInt(request.tabId), { muted: true });
     } else if (request.tabs === REQUESTS.MULTITAB) {
-        console.log("MULTITAB MUTE");
+        console.log("MULTI-TAB MUTE");
         chrome.tabs.query({}, function (tabs) {
             console.log(tabs);
             tabs.forEach(tab => {
                 console.log(tab);
-                chrome.tabs.update(tab.id, { muted: true });
+                void chrome.tabs.update(<number>tab.id, { muted: true });
             });
         });
     }
@@ -230,26 +226,26 @@ const muteTab = (request) => {
 /**
  * Unmute the currently active tab or all tabs.
  */
-const unmuteTab = (request) => {
+const unmuteTab = (request: any) => {
     if (request.tabId) {
-        chrome.tabs.update(parseInt(request.tabId), { muted: false });
+        void chrome.tabs.update(parseInt(request.tabId), { muted: false });
     } else if (request.tabs === REQUESTS.MULTITAB) {
         chrome.tabs.query({}, function (tabs) {
             tabs.forEach(tab => {
-                chrome.tabs.update(tab.id, { muted: false });
+                void chrome.tabs.update(<number>tab.id, { muted: false });
             });
         });
     }
 }
 
 /**
- * Send a youtube action to the active tab.
+ * Send a YouTube action to the active tab.
  */
-const youtubeAction = (request) => {
+const youtubeAction = (request: object) => {
     chrome.tabs.query({ currentWindow: true, active: true }, function (tabs) {
         console.log(tabs);
         const activeTab = tabs[0];
-        chrome.tabs.sendMessage(activeTab.id, request);
+        void chrome.tabs.sendMessage(<number>activeTab.id, request);
     });
 }
 
@@ -257,12 +253,14 @@ const youtubeAction = (request) => {
  * Send an action to all currently open tabs except the assistant tab
  * @param request
  */
-const contentAction = (request) => {
+const contentAction = (request: any) => {
     chrome.tabs.query({}, function (tabs) {
         tabs.forEach(tab => {
-            if(!tab.url.includes("assistant.html")) {
-                chrome.tabs.sendMessage(tab.id, request);
-            }
+            let url = <string>tab.url;
+            if (url.includes("assistant.html")) { return; }
+
+            let id = <number>tab.id;
+            void chrome.tabs.sendMessage(id, request);
         });
     });
 }

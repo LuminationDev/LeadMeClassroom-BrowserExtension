@@ -1,14 +1,14 @@
-<script setup>
-import ShareWebsiteModal from "@/components/Modals/ShareWebsiteModal.vue";
+<script setup lang="ts">
+import ShareWebsiteModal from "../../../components/Modals/ShareWebsiteModal.vue";
 import * as REQUESTS from "../../../constants/_requests";
-import {ref} from "vue";
+import { ref } from "vue";
 
-import { useDashboardStore } from "../../../stores/dashboardStore.ts";
+import { useDashboardStore } from "../../../stores/dashboardStore";
 let dashboardPinia = useDashboardStore();
 
 let locked = ref(false);
 
-function screenControl(action) {
+function screenControl(action: object) {
   dashboardPinia.requestAction({ type: REQUESTS.SCREENCONTROL, action: action });
 }
 </script>
