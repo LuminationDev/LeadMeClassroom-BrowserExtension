@@ -5,7 +5,7 @@ import { ref, computed } from "vue";
 
 import { usePopupStore } from "../../../stores/popupStore";
 import useVuelidate from "@vuelidate/core";
-import { required, email as emailRule, sameAs, helpers } from "@vuelidate/validators";
+import { required, email as emailRule, sameAs, helpers, minLength } from "@vuelidate/validators";
 
 let popupPinia = usePopupStore();
 
@@ -19,7 +19,14 @@ const name = computed(() => {
 })
 
 const rules = {
-  password: { required },
+  password: {
+    required,
+    minLength: minLength(8),
+    specialCharacters: helpers.withMessage("The password must have a special character", helpers.regex(/^(?=.*[*.!@$%^&(){}\[\]:;<>,.?\/~_\+\-=|]).*$/)),
+    lowerCase: helpers.withMessage("The password must have a lowercase letter", helpers.regex(/^(?=.*[a-z]).*$/)),
+    upperCase: helpers.withMessage("The password must have an uppercase letter", helpers.regex(/^(?=.*[A-Z]).*$/)),
+    numbers: helpers.withMessage("The password must have at least one number", helpers.regex(/^(?=.*[0-9]).*$/))
+  },
   email: { required, emailRule, $lazy: true },
   name: { required, $autoDirty: true },
   terms: { required, sameAs: helpers.withMessage("You must accept the terms and conditions", sameAs(true)) }

@@ -31,8 +31,8 @@ defineEmits(['update:modelValue'])
         :value="modelValue"
         @input="$emit('update:modelValue', $event.target.value)"
     />
-    <div v-if="v$ && v$.$error">
-      <span class="text-red-800" v-for="error in v$.$errors">{{ error.$message }}</span>
+    <div class="flex flex-col items-start" v-if="v$ && v$.$error">
+      <div class="text-red-800" v-for="error in v$.$errors">{{ error.$message }}</div>
     </div>
   </div>
 </template>
