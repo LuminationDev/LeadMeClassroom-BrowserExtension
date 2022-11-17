@@ -51,6 +51,10 @@ function submit()
     })
   }
 
+  closeModal();
+}
+
+function closeModal() {
   showWebsiteModal.value = false
 }
 </script>
@@ -72,7 +76,7 @@ function submit()
 
   <!--Modal body using the Modal template, teleports the html to the bottom of the body tag-->
   <Teleport to="body">
-    <Modal :show="showWebsiteModal">
+    <Modal :show="showWebsiteModal" @close="closeModal">
       <template v-slot:header>
         <header class="h-20 px-8 w-modal-width bg-white flex justify-between items-center rounded-t-lg">
           <p class="text-2xl">Share links with your class</p>

@@ -35,12 +35,20 @@ function handleMonitorFollowerButton() {
 }
 
 /**
- * Stop any active monitoring session if the teacher clicks the close button
+ * Stop any active monitoring session if the teacher clicks the close or cancel button
  */
 function cancelMonitor() {
   props.follower.monitoring = false;
   props.follower.permission = null;
   dashboardPinia.requestIndividualAction(props.follower.getUniqueId(), { type: REQUESTS.MONITORENDED });
+}
+
+/**
+ * Stop any current session and close the modal
+ */
+function closeModal() {
+  cancelMonitor();
+  showMonitorModal.value = false
 }
 </script>
 
@@ -55,13 +63,13 @@ function cancelMonitor() {
 
   <!--Modal body using the Modal template, teleports the html to the bottom of the body tag-->
   <Teleport to="body">
-    <Modal :show="showMonitorModal">
+    <Modal :show="showMonitorModal" @close="closeModal">
       <template v-slot:header>
         <header class="h-20 px-8 bg-white flex justify-between items-center rounded-t-lg">
           <p class="text-2xl font-bold">Screen Monitoring</p>
 
           <img
-              v-on:click="showMonitorModal = false; cancelMonitor();"
+              v-on:click="closeModal();"
               class="w-4 h-4 cursor-pointer"
               src="@/assets/img/modal-icon-exit.svg"
               alt="Close Icon"
