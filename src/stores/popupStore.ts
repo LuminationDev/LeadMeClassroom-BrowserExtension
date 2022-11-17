@@ -270,7 +270,8 @@ export let usePopupStore = defineStore("popup", {
                         "follower":
                             {
                                 "code": userCode,
-                                "name": follower.name
+                                "name": follower.name,
+                                "monitoring": false
                             }
                     }).then(result => console.log(result));
 

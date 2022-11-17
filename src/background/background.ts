@@ -1,8 +1,13 @@
 import * as REQUESTS from "../constants/_requests";
 import { Tab } from "../models";
-
 import { useStorage } from "../hooks/useStorage";
 const { getSyncStorage } = useStorage();
+
+interface storageFollower {
+    code: string,
+    uuid: string,
+    monitoring: boolean
+}
 
 //===========================================
 //RUNTIME LISTENERS
@@ -16,61 +21,69 @@ chrome.runtime.onInstalled.addListener((details) => {
 
 //Listen for when a tab becomes inactive
 chrome.tabs.onActivated.addListener(async () => {
-    const data = await getSyncStorage("follower");
+    const data = <storageFollower>await getSyncStorage("follower");
     if (data == null) { return; }
-
-    checkStoragePermission(checkStorage);
+    if (data.monitoring) { captureScreen(); }
 
     //Need to collect the current tab details for the index number
     chrome.tabs.query({ active: true, lastFocusedWindow: true }, ([currentTab]) => {
         chrome.tabs.query({ url: REQUESTS.ASSISTANT_MATCH_URL }, ([assistantTab]) => {
-            chrome.tabs.sendMessage(<number>assistantTab.id, { "type": REQUESTS.UPDATE_ACTIVE_TAB, tab: currentTab });
+            if(assistantTab == null) { return; }
+            chrome.tabs.sendMessage(<number>assistantTab.id, { type: REQUESTS.UPDATE_ACTIVE_TAB, tab: currentTab });
         });
     });
 });
 
 chrome.tabs.onRemoved.addListener(async (tabId) => {
-    const data = await getSyncStorage("follower");
+    const data = <storageFollower>await getSyncStorage("follower");
     if (data == null) { return; }
+    if (data.monitoring) { captureScreen(); }
 
-    checkStoragePermission(checkStorage);
     chrome.tabs.query({ url: REQUESTS.ASSISTANT_MATCH_URL }, ([assistantTab]) => {
-        chrome.tabs.sendMessage(<number>assistantTab.id, { "type": REQUESTS.REMOVE_TAB, tabId: tabId });
+        if(assistantTab == null) { return; }
+        chrome.tabs.sendMessage(<number>assistantTab.id, { type: REQUESTS.REMOVE_TAB, tabId: tabId });
     });
 });
 
 //Listen for when a tab url changes
 chrome.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
-    const data = await getSyncStorage("follower");
+    const data = <storageFollower>await getSyncStorage("follower");
     if (data == null) { return; }
 
     let url = <string>tab.url;
     if (url.includes("assistant.html")) { return }
 
     chrome.tabs.query({ url: REQUESTS.ASSISTANT_MATCH_URL }, ([assistantTab]) => {
+        if(assistantTab == null) { return; }
         let newTab = new Tab(tab.id + "", tab.index, tab.windowId, <string>tab.title, <string>tab.favIconUrl, <string>tab.url)
         newTab.audible = <boolean>tab.audible
         newTab.muted = tab.mutedInfo ? tab.mutedInfo.muted : false
-        chrome.tabs.sendMessage(<number>assistantTab.id, { "type": REQUESTS.UPDATE_TAB, tab: newTab });
+        chrome.tabs.sendMessage(<number>assistantTab.id, { type: REQUESTS.UPDATE_TAB, tab: newTab });
     });
 
     if (changeInfo.url == null) { return; }
 
     // read changeInfo data and do something with it as long as it isn't the assistant page
-    if (!changeInfo.url.includes("assistant")) {
-        // do something here
-        checkStoragePermission(checkStorage);
-    }
+    if (!changeInfo.url.includes("assistant") && data.monitoring) { captureScreen(); }
 });
 
 //Listen for messages that are sent from content scripts and the assistant.js
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
-    console.log("BACKGROUND REQUEST");
     console.log(request);
 
     switch (request.type) {
         case REQUESTS.CAPTURE:
-            chrome.tabs.captureVisibleTab({ quality: 1 }, (result) => {
+            //Quality - tested on a graphics heavy page
+            //100 ~ 753kb
+            //50 ~ 135kb
+            //30 ~ 110kb
+            //20 ~ 75kb
+            //10 ~ 55kb
+            //5 ~ 37kb
+
+            //Not much difference between 10 and above
+            chrome.tabs.captureVisibleTab({ quality: 10 }, (result) => {
+                console.log(result);
                 sendResponse(result);
             });
             return true; //signals that this is an async response
@@ -112,35 +125,6 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 //===========================================
 //FUNCTIONS
 //===========================================
-
-/**
- * Check if the storage permission has been enabled before trying to
- * access the chrome sync or local storage
- */
-const checkStoragePermission = (callback: Function) => {
-    chrome.permissions.contains({
-        permissions: ["storage"]
-    }, (granted) => {
-        if (granted) {
-            callback();
-        } else {
-            console.log("Storage permission is not enabled.");
-        }
-    });
-}
-
-/**
- * Check if a follower has been saved by the popup.js script.
- */
-const checkStorage = () => {
-    chrome.storage.sync.get("follower", async (data) => {
-        if (data == null) { return; }
-        if (data.follower == null) { return; }
-
-        captureScreen();
-    });
-}
-
 /**
  * Send a message to the assistant page to request that a screen capture
  * is to be taken.
@@ -150,7 +134,7 @@ const captureScreen = () => {
     setTimeout(function () {
         //Send a message to the assistant page
         chrome.tabs.query({ url: REQUESTS.ASSISTANT_MATCH_URL }, ([tab]) => {
-            void chrome.tabs.sendMessage(<number>tab.id, { "type": REQUESTS.CAPTURE });
+            void chrome.tabs.sendMessage(<number>tab.id, { type: REQUESTS.CAPTURE });
         });
     }, 500);
 }
