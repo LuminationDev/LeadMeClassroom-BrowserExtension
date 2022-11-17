@@ -25,7 +25,7 @@ onMounted(() => {
       <StudentPermission
           :name="permission.tag"
           :checked-prop="permissionPinia.permissions[permission.tag]"
-          @update="newValue => permissionPinia.setPermission(permission.tag, newValue)">
+          @update="(newValue: boolean) => permissionPinia.setPermission(permission.tag, newValue)">
 
         <template v-slot:title>
           <p class="text-sm">{{permission.title}}</p>
