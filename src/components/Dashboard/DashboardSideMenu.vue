@@ -1,6 +1,6 @@
-<script setup>
-import DashboardMenuItem from "@/components/Dashboard/DashboardMenuItem.vue";
-import { usePopupStore } from "@/stores/popupStore.ts";
+<script setup lang="ts">
+import DashboardMenuItem from "../../components/Dashboard/DashboardMenuItem.vue";
+import { usePopupStore } from "../../stores/popupStore";
 let popupPinia = usePopupStore();
 </script>
 

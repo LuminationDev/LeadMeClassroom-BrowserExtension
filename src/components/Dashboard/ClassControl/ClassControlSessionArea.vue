@@ -1,5 +1,5 @@
-<script setup>
-import { useDashboardStore } from "@/stores/dashboardStore.ts";
+<script setup lang="ts">
+import { useDashboardStore } from "../../../stores/dashboardStore";
 let dashboardPinia = useDashboardStore();
 </script>
 

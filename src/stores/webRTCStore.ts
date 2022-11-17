@@ -64,7 +64,7 @@ export let useWebRTCStore = defineStore("webRTC", {
             let sender = data.val().sender;
             if (sender !== this.connectionDetails.uniqueId) {
                 if (msg.ice !== undefined) {
-                    connection.peerConnection.addIceCandidate(new RTCIceCandidate(msg.ice));
+                    void connection.peerConnection.addIceCandidate(new RTCIceCandidate(msg.ice));
                 }
                 else if (msg.sdp.type === "offer") {
                     connection.peerConnection.setRemoteDescription(new RTCSessionDescription(msg.sdp))
@@ -73,7 +73,7 @@ export let useWebRTCStore = defineStore("webRTC", {
                         .then(() => this.callback(this.connectionDetails.uniqueId, UUID, JSON.stringify({ 'sdp': connection.peerConnection.localDescription })));
                 }
                 else if (msg.sdp.type === "answer") {
-                    connection.peerConnection.setRemoteDescription(new RTCSessionDescription(msg.sdp));
+                    void connection.peerConnection.setRemoteDescription(new RTCSessionDescription(msg.sdp));
                 }
             }
         },

@@ -23,7 +23,7 @@
     "128": "src/assets/img/icon-128.png"
   },
   "background": {
-    "service_worker": "src/background/background.js"
+    "service_worker": "src/background/background.ts"
   },
   "content_scripts": [
     {

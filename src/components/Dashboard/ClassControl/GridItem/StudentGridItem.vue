@@ -3,8 +3,8 @@ import {defineProps, PropType, computed, ref} from 'vue'
 // @ts-ignore
 import * as MODELS from '@/models/index.ts';
 import { Tab, Follower } from "../../../../models";
-import StudentDetailModal from "@/components/Modals/StudentDetailModal.vue";
-import ScreenMonitorModal from "@/components/Modals/ScreenMonitorModal.vue";
+import StudentDetailModal from "../../../../components/Modals/StudentDetailModal.vue";
+import ScreenMonitorModal from "../../../../components/Modals/ScreenMonitorModal.vue";
 import { useDashboardStore } from "../../../../stores/dashboardStore";
 let dashboardPinia = useDashboardStore();
 

@@ -17,7 +17,7 @@ export let usePermissionStore = defineStore("permission", {
         /**
          * Disable a permission within the extension, this will remain disables until
          * it is either requested by the extension or manually re-enabled.
-         * @param {*} id
+         * @param name
          */
         removePermission(name: string) {
             chrome.permissions.remove({
@@ -28,7 +28,7 @@ export let usePermissionStore = defineStore("permission", {
         /**
          * Enable a permission within the extension, this will remain enabled until
          * it is manually disabled or the extension is uninstall.
-         * @param {*} target The element that has been triggered
+         * @param name
          */
         enablePermission(name: string) {
             chrome.permissions.request({

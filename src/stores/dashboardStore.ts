@@ -6,7 +6,7 @@ import { Firebase } from '../controller';
 import { Follower, Tab, Leader } from '../models';
 
 const firebase = new Firebase();
-const leaderName = await firebase.getDisplayName();
+const leaderName = <string>await firebase.getDisplayName();
 
 import { useWebRTCStore } from "./webRTCStore";
 
@@ -63,7 +63,7 @@ export let useDashboardStore = defineStore("dashboard", {
 
             console.log('generating')
             this.classCode = this.leader.getClassCode()
-            this.firebase.connectAsLeader(this.leader);
+            this.firebase.connectAsLeader(<Leader>this.leader);
             await this.clearTasks();
             await setSyncStorage({"CurrentClass": this.classCode});
             await this.attachClassListeners(false);
@@ -124,7 +124,7 @@ export let useDashboardStore = defineStore("dashboard", {
          * Notify followers a session is ending and delete database class entry
          */
         async endSession() {
-            this.firebase.requestAction(this.classCode, { type: REQUESTS.ENDSESSION });
+            await this.firebase.requestAction(this.classCode, {type: REQUESTS.ENDSESSION});
             this.firebase.removeClass(this.classCode);
             this.classCode = ""
             this.followers = [];
@@ -150,7 +150,7 @@ export let useDashboardStore = defineStore("dashboard", {
             }
             switch (response.type) {
                 case REQUESTS.MONITORPERMISSION:
-                    this.monitorRequestResponse(response.message, id);
+                    void this.monitorRequestResponse(response.message, id);
                     break;
                 default:
                     console.log(response);
@@ -243,7 +243,7 @@ export let useDashboardStore = defineStore("dashboard", {
             let follower = this.followers.find(element => element.getUniqueId() === followerId)
             if (follower) {
                 let action = { type: REQUESTS.DELETE_TAB, tabId: id };
-                this.firebase.requestIndividualAction(this.classCode, follower.getUniqueId(), action);
+                void this.firebase.requestIndividualAction(this.classCode, follower.getUniqueId(), action);
                 const index = follower.tabs.findIndex(element => id === element.id)
                 if (index !== -1) {
                     follower.tabs[index].closing = true
@@ -262,7 +262,7 @@ export let useDashboardStore = defineStore("dashboard", {
             if (follower) {
                 let action = { type: newValue ? REQUESTS.MUTETAB : REQUESTS.UNMUTETAB, tabId };
                 console.log(action)
-                this.firebase.requestIndividualAction(this.classCode, follower.getUniqueId(), action);
+                void this.firebase.requestIndividualAction(this.classCode, follower.getUniqueId(), action);
                 const index = follower.tabs.findIndex(element => tabId === element.id)
                 if (index !== -1) {
                     follower.tabs[index].muting = true
@@ -373,12 +373,12 @@ export let useDashboardStore = defineStore("dashboard", {
         async launchWebsite(website: string) {
             let action = { type: REQUESTS.WEBSITE, value: website };
             await this.updateTasks(website);
-            this.firebase.requestAction(this.classCode, action);
+            await this.firebase.requestAction(this.classCode, action);
         },
 
         launchWebsiteIndividual(UUID: string, website: string) {
             let action = { type: REQUESTS.WEBSITE, value: website };
-            this.firebase.requestIndividualAction(this.classCode, UUID, action);
+            void this.firebase.requestIndividualAction(this.classCode, UUID, action);
         },
 
         /**
@@ -405,7 +405,7 @@ export let useDashboardStore = defineStore("dashboard", {
          * @param action
          */
         requestAction(action: object) {
-            this.firebase.requestAction(this.classCode, action);
+            void this.firebase.requestAction(this.classCode, action);
         },
 
         /**
@@ -414,7 +414,7 @@ export let useDashboardStore = defineStore("dashboard", {
          * @param action
          */
         requestIndividualAction(UUID: string, action: object) {
-            this.firebase.requestIndividualAction(this.classCode, UUID, action);
+            void this.firebase.requestIndividualAction(this.classCode, UUID, action);
         },
     },
 

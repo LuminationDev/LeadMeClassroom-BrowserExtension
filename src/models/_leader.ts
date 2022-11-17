@@ -1,4 +1,4 @@
-import {v4 as uuidv4} from 'uuid';
+import { v4 as uuidv4 } from 'uuid';
 import { getAuth } from '@firebase/auth'
 
 /**
@@ -6,19 +6,14 @@ import { getAuth } from '@firebase/auth'
  * to the firebase leader.
  */
 class Leader {
-    constructor(name) {
+    private readonly uniqueId: string;
+    private readonly name: string;
+    private code: string;
+
+    constructor(name: string) {
         this.uniqueId = uuidv4();
         this.name = name;
         this.code = this.generateCode();
-    }
-
-    //Basic accessors
-    getName = () => {
-        return this.name;
-    }
-
-    getUniqueId = () => {
-        return this.uniqueId;
     }
 
     /**
@@ -33,7 +28,7 @@ class Leader {
      * Override the generated code with a saved one.
      * @param code
      */
-    setClassCode = (code) => {
+    setClassCode = (code: string) => {
         this.code = code;
     }
 
@@ -56,7 +51,7 @@ class Leader {
                     "${this.code}": {
                         "name": "${this.name}",
                         "classCode": "${this.code}",
-                        "uniqueId": "${getAuth().currentUser.uid}",
+                        "uniqueId": "${getAuth().currentUser!.uid}",
                         "request": ""
                     }
                 }`
