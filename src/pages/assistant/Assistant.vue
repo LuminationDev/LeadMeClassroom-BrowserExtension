@@ -1,18 +1,16 @@
 <script setup lang="ts">
 import '../../styles.css'
-import { ref } from 'vue'
-import { ConnectionManager } from '../../controller'
+import {ref} from 'vue'
+import {ConnectionManager} from '../../controller'
 import * as REQUESTS from '../../constants/_requests.js'
 import Tab from "../../models/_tab";
 import Follower from "../../models/_follower";
 
-import { useWebRTCStore } from "../../stores/webRTCStore";
+import {useWebRTCStore} from "../../stores/webRTCStore";
 const webRTCPinia = useWebRTCStore();
 
 const assistantListener = (data: any) => {
-  if (data == null) {
-    return;
-  }
+  if (data == null) { return; }
 
   console.log(data);
 
@@ -75,7 +73,7 @@ const assistantListener = (data: any) => {
 }
 
 chrome.runtime.onMessage.addListener(
-    function (request, sender, sendResponse) {
+    function (request, sender) {
       console.log(request);
       if (sender?.tab?.url?.includes("assistant.html")) {
         return;
@@ -98,14 +96,15 @@ const followerData = {
 chrome.storage.sync.get("follower", async (data) => {
   let f = new Follower(data.follower.code, data.follower.name)
   setupWebRTCConnection(f.getUniqueId(), data.follower.code);
+
+  //Collect a students tabs, filtering out the assistant page
   chrome.tabs.query({}, (tabs) => {
-    const tabsArr: Tab[] = tabs.map(tab => {
+    f.tabs = tabs.filter(tab => { return !tab.url?.includes("assistant.html") }).map(tab => {
       let newTab = new Tab(tab.id + "", tab.index, tab.windowId, tab.title ?? "", tab.favIconUrl ?? "", tab.url ?? "")
       newTab.audible = tab.audible ?? false
       newTab.muted = tab.mutedInfo ? tab.mutedInfo.muted : false
       return newTab
     })
-    f.tabs = tabsArr
     MANAGER.value.connect(f);
   })
 });

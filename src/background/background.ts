@@ -171,14 +171,16 @@ const updateTabURL = (message: any) => {
             } else {
                 activeTab = tabs.filter(element => element && element.url && !element.url.includes("assistant.html"))[0]
             }
+
+            //Convert the message into a website
+            const website = message.value.startsWith("https://") ? message.value : `https://${message.value}`;
             if (!activeTab) {
-                chrome.windows.create({ url: `https://${message.value}`, focused: true, state: 'maximized' })
+                void chrome.windows.create({ url: website, focused: true, state: 'maximized' })
             } else {
-                chrome.tabs.update(<number>activeTab.id, { url: `https://${message.value}` });
-                chrome.windows.update(activeTab.windowId, { state: 'maximized', focused: true });
+                void chrome.tabs.update(<number>activeTab.id, { url: website });
+                void chrome.windows.update(activeTab.windowId, { state: 'maximized', focused: true });
 
             }
-            // chrome.tabs.sendMessage(activeTab.id, message);
         })
     });
 }
