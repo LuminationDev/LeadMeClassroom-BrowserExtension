@@ -1,7 +1,7 @@
 //Page to control a YouTube page
 import Controller from './AbstractController';
 
-import {useStorage} from "@/hooks/useStorage";
+import {useStorage} from "../../hooks/useStorage";
 const { setSyncStorage, removeSyncStorage } = useStorage();
 
 class ScreenController extends Controller {
@@ -9,7 +9,7 @@ class ScreenController extends Controller {
         super();
     }
 
-    determineAction = (action) => {
+    determineAction = (action: string) => {
         switch (action) {
             case "block":
                 this.blockScreen();
@@ -28,7 +28,7 @@ class ScreenController extends Controller {
      * Inject a black div over the top of a page.
      */
     blockScreen = () => {
-        setSyncStorage({"blocked": true});
+        void setSyncStorage({"blocked": true});
 
         //Check if the screen is already blocked
         if(document.getElementById('block-screen-container')) { return; }
@@ -53,8 +53,9 @@ class ScreenController extends Controller {
      * Remove the block div from the screen.
      */
     unblockScreen = () => {
-        removeSyncStorage("blocked");
-        document.getElementById('block-screen-container').remove();
+        void removeSyncStorage("blocked");
+        let block = document.getElementById('block-screen-container');
+        if(block !== null) { block.remove(); }
     }
 }
 

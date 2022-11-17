@@ -1,17 +1,20 @@
-import Firebase from './_firebase';
+import { Firebase } from './';
 import * as REQUESTS from "../constants/_requests";
+import {Follower, Tab} from "../models";
 
 class ConnectionManager {
-    constructor(callback) {
+    public firebase: Firebase;
+    private follower!: Follower;
+
+    constructor(callback: Function) {
         this.firebase = new Firebase(callback);
-        this.follower;
     }
 
     /**
      * Create an initial connection with the firebase.
      * @param follower
      */
-    connect = async (follower) => {
+    connect = async (follower: Follower) => {
         this.follower = follower;
         let success = await this.checkForClassroom(follower.classCode);
 
@@ -29,8 +32,7 @@ class ConnectionManager {
                 }
         });
         this.firebase.addFollower(this.follower);
-
-        this.connectionMethods(this.follower.classCode, this.follower.uniqueId);
+        this.connectionMethods();
     }
 
     /**
@@ -53,7 +55,7 @@ class ConnectionManager {
      */
     connectionMethods = () => {
         this.firebase.registerListeners(this.follower.classCode, this.follower.uniqueId);
-        this.captureScreen(this.follower.classCode, this.follower.uniqueId);
+        this.captureScreen();
     }
 
     /**
@@ -70,26 +72,26 @@ class ConnectionManager {
      * Force the supplied tab into the active tab view.
      * @param tab A Chrome tab object
      */
-    forceActiveTab = (tab) => {
+    forceActiveTab = (tab: Tab) => {
         if (tab.id != null && tab.url != null) {
             chrome.tabs.highlight({tabs: tab.index, windowId: tab.windowId},
                 () => chrome.windows.update(tab.windowId, { focused: true, state: 'maximized' }));
         }
     }
 
-    updateTab = (tab) => {
+    updateTab = (tab: Tab) => {
         this.firebase.updateTab(this.follower.classCode, this.follower.uniqueId, tab);
     }
 
-    updateActiveTab = (tab) => {
+    updateActiveTab = (tab: Tab) => {
         this.firebase.updateActiveTab(this.follower.classCode, this.follower.uniqueId, tab);
     }
 
-    removeTab = (tabId) => {
+    removeTab = (tabId: string) => {
         this.firebase.removeTab(this.follower.classCode, this.follower.uniqueId, tabId);
     }
 
-    deleteTab = (tabId) => {
+    deleteTab = (tabId: string) => {
         chrome.tabs.remove(parseInt(tabId))
         this.firebase.removeTab(this.follower.classCode, this.follower.uniqueId, tabId);
     }
@@ -98,7 +100,8 @@ class ConnectionManager {
      * Send a response back to a leader when a particular event occurs, i.e. accepted/denied monitoring.
      * @param {*} action 
      */
-    sendResponse = (action) => {
+    sendResponse = (action: object) => {
+        // @ts-ignore
         action.timeStamp = Date.now(); //Add a time stamp so that the response is always 'different' and the leader picks up it is a different message.
         this.firebase.sendResponse(this.follower.classCode, this.follower.uniqueId, action);
     }
@@ -108,7 +111,7 @@ class ConnectionManager {
      * @param {*} code 
      * @returns 
      */
-    checkForClassroom = async (code) => {
+    checkForClassroom = async (code: string) => {
         return await this.firebase.checkForClassroom(code);
     }
 }

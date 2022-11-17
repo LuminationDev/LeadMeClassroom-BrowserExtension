@@ -2,14 +2,16 @@
 import Controller from './AbstractController'
 
 class YoutubeController extends Controller {
+    private player: HTMLVideoElement;
+
     constructor() {
         super();
         //Currently the easiest way to get the video element, only the main video has this class
         let video = document.getElementsByClassName("video-stream");
-        this.player = video[0];
+        this.player = <HTMLVideoElement>video[0];
     }
 
-    determineAction = (action) => {
+    determineAction = (action: string) => {
         switch (action) {
             case "play":
                 this.playVideo();
@@ -29,7 +31,7 @@ class YoutubeController extends Controller {
     }
 
     playVideo = () => {
-        this.player.play();
+        void this.player.play();
     }
 
     pauseVideo = () => {

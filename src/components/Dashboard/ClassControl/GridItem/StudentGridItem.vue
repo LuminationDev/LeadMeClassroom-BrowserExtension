@@ -3,8 +3,8 @@ import {defineProps, PropType, computed, ref} from 'vue'
 // @ts-ignore
 import * as MODELS from '@/models/index.ts';
 import { Tab, Follower } from "../../../../models";
-import StudentDetailModal from "@/components/Modals/StudentDetailModal.vue";
-import ScreenMonitorModal from "@/components/Modals/ScreenMonitorModal.vue";
+import StudentDetailModal from "../../../../components/Modals/StudentDetailModal.vue";
+import ScreenMonitorModal from "../../../../components/Modals/ScreenMonitorModal.vue";
 import { useDashboardStore } from "../../../../stores/dashboardStore";
 let dashboardPinia = useDashboardStore();
 
@@ -140,10 +140,4 @@ function removeFollower () {
       <StudentDetailModal :follower="follower" />
     </div>
   </div>
-
-<!--  <div class="h-36 w-36" :id="follower.getUniqueId()">-->
-<!--    <button @click="() => { handleVideoButton(REQUESTS.VIDEOPLAY) }">Play</button>-->
-<!--    <button @click="() => { handleVideoButton(REQUESTS.VIDEOPAUSE) }">Pause</button>-->
-<!--    <button @click="() => { handleVideoButton(REQUESTS.VIDEOSTOP) }">Stop</button>-->
-<!--  </div>-->
 </template>

@@ -1,5 +1,5 @@
-<script setup>
-import TheOptions from "@/components/Options/TheOptions.vue";
+<script setup lang="ts">
+import TheOptions from "../../components/Options/TheOptions.vue";
 import '@/styles.css';
 </script>
 

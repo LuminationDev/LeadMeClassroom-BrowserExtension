@@ -1,8 +1,8 @@
-<script setup>
-import PopupSecondaryButton from "@/components/Buttons/PopupSecondaryButton.vue";
-import LoginTextInput from "@/components/Popup/Login/LoginTextInput.vue";
-import {ref} from "vue";
-import {usePopupStore} from "@/stores/popupStore.ts";
+<script setup lang="ts">
+import PopupSecondaryButton from "../../../components/Buttons/PopupSecondaryButton.vue";
+import LoginTextInput from "../../../components/Popup/Login/LoginTextInput.vue";
+import { ref } from "vue";
+import { usePopupStore } from "../../../stores/popupStore";
 import useVuelidate from "@vuelidate/core";
 import { required, email as emailRule } from "@vuelidate/validators";
 

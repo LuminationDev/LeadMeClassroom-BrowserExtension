@@ -1,12 +1,13 @@
-<script setup>
+<script setup lang="ts">
 import LoginTextInput from "./LoginTextInput.vue";
 import Spinner from "./Spinner.vue";
-import PopupSecondaryButton from "@/components/Buttons/PopupSecondaryButton.vue";
+import PopupSecondaryButton from "../../../components/Buttons/PopupSecondaryButton.vue";
 import { ref } from "vue";
-import { usePopupStore } from "@/stores/popupStore.ts";
-import {email as emailRule, required} from "@vuelidate/validators";
+import { email as emailRule, required } from "@vuelidate/validators";
 import useVuelidate from "@vuelidate/core";
-let popupPinia = usePopupStore();
+
+import { usePopupStore } from "../../../stores/popupStore";
+const popupPinia = usePopupStore();
 
 const email = ref("")
 const password = ref("")

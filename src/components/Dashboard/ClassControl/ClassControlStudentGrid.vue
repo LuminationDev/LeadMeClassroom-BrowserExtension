@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import StudentPlaceholder from "@/components/Dashboard/ClassControl/GridItem/StudentPlaceholder.vue";
-import StudentGridItem from "@/components/Dashboard/ClassControl/GridItem/StudentGridItem.vue";
+import StudentPlaceholder from "../../../components/Dashboard/ClassControl/GridItem/StudentPlaceholder.vue";
+import StudentGridItem from "../../../components/Dashboard/ClassControl/GridItem/StudentGridItem.vue";
 
 import { Follower } from "../../../models"
 import { useDashboardStore } from "../../../stores/dashboardStore";
