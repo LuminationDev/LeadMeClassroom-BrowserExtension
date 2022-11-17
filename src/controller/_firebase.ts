@@ -1,6 +1,6 @@
 import {devConfig, prodConfig, testConfig} from './_service';
 import { initializeApp, FirebaseApp } from 'firebase/app';
-import { FirebaseStorage, getStorage, ref as storageRef, uploadString, getDownloadURL } from 'firebase/storage'
+import { FirebaseStorage, getStorage, ref as storageRef, uploadString, getDownloadURL, deleteObject, listAll } from 'firebase/storage'
 import {
     Database,
     getDatabase,
@@ -292,6 +292,7 @@ class Firebase {
         const followerMessagesRef = ref(this.db, `followerMessages/${classCode}`);
         const tabsRef = ref(this.db, `tabs/${classCode}`);
         const iceRef = ref(this.db, `ice/${classCode}`);
+        const screenshotsRef = storageRef(this.storage, `${classCode}`);
 
         off(classRef);
         off(followersRef);
@@ -318,6 +319,16 @@ class Firebase {
         remove(classRef)
             .then(function () { console.log("Removed class succeeded.") })
             .catch(function (error) { console.log("Remove failed: " + error.message) });
+
+        // unfortunately we can't just delete the directory, we have to delete each item within it individually
+        listAll(screenshotsRef).then((res) => {
+            res.items.forEach(screenshotRef => {
+                deleteObject(screenshotRef)
+                    .then(function () { console.log("Removed class succeeded.") })
+                    .catch(function (error) { console.log("Remove failed: " + error.message) });
+            })
+        })
+
     }
 
     /**
