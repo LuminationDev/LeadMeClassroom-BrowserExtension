@@ -172,13 +172,12 @@ const updateTabURL = (message: any) => {
                 activeTab = tabs.filter(element => element && element.url && !element.url.includes("assistant.html"))[0]
             }
             if (!activeTab) {
-                chrome.windows.create({ url: `https://${message.value}`, focused: true, state: 'maximized' })
+                void chrome.windows.create({ url: `https://${message.value}`, focused: true, state: 'maximized' })
             } else {
-                chrome.tabs.update(<number>activeTab.id, { url: `https://${message.value}` });
-                chrome.windows.update(activeTab.windowId, { state: 'maximized', focused: true });
+                void chrome.tabs.update(<number>activeTab.id, { url: `https://${message.value}` });
+                void chrome.windows.update(activeTab.windowId, { state: 'maximized', focused: true });
 
             }
-            // chrome.tabs.sendMessage(activeTab.id, message);
         })
     });
 }

@@ -46,7 +46,7 @@ class ConnectionManager {
      * Send a message to firebase that a follower has disconnected.
      */
     disconnectFollower = () => {
-        this.firebase.removeFollower(this.follower.classCode, this.follower.uniqueId);
+        void this.firebase.removeFollower(this.follower.classCode, this.follower.uniqueId);
     }
 
     /**
@@ -92,7 +92,7 @@ class ConnectionManager {
     }
 
     deleteTab = (tabId: string) => {
-        chrome.tabs.remove(parseInt(tabId))
+        void chrome.tabs.remove(parseInt(tabId))
         this.firebase.removeTab(this.follower.classCode, this.follower.uniqueId, tabId);
     }
 

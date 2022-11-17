@@ -60,7 +60,7 @@ function closeModal() {
       <template v-slot:header>
         <header class="h-20 px-8 w-modal-width-sm bg-white flex justify-between items-center rounded-t-lg">
           <div class="h-9 bg-white flex items-center">
-            <span class="text-lg text-black">{{ follower.name }}</span>
+            <span class="text-lg text-black">{{ follower.name }} - Tab Control</span>
           </div>
         </header>
       </template>

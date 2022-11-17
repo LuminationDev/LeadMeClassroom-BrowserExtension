@@ -66,7 +66,7 @@ function closeModal() {
     <Modal :show="showMonitorModal" @close="closeModal">
       <template v-slot:header>
         <header class="h-20 px-8 bg-white flex justify-between items-center rounded-t-lg">
-          <p class="text-2xl font-bold">Screen Monitoring</p>
+          <p class="text-2xl font-bold">{{follower.name}} - Screen Monitoring</p>
 
           <img
               v-on:click="closeModal();"
