@@ -19,6 +19,14 @@ const props = defineProps({
 const showMonitorModal = ref(false);
 
 /**
+ * Open the modal, sending a message to the follower to start sending screen captures.
+ */
+function initiateMonitoring() {
+  showMonitorModal.value = true
+  dashboardPinia.requestIndividualAction(props.follower.getUniqueId(), { type: REQUESTS.MONITORSTARTED });
+}
+
+/**
  * Start or stop a monitoring session
  */
 function handleMonitorFollowerButton() {
@@ -35,7 +43,8 @@ function handleMonitorFollowerButton() {
 }
 
 /**
- * Stop any active monitoring session if the teacher clicks the close or cancel button
+ * Stop any active monitoring session if the teacher clicks the close or cancel button, resetting a follower's
+ * monitoring field.
  */
 function cancelMonitor() {
   props.follower.monitoring = false;
@@ -56,7 +65,7 @@ function closeModal() {
   <!--Anchor button used to control the modal-->
   <button
       class="w-full flex justify-center items-center"
-      v-on:click="showMonitorModal = true"
+      v-on:click="initiateMonitoring()"
   >
     <img class="w-9 h-5" src="@/assets/img/student-icon-eye.svg" alt="Icon"/>
   </button>
