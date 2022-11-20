@@ -24,7 +24,12 @@ const assistantListener = (data: any) => {
       webRTCPinia.readIceCandidate(data, followerData.uuid);
       break;
 
+    case REQUESTS.MONITORSTARTED:
+      MANAGER.value.enableMonitoring(true);
+      break;
+
     case REQUESTS.MONITORENDED:
+      MANAGER.value.enableMonitoring(false);
       webRTCPinia.connectionStatus = false;
       webRTCPinia.stopTracks(followerData.uuid);
       break;
@@ -74,7 +79,6 @@ const assistantListener = (data: any) => {
 
 chrome.runtime.onMessage.addListener(
     function (request, sender) {
-      console.log(request);
       if (sender?.tab?.url?.includes("assistant.html")) {
         return;
       }
@@ -127,7 +131,6 @@ const sendIceCandidates = (senderId: number, UUID: string, data: object) => {
 }
 
 const monitorRequest = () => {
-  console.log("Leader has asked follower for permission");
   chrome.runtime.sendMessage({ "type": "maximize" });
   setTimeout(() => {
     webRTCPinia.prepareScreen(followerData.uuid)
