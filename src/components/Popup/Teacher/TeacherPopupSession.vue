@@ -1,8 +1,7 @@
 <script setup lang="ts">
 import { usePopupStore } from "../../../stores/popupStore";
-let popupPinia = usePopupStore();
-
 import { useDashboardStore } from "../../../stores/dashboardStore";
+let popupPinia = usePopupStore();
 let dashboardPinia = useDashboardStore();
 </script>
 
