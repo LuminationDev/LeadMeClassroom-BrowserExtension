@@ -133,6 +133,22 @@ export let useDashboardStore = defineStore("dashboard", {
         },
 
         /**
+         * Notify a selected follower that they have been removed from the class.
+         */
+        async endIndividualSession(UUID: string) {
+            await this.firebase.requestIndividualAction(this.classCode, UUID, {type: REQUESTS.REMOVED});
+        },
+
+        /**
+         * Rename a selected follower
+         * @param newName
+         * @param UUID
+         */
+        async renameFollower(newName: string, UUID: string) {
+            await this.firebase.updateFollower(this.classCode, UUID, {name: newName});
+        },
+
+        /**
          * Notify the leader a follower has responded to a request
          * @param response
          * @param name

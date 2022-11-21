@@ -165,6 +165,17 @@ class Firebase {
     }
 
     /**
+     * Update a follower's data entry in firebase. Only the fields present in the details object will be updated.
+     * @param classCode
+     * @param uuid
+     * @param details An object holding the fields to update on the follower.
+     */
+    updateFollower = (classCode: string, uuid: string, details: object) => {
+        const followerRef = ref(this.db, `/followers/${classCode}/${uuid}`);
+        update(followerRef, details).then(() => console.log("Follower updated"));
+    }
+
+    /**
      * Remove an entry from firebase at the specified location.
      * @param {*} classCode 
      * @param {*} uuid 

@@ -54,6 +54,10 @@ const assistantListener = (data: any) => {
       MANAGER.value.deleteTab(data.tabId)
       break;
 
+    case REQUESTS.REMOVED:
+      removedByLeader();
+      break;
+
     case REQUESTS.ENDSESSION:
       sessionEndedByLeader();
       break;
@@ -138,12 +142,16 @@ const monitorRequest = () => {
   }, 500);
 }
 
+const updateMessage = ref("")
+
 /**
- * Remove the follower details from chrome storage then close the window. The
- * window.open("", "_self") does nothing except give JavaScript ownership over
- * the window allowing it to be closed programmically.
+ * The leader has removed this follower from the class.
  */
-const endSession = () => {
+const removedByLeader = () => {
+  webRTCPinia.stopTracks(followerData.uuid);
+  chrome.runtime.sendMessage({ "type": "maximize" });
+
+  //Disconnect the user first
   MANAGER.value.disconnectFollower();
   MANAGER.value.disconnect();
 
@@ -151,10 +159,17 @@ const endSession = () => {
     console.log("Data removed");
   });
 
-  closeAssistant()
-}
+  let count = 3;
+  let countDown = setInterval(() => {
+    updateMessage.value = `Leader has removed you from the session, window closing in ${count} seconds.`
 
-let updateMessage = ref("")
+    count--;
+    if (count < 0) {
+      clearInterval(countDown);
+      closeAssistant()
+    }
+  }, 1000);
+}
 
 /**
  * Print a message to the assistant page that the Leader has ended the current
@@ -165,7 +180,6 @@ const sessionEndedByLeader = () => {
   chrome.runtime.sendMessage({ "type": "maximize" });
 
   let count = 5;
-
   let countDown = setInterval(() => {
     updateMessage.value = `Leader has ended session, window closing in ${count} seconds.`
 
@@ -177,7 +191,23 @@ const sessionEndedByLeader = () => {
   }, 1000);
 }
 
- const closeAssistant = () => {
+/**
+ * Remove the follower details from chrome storage then close the window. The
+ * window.open("", "_self") does nothing except give JavaScript ownership over
+ * the window allowing it to be closed programmatically.
+ */
+const endSession = () => {
+  MANAGER.value.disconnectFollower();
+  MANAGER.value.disconnect();
+
+  chrome.storage.sync.remove("follower", () => {
+    console.log("Data removed");
+  });
+
+  closeAssistant();
+}
+
+const closeAssistant = () => {
   chrome.tabs.query({ url: REQUESTS.ASSISTANT_MATCH_URL }, ([tab]) => {
     if (tab && tab.id) {
       chrome.tabs.remove(tab.id);
