@@ -1,14 +1,8 @@
 <script setup lang="ts">
 import StudentPlaceholder from "./GridItem/StudentPlaceholder.vue";
 import StudentGridItem from "./GridItem/StudentGridItem.vue";
-
-import { Follower } from "../../../models"
 import { useDashboardStore } from "../../../stores/dashboardStore";
 let dashboardPinia = useDashboardStore();
-
-function removeFollower(follower: Follower) {
-  dashboardPinia.removeFollower(follower.getUniqueId())
-}
 </script>
 
 <template>
@@ -23,8 +17,7 @@ function removeFollower(follower: Follower) {
       <StudentGridItem
           v-for="follower in dashboardPinia.followers"
           :key="follower.getUniqueId()"
-          :follower="follower"
-          @remove-follower="removeFollower"/>
+          :follower="follower"/>
     </div>
   </div>
 </template>

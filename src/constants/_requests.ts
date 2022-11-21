@@ -1,5 +1,8 @@
 //General controls
-export const ENDSESSION = "endSession";
+
+export const ENDSESSION = "end_session";
+export const REMOVED = "removedByLeader";
+
 export const CAPTURE = "capture";
 export const UPDATE_TAB = "updateTab";
 export const UPDATE_ACTIVE_TAB = "updateActiveTab";
