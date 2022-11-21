@@ -15,7 +15,7 @@ function screenControl(action: object) {
 
 <template>
   <div class="mt-14 ml-10">
-    <p class="text-3xl font-bold">{{ dashboardPinia.leaderName }}'s Class</p>
+    <p class="text-3xl font-bold">{{ dashboardPinia.leaderName }}'{{ dashboardPinia.leaderName.endsWith('s') ? '' : 's' }} Class</p>
 
     <!--Action Area-->
     <div class="mt-8 flex child:mr-4">
