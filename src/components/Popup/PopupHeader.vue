@@ -9,7 +9,7 @@ function closePopup ()
 </script>
 
 <template>
-  <div class="flex justify-between">
+  <div class="flex justify-between items-center">
     <div v-if="!popupPinia.showHeaderIcon()">
       <img class="w-24 h-14 ml-6" src="@/assets/img/icon-popup-header.svg" alt="LeadMe Icon"/>
     </div>
@@ -20,7 +20,9 @@ function closePopup ()
         v-on:click="popupPinia.back">Back</span>
 
     <span
-        class="mr-6 mt-3 text-base cursor-pointer"
-        v-on:click="closePopup">x</span>
+        class="mr-6 text-base cursor-pointer"
+        v-on:click="closePopup">
+      <img src="/src/assets/img/onboarding/close.svg"/>
+    </span>
   </div>
 </template>
