@@ -79,7 +79,7 @@ function removeFollower () {
             v-if="!controls"
             name="test"
             type="checkbox"
-            class="h-5 w-5 mx-2"
+            class="h-5 w-5 mx-2 cursor-pointer"
             :disabled="follower.disconnected"
             @input="$emit('update', $event.target.checked)"
         >
@@ -116,7 +116,7 @@ function removeFollower () {
         <div v-for="(tab, index) in firstThreeTabs" class="py-1" :id="index">
           <div class="flex flex-row px-2 items-center">
             <img class="flex-shrink-0 w-4 h-4 mr-2" :src="tab.favicon"  alt=""/>
-            <span class="overflow-ellipsis whitespace-nowrap overflow-hidden">{{ tab.url }}</span>
+            <span class="overflow-ellipsis whitespace-nowrap overflow-hidden">{{ tab.getTabUrlWithoutHttp() }}</span>
           </div>
         </div>
       </div>

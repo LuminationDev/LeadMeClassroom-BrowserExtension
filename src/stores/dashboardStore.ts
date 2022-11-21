@@ -59,7 +59,7 @@ export let useDashboardStore = defineStore("dashboard", {
          */
         async generateSession() {
             //Remove the strange firebase bug from application storage
-            await removeLocalStorage("firebase:previous_websocket_failure");
+            localStorage.removeItem("firebase:previous_websocket_failure")
 
             console.log('generating')
             this.classCode = this.leader.getClassCode()
@@ -123,6 +123,7 @@ export let useDashboardStore = defineStore("dashboard", {
          * Notify followers a session is ending and delete database class entry
          */
         async endSession() {
+            localStorage.removeItem("firebase:previous_websocket_failure")
             await this.firebase.requestAction(this.classCode, {type: REQUESTS.ENDSESSION});
             this.firebase.removeClass(this.classCode);
             this.classCode = ""

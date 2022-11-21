@@ -20,6 +20,11 @@ class Tab {
         this.windowId = windowId;
         this.lastActivated = lastActivated
     }
+
+    getTabUrlWithoutHttp()
+    {
+        return this.url.replace("https://", "").replace("http://", "")
+    }
 }
 
 export default Tab;
