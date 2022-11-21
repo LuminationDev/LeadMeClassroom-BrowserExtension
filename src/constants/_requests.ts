@@ -1,4 +1,5 @@
 //General controls
+
 export const ENDSESSION = "end_session";
 export const REMOVED = "removedByLeader";
 
@@ -11,9 +12,10 @@ export const WEBSITE = "website";
 export const ASSISTANT_MATCH_URL = "chrome-extension://*/*/assistant.html";
 
 //Web RTC controls
-export const MONITORPERMISSION = "video_permission";
+export const MONITORPERMISSION = "videoPermission";
 export const MONITORDATA = "iceCandidates";
-export const MONITORENDED = "video_ended";
+export const MONITORSTARTED = "enableMonitoring";
+export const MONITORENDED = "disableMonitoring";
 
 //Tab controls
 export const FORCEACTIVETAB = "force_active_tab";
@@ -30,8 +32,8 @@ export const BLOCK = "block";
 export const UNBLOCK = "unblock";
 
 //Determine if the request is for a single tab or all of them
-export const SINGLETAB = "single_tab";
-export const MULTITAB = "multi_tab";
+export const SINGLETAB = "singleTab";
+export const MULTITAB = "multiTab";
 
 //Video controls
 export const YOUTUBE = "youtube";

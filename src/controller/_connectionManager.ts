@@ -1,13 +1,18 @@
 import { Firebase } from './';
 import * as REQUESTS from "../constants/_requests";
 import {Follower, Tab} from "../models";
+import { useStorage } from "../hooks/useStorage";
+const { setSyncStorage } = useStorage();
 
 class ConnectionManager {
     public firebase: Firebase;
     private follower!: Follower;
+    private intervalID: NodeJS.Timer|undefined;
+    private refreshTime: number; //seconds between capture timing
 
     constructor(callback: Function) {
         this.firebase = new Firebase(callback);
+        this.refreshTime = 15;
     }
 
     /**
@@ -18,19 +23,16 @@ class ConnectionManager {
         this.follower = follower;
         let success = await this.checkForClassroom(follower.classCode);
 
-        if (!success) {
-            console.log("Class not found");
-        }
+        if (!success) { console.log("Class not found"); }
 
-        let uuid = this.follower.getUniqueId();
-
-        await chrome.storage.sync.set({
-            "follower":
-                {
-                    "code": follower.classCode,
-                    "uuid": uuid
-                }
+        await setSyncStorage({
+            "follower": {
+                "code": this.follower.classCode,
+                "uuid": this.follower.getUniqueId(),
+                "monitoring": false
+            }
         });
+
         this.firebase.addFollower(this.follower);
         this.connectionMethods();
     }
@@ -55,7 +57,32 @@ class ConnectionManager {
      */
     connectionMethods = () => {
         this.firebase.registerListeners(this.follower.classCode, this.follower.uniqueId);
-        this.captureScreen();
+        //this.captureScreen();
+    }
+
+    /**
+     * Enable or disabled the monitoring field within sync storage, starting or stopping the screen capture methods
+     * for a follower.
+     */
+    enableMonitoring = (enable: boolean) => {
+        void setSyncStorage({
+            "follower": {
+                "code": this.follower.classCode,
+                "uuid": this.follower.getUniqueId(),
+                "monitoring": enable
+            }
+        });
+
+        if(enable) {
+            this.captureScreen();
+
+            //Call the capture screen method every 15 seconds
+            this.intervalID = setInterval(() => {
+                this.captureScreen();
+            }, this.refreshTime * 1000);
+        } else {
+            clearInterval(this.intervalID);
+        }
     }
 
     /**

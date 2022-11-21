@@ -60,8 +60,8 @@ class Firebase {
      * Update the Real Time Database with the pass object.
      * @param {*} leader An object representing the current leader
      */
-    connectAsLeader = (leader: Leader) => {
-        this.generateRoom(leader);
+    connectAsLeader(leader: Leader, callback: Function) {
+        this.generateRoom(leader, callback);
     }
 
     /**
@@ -194,12 +194,33 @@ class Firebase {
      * Update the Real Time Database with the pass object.
      * @param {*} leader A JSON structured object to be uploaded into the database.
      */
-    generateRoom = (leader: Leader) => {
-        update(ref(this.db, `classCode`), leader.getClassroomObject()).then(() => console.log("Database: Class code updated"));
-        update(ref(this.db, `followers`), leader.getDefaultFollowersObject()).then(() => console.log("Database: Follower object updated"));
-        update(ref(this.db, `followerMessages`), leader.getDefaultFollowerMessagesObject()).then(() => console.log("Database: Follower messages updated"));
-        update(ref(this.db, `tabs`), leader.getDefaultTabsObject()).then(() => console.log("Database: Tab object updated"));
-        update(ref(this.db, `ice`), leader.getDefaultIceObject()).then(() => console.log("Database: Ice object updated"));
+    generateRoom = (leader: Leader, callback: Function) => {
+        let completedCount = 0
+        update(ref(this.db, `classCode`), leader.getClassroomObject()).then(() => {
+            completedCount++
+        });
+        update(ref(this.db, `followers`), leader.getDefaultFollowersObject()).then(() => {
+            completedCount++
+        });
+        update(ref(this.db, `followerMessages`), leader.getDefaultFollowerMessagesObject()).then(() => {
+            completedCount++
+        });
+        update(ref(this.db, `tabs`), leader.getDefaultTabsObject()).then(() => {
+            completedCount++
+        });
+        update(ref(this.db, `ice`), leader.getDefaultIceObject()).then(() => {
+            completedCount++
+        });
+        let runCallback = () => {
+           setTimeout(() => {
+               if (completedCount === 5) {
+                   callback()
+               } else {
+                   runCallback()
+               }
+           }, 100)
+        }
+        runCallback()
     }
 
     /**

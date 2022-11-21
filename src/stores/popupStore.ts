@@ -1,7 +1,7 @@
 //Store example using pinia
 import {defineStore} from "pinia";
 import { useStorage } from "../hooks/useStorage";
-const { getSyncStorage, setSyncStorage, removeSyncStorage } = useStorage();
+const { getSyncStorage, setSyncStorage, removeSyncStorage, removeLocalStorage } = useStorage();
 import {
     createUserWithEmailAndPassword,
     signInWithEmailAndPassword,
@@ -259,18 +259,20 @@ export let usePopupStore = defineStore("popup", {
          * Using the inputted code values check to see if there is a classroom matching these details and then
          * add the student to the class.
          */
-        connectToClass() {
+        async connectToClass() {
             const userCode = this.classCode;
             const follower = this.follower;
 
             //Queries the currently open tab and sends a message to it
+            await removeLocalStorage("firebase:previous_websocket_failure");
             firebase.checkForClassroom(userCode).then((result?: any) => {
                 if (result) {
                     setSyncStorage({
                         "follower":
                             {
                                 "code": userCode,
-                                "name": follower.name
+                                "name": follower.name,
+                                "monitoring": false
                             }
                     }).then(result => console.log(result));
 
@@ -278,10 +280,13 @@ export let usePopupStore = defineStore("popup", {
                         url: chrome.runtime.getURL("src/pages/assistant/assistant.html"),
                         type: "popup",
                         state: "minimized"
-                    }).then(result => console.log(result));
+                    }).then(result => {
+                        console.log(result)
+                        window.close()
+                    });
 
                     //TODO Close the popup window or go to the student session?
-                    window.close();
+                    // window.close();
                     // this.view = 'sessionStudent';
                 } else {
                     this.error = "No Class found";
