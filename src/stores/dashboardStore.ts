@@ -63,10 +63,9 @@ export let useDashboardStore = defineStore("dashboard", {
 
             console.log('generating')
             this.classCode = this.leader.getClassCode()
-            this.firebase.connectAsLeader(<Leader>this.leader);
+            this.firebase.connectAsLeader(<Leader>this.leader, () => { this.attachClassListeners((false) )});
             await this.clearTasks();
             await setSyncStorage({"CurrentClass": this.classCode});
-            await this.attachClassListeners(false);
 
             // @ts-ignore
             this.webRTCPinia.setConnectionDetails(this.sendIceCandidates, this.classCode, "leader");

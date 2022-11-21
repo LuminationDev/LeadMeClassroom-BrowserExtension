@@ -15,7 +15,7 @@ interface storageFollower {
 //Send the user to the on boarding page when first installing the extension
 chrome.runtime.onInstalled.addListener((details) => {
     if (details.reason === chrome.runtime.OnInstalledReason.INSTALL) {
-        void chrome.tabs.create({ url: 'onboarding.html' });
+        // void chrome.tabs.create({ url: 'onboarding.html' });
     }
 });
 
@@ -134,6 +134,9 @@ const captureScreen = () => {
     setTimeout(function () {
         //Send a message to the assistant page
         chrome.tabs.query({ url: REQUESTS.ASSISTANT_MATCH_URL }, ([tab]) => {
+            if (!tab) {
+                return
+            }
             void chrome.tabs.sendMessage(<number>tab.id, { type: REQUESTS.CAPTURE });
         });
     }, 500);
