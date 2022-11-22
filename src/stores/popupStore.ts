@@ -291,7 +291,7 @@ export let usePopupStore = defineStore("popup", {
             const follower = this.follower;
 
             //Queries the currently open tab and sends a message to it
-            await removeLocalStorage("firebase:previous_websocket_failure");
+            localStorage.removeItem("firebase:previous_websocket_failure")
             firebase.checkForClassroom(userCode).then((result?: any) => {
                 if (result) {
                     setSyncStorage({

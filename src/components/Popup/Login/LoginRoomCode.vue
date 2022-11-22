@@ -42,7 +42,7 @@ function validateAndSubmit() {
 </script>
 
 <template>
-  <div class="mt-9 pb-7">
+  <form class="mt-9 pb-7" @submit.prevent="validateAndSubmit">
     <div class="flex flex-col justify-center mb-4">
       <VOtpInput
           class="mr-3"
@@ -70,5 +70,5 @@ function validateAndSubmit() {
     <p class="text-red-400">{{ error }}</p>
 
     <p class="mt-14 text-gray-separator cursor-pointer" v-on:click="popupPinia.changeView('loginTeacher')">Teacher Login</p>
-  </div>
+  </form>
 </template>

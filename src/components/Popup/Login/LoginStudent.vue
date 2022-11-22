@@ -29,7 +29,7 @@ function validateAndSubmit() {
 </script>
 
 <template>
-  <div class="mt-9 pb-7">
+  <form class="mt-9 pb-7" @submit.prevent="validateAndSubmit">
     <div class="mb-4">
       <LoginTextInput v-model="popupPinia.follower.name" :v$="v$.name" class="text-center" type="text" placeholder="Student Name"/>
       <p class="text-red-400">{{ popupPinia.error }}</p>
@@ -38,5 +38,5 @@ function validateAndSubmit() {
     <PopupSecondaryButton v-on:click="validateAndSubmit">Confirm</PopupSecondaryButton>
 
     <p class="mt-24 text-gray-separator cursor-pointer" v-on:click="popupPinia.changeView('loginTeacher')">Teacher Login</p>
-  </div>
+  </form>
 </template>

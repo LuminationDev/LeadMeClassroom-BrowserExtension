@@ -27,8 +27,9 @@ function validateAndSubmit() {
 </script>
 
 <template>
-  <div class="pb-5 flex flex-col items-center">
+  <form class="pb-5 flex flex-col items-center" @submit.prevent="validateAndSubmit">
     <p class="mt-2 mb-9 w-56">Enter the email address associated with your account.</p>
+
     <div class="mb-4">
       <LoginTextInput type="text" placeholder="Email" v-model="v$.email.$model" :v$="v$.email" />
       <p class="text-red-400">{{ popupPinia.error }}</p>
@@ -37,5 +38,5 @@ function validateAndSubmit() {
     <PopupSecondaryButton class="mb-14" v-on:click="validateAndSubmit">Submit</PopupSecondaryButton>
 
     <p class="mb-3 text-gray-separator cursor-pointer" v-on:click="popupPinia.changeView('loginTeacher')">Teacher Login</p>
-  </div>
+  </form>
 </template>

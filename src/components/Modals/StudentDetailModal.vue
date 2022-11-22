@@ -123,7 +123,7 @@ function closeModal() {
                   @click="selectedTabId = tab.id"
               >
                 <img class="flex-shrink-0 w-5 h-5 mr-2 cursor-pointer" :src="tab.favicon" alt=""/>
-                <span class="flex-shrink overflow-ellipsis whitespace-nowrap overflow-hidden pr-10 mt-0.5">{{ tab.url }}</span>
+                <span class="flex-shrink overflow-ellipsis whitespace-nowrap overflow-hidden pr-10 mt-0.5">{{ tab.getTabUrlWithoutHttp() }}</span>
 
                 <!--Audible icons-->
                 <div class="flex flex-shrink-0 flex-[1_1_auto] justify-end">

@@ -91,17 +91,15 @@ function closeModal() {
       </template>
 
       <template v-slot:content>
-        <div>
-          {{ dashboardPinia.tasks }}
+        <div class="w-modal-width">
           <div class="mx-14 mt-8 py-6 bg-white flex flex-col">
             <div class="flex items-center justify-between">
               <input
-                  class="h-11 ml-6 mr-24 px-4 flex-grow bg-panel-background text-base rounded-lg"
+                  class="h-11 ml-6 mr-6 px-4 flex-grow bg-panel-background text-base rounded-lg"
                   type="text"
                   placeholder="Paste a URL..."
                   v-model="v$.websiteLink.$model"
               />
-              <button class="w-52 h-11 mr-9 text-white bg-blue-500 rounded-lg text-base hover:bg-blue-400">Done</button>
             </div>
             <div class="mt-1 ml-6" v-if="v$.websiteLink && v$.websiteLink.$error">
               <span class="text-red-800" v-for="error in v$.websiteLink.$errors">{{ error.$message }}</span>
@@ -121,15 +119,17 @@ function closeModal() {
               </label>
             </div>
           </div>
-          <div v-if="shareTo === 'selected'" class="mx-14 mt-8">
-            {{ followersSelected }}
-            <StudentGridItem v-for="follower in dashboardPinia.followers" :follower="follower" :controls="false" @update="(value: boolean) => { handleFollowerSelection(follower.getUniqueId(), value) }"/>
+        </div>
+        <div class="w-modal-width max-h-64 overflow-y-auto">
+          <div v-if="shareTo === 'selected'"
+               class="mt-4 flex flex-row flex-wrap ml-10 mr-14">
+            <StudentGridItem v-for="follower in dashboardPinia.followers" class="pl-4 pt-4 w-1/2 md:w-1/3 lg:w-1/4 xl:w-1/6" :follower="follower" :controls="false" @update="(value: boolean) => { handleFollowerSelection(follower.getUniqueId(), value) }"/>
           </div>
         </div>
       </template>
 
       <template v-slot:footer>
-        <footer class="mt-11 mb-8 mr-24 text-right">
+        <footer class="mt-11 mb-8 mr-14 text-right">
           <button class="w-36 h-11 mr-4 text-blue-500 text-base rounded-lg hover:bg-gray-default"
                   v-on:click="showWebsiteModal = false"
           >Cancel</button>

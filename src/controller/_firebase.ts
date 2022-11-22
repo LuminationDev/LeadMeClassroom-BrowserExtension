@@ -91,7 +91,14 @@ class Firebase {
 
             const individualRef = ref(this.db, `/followers/${classCode}/${id}`);
             onChildChanged(individualRef, (snapshot) => {
-                followerResponse(snapshot.val(), name, id, snapshot.key);
+                if (snapshot.key === 'screenshot') {
+                    const screenshotRef = storageRef(this.storage, `${classCode}/${id}`);
+                    getDownloadURL(screenshotRef).then(url => {
+                        followerResponse(url, name, id, snapshot.key);
+                    })
+                } else {
+                    followerResponse(snapshot.val(), name, id, snapshot.key);
+                }
             });
 
             //Add ice listeners
@@ -385,9 +392,7 @@ class Firebase {
 
         uploadString(screenshotRef, base64, 'data_url', {contentType:`image/jpg`})
             .then(snapshot => {
-                getDownloadURL(snapshot.ref).then(url => {
-                    set(followerRef, url).then(() => console.log("Screenshot updated"))
-                })
+                set(followerRef, new Date().toJSON()).then(() => { console.log('screenshot updated') })
             });
     }
 
