@@ -27,7 +27,7 @@ function validateAndSubmit() {
 </script>
 
 <template>
-  <div class="mt-6 pb-5">
+  <form class="mt-6 pb-5" @submit.prevent="validateAndSubmit">
     <div class="mb-4">
       <LoginTextInput v-model="email" class="pl-3.5" type="text" placeholder="Email"/>
       <p class="text-red-400">{{ popupPinia.error }}</p>
@@ -40,5 +40,5 @@ function validateAndSubmit() {
       Cancel
     </PopupSecondaryButton>
     <PopupSecondaryButton class="mb-24" v-on:click="validateAndSubmit">Send</PopupSecondaryButton>
-  </div>
+  </form>
 </template>

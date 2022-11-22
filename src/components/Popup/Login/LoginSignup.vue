@@ -58,7 +58,7 @@ function validateInputs() {
 </script>
 
 <template>
-  <div class="mt-9 pb-7">
+  <form @submit.prevent="validateInputs" class="mt-9 pb-7">
     <div>
       <LoginTextInput class="mb-2" type="text" placeholder="Name" :v$="v$.name" v-model="popupPinia.name"/>
       <LoginTextInput class="mb-2" type="text" placeholder="Email" :v$="v$.email" v-model="v$.email.$model"/>
@@ -85,7 +85,7 @@ function validateInputs() {
       <p class="w-56 ml-4 text-xsm text-left text-gray-popup-text">I want to receive emails about product updates, new features and offerings from LeadMe!</p>
     </label>
 
-    <PopupSecondaryButton v-on:click="validateInputs()">Sign up</PopupSecondaryButton>
+    <PopupSecondaryButton v-on:click="validateInputs">Sign up</PopupSecondaryButton>
     <p class="text-red-400">{{ popupPinia.error }}</p>
-  </div>
+  </form>
 </template>
