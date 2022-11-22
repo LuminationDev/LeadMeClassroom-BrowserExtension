@@ -34,6 +34,7 @@ export let useDashboardStore = defineStore("dashboard", {
     state: () => {
         return {
             view: "dashboard",
+            accountView: "menu",
             firebase: firebase,
             classCode: activeCode,
             leaderName: leaderName,
@@ -51,6 +52,13 @@ export let useDashboardStore = defineStore("dashboard", {
          */
         changeView(panel: string) {
             this.view = panel;
+        },
+
+        /**
+         * Change the current account panel to the supplied one.
+         */
+        changeAccountView(panel: string) {
+            this.accountView = panel;
         },
 
         /**
@@ -431,6 +439,19 @@ export let useDashboardStore = defineStore("dashboard", {
         requestIndividualAction(UUID: string, action: object) {
             void this.firebase.requestIndividualAction(this.classCode, UUID, action);
         },
+
+        //Account page functions
+        /**
+         * Change the display name for a user within their firebase account, upon success change the locally held store
+         * name as well.
+         * @param name A string representing the new display name.
+         */
+        changeDisplayName(name: string) {
+            void this.firebase.setDisplayName(name).then(() => {
+                console.log("Success");
+                this.leaderName = name;
+            });
+        }
     },
 
     //Computed properties
