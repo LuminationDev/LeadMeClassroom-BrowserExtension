@@ -2,9 +2,14 @@
 import Modal from "./Modal.vue";
 import {computed, defineProps, PropType, ref} from "vue";
 import Follower from "../../models/_follower";
-import { useDashboardStore } from "../../stores/dashboardStore";
 import HoverButton from "../Buttons/HoverButton.vue";
+
+import { useDashboardStore } from "../../stores/dashboardStore";
 let dashboardPinia = useDashboardStore();
+
+defineEmits<{
+  (e: 'screenMonitor'): void
+}>()
 
 const props = defineProps({
   follower: {
@@ -60,8 +65,8 @@ function closeModal() {
       <template v-slot:header>
         <header class="h-20 px-8 w-modal-width-sm bg-white flex justify-between items-center rounded-t-lg">
           <div class="bg-white flex flex-col">
-            <span class="text-base font-bold text-black">Tab Control</span>
-            <p class="mt-1 text-xs text-zinc-700">{{ follower.name }}</p>
+            <span class="text-lg font-bold text-black">Tab Control</span>
+            <p class="mt-1 text-sm text-zinc-700">{{ follower.name }}</p>
           </div>
         </header>
       </template>
@@ -73,29 +78,29 @@ function closeModal() {
           <div class="flex flex-row h-5">
 
             <!--Audio control-->
-            <div v-if="selectedTab.muting" class="lds-dual-ring h-5" />
-            <HoverButton v-else-if="selectedTab.audible" @click="muteOrUnmuteTab(selectedTab.id, !selectedTab.muted)">
+            <div v-if="selectedTab.muting" class="lds-dual-ring h-5 w-7 mr-2" />
+            <HoverButton class="h-5 w-7" v-else-if="selectedTab.audible" @click="muteOrUnmuteTab(selectedTab.id, !selectedTab.muted)">
               <template v-slot:original>
                 <img v-if="selectedTab.muted" src="@/assets/img/studentDetails/student-icon-muted.svg" alt=""/>
-                <img v-else src="@/assets/img/studentDetails/student-icon-audible.svg"  alt=""/>
+                <img v-else class="h-5 w-5" src="@/assets/img/studentDetails/student-icon-audible.svg"  alt=""/>
               </template>
               <template v-slot:hover>
                 <img v-if="selectedTab.muted" src="@/assets/img/studentDetails/student-icon-muted-hover.svg" alt=""/>
-                <img v-else src="@/assets/img/studentDetails/student-icon-audible-hover.svg"  alt=""/>
+                <img v-else class="h-5 w-5" src="@/assets/img/studentDetails/student-icon-audible-hover.svg"  alt=""/>
               </template>
             </HoverButton>
-            <img v-else src="@/assets/img/studentDetails/student-icon-audible-disabled.svg" alt=""/>
+            <img v-else class="h-5 w-5 mr-2" src="@/assets/img/studentDetails/student-icon-audible-disabled.svg" alt=""/>
 
             <!--Tab focus control-->
-            <HoverButton v-if="selectedTab.id !== follower.tabs[0].id" class="mx-14" @click="changeActiveTab(selectedTab)">
+            <HoverButton  v-if="selectedTab.id !== follower.tabs[0].id" class="mx-14 h-5 w-5" @click="changeActiveTab(selectedTab)">
               <template v-slot:original><img src="@/assets/img/studentDetails/student-icon-focus.svg"  alt="focus"/></template>
               <template v-slot:hover><img src="@/assets/img/studentDetails/student-icon-focus-hover.svg"  alt="focus"/></template>
             </HoverButton>
-            <img v-else class="mx-14" src="@/assets/img/studentDetails/student-icon-focus-disabled.svg"  alt="focus"/>
+            <img v-else class="mx-14 h-5" src="@/assets/img/studentDetails/student-icon-focus-disabled.svg"  alt="focus"/>
 
             <!--Close tab-->
             <div v-if="selectedTab.closing" class="lds-dual-ring h-5" />
-            <HoverButton v-else @click="deleteFollowerTab(selectedTab.id)">
+            <HoverButton v-else @click="deleteFollowerTab(selectedTab.id)" class="h-5 w-5">
               <template v-slot:original><img class="h-4" src="@/assets/img/studentDetails/student-icon-close-tab.svg"  alt="close"/></template>
               <template v-slot:hover><img class="h-4" src="@/assets/img/studentDetails/student-icon-close-tab-hover.svg"  alt="close"/></template>
             </HoverButton>
@@ -103,7 +108,7 @@ function closeModal() {
         </div>
 
         <!--Tab list-->
-        <div class="w-modal-width-sm h-96 flex flex-col overflow-y-scroll">
+        <div class="w-modal-width-sm h-96 flex flex-col overflow-y-auto">
           <div v-for="(tab, index) in follower.tabs" class="py-1" :id="tab.id">
 
             <!--Individual tabs-->
@@ -139,7 +144,9 @@ function closeModal() {
       <template v-slot:footer>
         <footer class="w-modal-width-sm">
           <div class="h-12 bg-navy-side-menu rounded-b-sm flex">
-            <button class="w-full flex justify-center items-center">
+            <button class="w-full flex justify-center items-center"
+                v-on:click="$emit('screenMonitor'); showDetailModal = false"
+            >
               <img class="w-9 h-5" src="@/assets/img/student-icon-eye.svg" alt="Icon"/>
             </button>
             <div class="h-10 mt-1 w-px bg-white"></div>

@@ -70,7 +70,6 @@ onBeforeMount(() => popupPinia.onOpen());
 
   <!-- Active Student Session -->
   <PopupPanel v-show="popupPinia.view === 'sessionStudent'">
-    <template v-slot:header>Awaiting instruction...</template>
     <template v-slot:content><StudentSession /></template>
     <template v-slot:footer><StudentFooter /></template>
   </PopupPanel>

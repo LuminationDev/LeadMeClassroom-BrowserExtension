@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import StudentDetailModal from "../../../../components/Modals/StudentDetailModal.vue";
 import ScreenMonitorModal from "../../../../components/Modals/ScreenMonitorModal.vue";
-import {defineProps, PropType} from "vue";
+import {defineProps, PropType, ref} from "vue";
 import {Follower} from "../../../../models";
 import { useDashboardStore } from "../../../../stores/dashboardStore";
 const dashboardPinia = useDashboardStore();
@@ -61,6 +61,12 @@ const removeFollower = () => {
     dashboardPinia.removeFollower(props.follower.getUniqueId())
   }, 500)
 }
+
+//Reference to the screen monitor modal to open it externally
+const childRef = ref<InstanceType<typeof ScreenMonitorModal> | null>(null)
+function openMonitorModal() {
+  childRef.value?.externalOpen();
+}
 </script>
 
 <template>
@@ -96,11 +102,11 @@ const removeFollower = () => {
   <!--Tab screen-->
   <div v-else-if="controls" class="h-12 bg-navy-side-menu rounded-b-sm flex">
     <!--Screenshot and WebRTC modal-->
-    <ScreenMonitorModal :follower="follower" />
+    <ScreenMonitorModal ref="childRef" :follower="follower" />
 
     <div class="h-10 mt-1 w-px bg-white"></div>
 
     <!--Expanded student details modal-->
-    <StudentDetailModal :follower="follower" />
+    <StudentDetailModal @screenMonitor="openMonitorModal" :follower="follower" />
   </div>
 </template>

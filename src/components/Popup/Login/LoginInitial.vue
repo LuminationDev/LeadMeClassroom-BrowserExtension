@@ -21,7 +21,7 @@ let popupPinia = usePopupStore();
     </div>
 
     <PopupSecondaryButton
-        class="text-blue-500 bg-white border border-blue-500 border-4"
+        class="text-blue-500 bg-white border border-blue-500 border-2"
         v-on:click="popupPinia.changeView('signup')"
     >
       Sign up

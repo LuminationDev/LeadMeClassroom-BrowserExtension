@@ -4,7 +4,10 @@ let popupPinia = usePopupStore();
 </script>
 
 <template>
-  <div class="mt-9">
-    <div class="h-56"/>
+  <div class="mb-9">
+    <div class="h-56 flex flex-col justify-center items-center">
+      <img class="w-48 h-40 mb-9" src="@/assets/img/happy_col.png" alt=""/>
+      <p class="text-base font-bold">You can close me!</p>
+    </div>
   </div>
 </template>

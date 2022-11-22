@@ -37,7 +37,7 @@ module.exports = {
                 'modal-width': '80vw',
                 'onboarding-width': '32rem',
                 'modal-width-sm': '65vw',
-                'modal-width-xsm': '55vw'
+                'modal-width-xsm': '55vw',
             },
             height: {
                 'student-options-small': '3.125rem',
