@@ -33,7 +33,7 @@ function validateAndSubmit() {
 </script>
 
 <template>
-  <div class="mt-6 pb-5">
+  <form @submit.prevent="validateAndSubmit" class="mt-6 pb-5">
     <div class="mb-2">
       <LoginTextInput v-model="v$.email.$model" type="email" placeholder="Email" :v$="v$.email"/>
     </div>
@@ -61,5 +61,5 @@ function validateAndSubmit() {
       Forgot password?
     </p>
 
-  </div>
+  </form>
 </template>
