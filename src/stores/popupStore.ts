@@ -161,7 +161,7 @@ export let usePopupStore = defineStore("popup", {
                         const errorCode = error.code;
                         console.log(errorCode);
 
-                        this.error = error.message;
+                        this.error = this.getUsefulErrorMessageFromFirebaseCode(error.code)
                     });
             }
         },
@@ -187,8 +187,7 @@ export let usePopupStore = defineStore("popup", {
                     })
                     .catch((error) => {
                         this.loading = false;
-                        console.log(error);
-                        this.error = error.message;
+                        this.error = this.getUsefulErrorMessageFromFirebaseCode(error.code)
                     });
             }
         },
@@ -207,8 +206,31 @@ export let usePopupStore = defineStore("popup", {
                     const errorCode = error.code;
                     console.log(errorCode);
 
-                    this.error = error.message;
+                    this.error = this.getUsefulErrorMessageFromFirebaseCode(error.code)
                 });
+        },
+
+        getUsefulErrorMessageFromFirebaseCode(error: string) {
+          switch (error) {
+              case 'auth/email-already-exists':
+                  return 'This email is already in use. Try signing in instead.'
+              case 'auth/id-token-expired':
+              case 'auth/id-token-revoked':
+              case 'auth/invalid-id-token':
+                  return 'Your login session has expired. Please logout and try again'
+              case 'auth/invalid-email':
+                  return 'This email is invalid. Please check your email address and try again.'
+              case 'auth/invalid-password':
+                  return 'This password is invalid. Please check that it is at least 6 characters.'
+              case 'auth/user-not-found':
+                  return 'No account was found for these login details. Please check your details and try again.'
+              case 'auth/wrong-password':
+                  return 'This password does not match the login details for this account. Please try again.'
+              case 'auth/too-many-requests':
+                  return 'Too many attempts have been made to login to this account. Please reset your password or try again later.'
+              default:
+                  return 'An error has occurred. Please contact support and give them this error code: ' + error
+          }
         },
 
         /**

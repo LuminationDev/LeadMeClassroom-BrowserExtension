@@ -27,7 +27,6 @@ class Follower {
         this.name = name;
         this.tabs = [];
         this.permission = null;
-        this.offTask = false;
     }
 
     updateIndividualTab(id: string, newTab: Tab)

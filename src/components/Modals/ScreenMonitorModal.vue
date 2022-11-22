@@ -80,7 +80,7 @@ function closeModal() {
           <img
               v-on:click="closeModal();"
               class="w-4 h-4 cursor-pointer"
-              src="@/assets/img/modal-icon-exit.svg"
+              src="@/assets/img/onboarding/close.svg"
               alt="Close Icon"
           />
         </header>
