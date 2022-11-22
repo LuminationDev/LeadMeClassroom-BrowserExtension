@@ -45,7 +45,7 @@ class ScreenController extends Controller {
             "   z-index: 999999; " +
             "   font-family: Poppins, serif;\"" +
             ">\n" +
-            "    <p style=\"color: white; font-size: large;\">Blocked</p>\n" +
+            "    <p style=\"color: white; font-size: large;\">Your leader has locked your screen.</p>\n" +
             "</div>");
     }
 

@@ -17,6 +17,11 @@ const props = defineProps({
 });
 
 const showMonitorModal = ref(false);
+const externalOpen = () => (showMonitorModal.value = true);
+
+defineExpose({
+  externalOpen
+});
 
 /**
  * Open the modal, sending a message to the follower to start sending screen captures.
@@ -75,7 +80,10 @@ function closeModal() {
     <Modal :show="showMonitorModal" @close="closeModal">
       <template v-slot:header>
         <header class="h-20 px-8 bg-white flex justify-between items-center rounded-t-lg">
-          <p class="text-2xl font-bold">{{follower.name}} - Screen Monitoring</p>
+          <div class="bg-white flex flex-col">
+            <span class="text-lg font-bold text-black">Screen Monitoring</span>
+            <p class="mt-1 text-sm text-zinc-700">{{ follower.name }}</p>
+          </div>
 
           <img
               v-on:click="closeModal();"
@@ -88,12 +96,6 @@ function closeModal() {
 
       <template v-slot:content>
         <div class="w-auto inline-block max-h-monitor-modal mt-7 mx-9">
-
-          <!--Student name tag-->
-          <div class="w-auto px-5 h-8 rounded-t-2xl bg-white inline-grid content-center">
-            <p class="text-base">{{follower.name}}</p>
-          </div>
-
           <!--Screenshot content-->
           <div v-if="!follower.monitoring" class="w-modal-width-xsm">
             <div v-if="follower.imageBase64 === undefined" class="flex flex-col items-center">

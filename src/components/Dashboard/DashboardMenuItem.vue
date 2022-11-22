@@ -14,9 +14,11 @@ defineProps({
 
 <template>
   <div
-      class="w-44 h-9 ml-6 pl-3 flex items-center
-      cursor-pointer hover:bg-white-menu-overlay
-      rounded-lg"
+      :class="{
+        'w-44 h-9 ml-6 pl-3 flex items-center cursor-pointer rounded-lg': true,
+        'bg-white-menu-overlay': dashboardPinia.view === view,
+        'hover:bg-white-menu-overlay': dashboardPinia.view !== view,
+      }"
       v-on:click="dashboardPinia.changeView(view)"
   >
     <img class="w-5 h-5 mr-3" :src="icon" alt="Icon"/>

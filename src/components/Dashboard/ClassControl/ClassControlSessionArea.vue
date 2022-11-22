@@ -27,6 +27,6 @@ let dashboardPinia = useDashboardStore();
         class="ml-3 h-12 w-56 bg-navy-side-menu
         text-base text-white font-poppins font-bold
         rounded-md"
-    >Generate Class</button>
+    >Start Class</button>
   </div>
 </template>
