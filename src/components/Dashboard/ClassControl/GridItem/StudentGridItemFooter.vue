@@ -65,7 +65,7 @@ const removeFollower = () => {
 //Reference to the screen monitor modal to open it externally
 const childRef = ref<InstanceType<typeof ScreenMonitorModal> | null>(null)
 function openMonitorModal() {
-  childRef.value?.externalOpen();
+  childRef.value?.initiateMonitoring();
 }
 </script>
 

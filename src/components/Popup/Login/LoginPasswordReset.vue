@@ -2,11 +2,11 @@
 import PopupSecondaryButton from "../../../components/Buttons/PopupSecondaryButton.vue";
 import LoginTextInput from "../../../components/Popup/Login/LoginTextInput.vue";
 import { ref } from "vue";
-import { usePopupStore } from "../../../stores/popupStore";
 import useVuelidate from "@vuelidate/core";
 import { required, email as emailRule } from "@vuelidate/validators";
 
-let popupPinia = usePopupStore();
+import { usePopupStore } from "../../../stores/popupStore";
+const popupPinia = usePopupStore();
 
 const email = ref("")
 
@@ -27,18 +27,15 @@ function validateAndSubmit() {
 </script>
 
 <template>
-  <div class="mt-6 pb-5">
+  <div class="pb-5 flex flex-col items-center">
+    <p class="mt-2 mb-9 w-56">Enter the email address associated with your account.</p>
     <div class="mb-4">
-      <LoginTextInput v-model="email" class="pl-3.5" type="text" placeholder="Email"/>
+      <LoginTextInput type="text" placeholder="Email" v-model="v$.email.$model" :v$="v$.email" />
       <p class="text-red-400">{{ popupPinia.error }}</p>
     </div>
+    
+    <PopupSecondaryButton class="mb-14" v-on:click="validateAndSubmit">Submit</PopupSecondaryButton>
 
-    <PopupSecondaryButton
-        class="mb-3 text-blue-500 bg-white border border-blue-500 border-3"
-        v-on:click="popupPinia.changeView('loginTeacher')"
-    >
-      Cancel
-    </PopupSecondaryButton>
-    <PopupSecondaryButton class="mb-24" v-on:click="validateAndSubmit">Send</PopupSecondaryButton>
+    <p class="mb-3 text-gray-separator cursor-pointer" v-on:click="popupPinia.changeView('loginTeacher')">Teacher Login</p>
   </div>
 </template>

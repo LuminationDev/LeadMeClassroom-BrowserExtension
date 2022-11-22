@@ -4,7 +4,8 @@ import AccountGridItem from "./AccountGridItem.vue";
 
 <template>
   <div>
-    <AccountGridItem :title="'Reset Password'"/>
-    <AccountGridItem :title="'Other Setting'"/>
+    <AccountGridItem :title="'Reset password'"/>
+    <AccountGridItem :title="'Change name'"/>
+    <AccountGridItem :title="'Other setting'"/>
   </div>
 </template>

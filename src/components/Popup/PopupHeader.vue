@@ -10,14 +10,19 @@ function closePopup ()
 
 <template>
   <div class="flex justify-between items-center">
-    <div v-if="!popupPinia.showHeaderIcon()">
-      <img class="w-24 h-14 ml-6" src="@/assets/img/icon-popup-header.svg" alt="LeadMe Icon"/>
-    </div>
+    <Transition name="fade" mode="out-in">
+      <div v-if="!popupPinia.showHeaderIcon()">
+        <img class="w-24 h-14 ml-6" src="@/assets/img/icon-popup-header.svg" alt="LeadMe Icon"/>
+      </div>
 
-    <span
-        v-else
-        class="mr-6 h-14 pt-4 ml-6 text-base font-poppins cursor-pointer"
-        v-on:click="popupPinia.back">Back</span>
+      <span
+          v-else
+          class="mr-6 h-14 pt-4 ml-6 text-base font-poppins cursor-pointer"
+          v-on:click="popupPinia.back"
+      >
+        Back
+      </span>
+    </Transition>
 
     <span
         class="mr-6 text-base cursor-pointer"
@@ -26,3 +31,15 @@ function closePopup ()
     </span>
   </div>
 </template>
+
+<style>
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.15s ease;
+}
+
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
+}
+</style>
