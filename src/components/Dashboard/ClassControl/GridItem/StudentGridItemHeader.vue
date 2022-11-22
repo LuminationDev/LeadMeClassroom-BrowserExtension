@@ -34,7 +34,7 @@ defineProps({
         v-if="!controls"
         name="test"
         type="checkbox"
-        class="h-5 w-5 mx-2"
+        class="h-5 w-5 mx-2 cursor-pointer"
         :disabled="follower.disconnected"
         @input="$emit('update', $event.target.checked)"
     >
