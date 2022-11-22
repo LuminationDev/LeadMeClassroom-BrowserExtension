@@ -4,13 +4,13 @@
     <style>
       .cls-1 {
         fill: none;
-        stroke: #000;
+        stroke: #979797;
         stroke-miterlimit: 10;
         stroke-width: 2.5px;
       }
     </style>
   </defs>
-  <g id="Layer_1-2" data-name="Layer 1">
+  <g id="Layer_1-2" data-name="Layer 1" fill="#979797">
     <circle class="cls-1" cx="18.64" cy="18.64" r="17.39"/>
     <rect x="20.43" y="7.78" width="1.95" height="11.36" rx=".27" ry=".27" transform="translate(-3.24 19.08) rotate(-45)"/>
     <rect x="13.68" y="7.98" width="1.95" height="11.11" rx=".27" ry=".27" transform="translate(13.86 -6.4) rotate(45)"/>

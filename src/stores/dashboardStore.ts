@@ -34,6 +34,7 @@ export let useDashboardStore = defineStore("dashboard", {
     state: () => {
         return {
             view: "dashboard",
+            accountView: "menu",
             firebase: firebase,
             classCode: activeCode,
             leaderName: leaderName,
@@ -54,6 +55,13 @@ export let useDashboardStore = defineStore("dashboard", {
         },
 
         /**
+         * Change the current account panel to the supplied one.
+         */
+        changeAccountView(panel: string) {
+            this.accountView = panel;
+        },
+
+        /**
          * Generate a new class code for the current session, attaching the necessary listeners to
          * the firebase real-time database.
          */
@@ -63,7 +71,7 @@ export let useDashboardStore = defineStore("dashboard", {
 
             console.log('generating')
             this.classCode = this.leader.getClassCode()
-            this.firebase.connectAsLeader(<Leader>this.leader, () => { this.attachClassListeners((false) )});
+            this.firebase.connectAsLeader(<Leader>this.leader, () => { this.attachClassListeners(false )});
             await this.clearTasks();
             await setSyncStorage({"CurrentClass": this.classCode});
 
@@ -432,6 +440,19 @@ export let useDashboardStore = defineStore("dashboard", {
         requestIndividualAction(UUID: string, action: object) {
             void this.firebase.requestIndividualAction(this.classCode, UUID, action);
         },
+
+        //Account page functions
+        /**
+         * Change the display name for a user within their firebase account, upon success change the locally held store
+         * name as well.
+         * @param name A string representing the new display name.
+         */
+        changeDisplayName(name: string) {
+            void this.firebase.setDisplayName(name).then(() => {
+                console.log("Success");
+                this.leaderName = name;
+            });
+        }
     },
 
     //Computed properties

@@ -244,12 +244,17 @@ export let usePopupStore = defineStore("popup", {
             });
 
             //Close the dashboard if open
-            chrome.tabs.query({ pinned: true }, ([tab]) => {
-                if (!tab) { return; }
-                if (tab.url != null) { return; }
+            chrome.tabs.query({ pinned: true }, ([dashboard]) => {
+                if (!dashboard) { return; }
+                if (dashboard.url != null) { return; } // the dashboard has no URL associated with it
+
+                //Create a blank tab if the dashboard is the only tab open
+                chrome.tabs.query({windowId: dashboard.windowId}, (tabs) => {
+                    if (tabs.length === 1) { chrome.tabs.create({}) }
+                });
 
                 chrome.tabs.update({pinned: false}).then(() => {
-                    if (tab.id != null) { chrome.tabs.remove(tab.id); }
+                    if (dashboard.id != null) { chrome.tabs.remove(dashboard.id); }
                 });
             });
         },

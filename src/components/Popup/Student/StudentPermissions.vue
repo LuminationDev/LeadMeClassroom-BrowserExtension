@@ -23,7 +23,7 @@ onMounted(() => {
 
     <div v-for="(permission, index) in permissionJson">
       <StudentPermission
-          :name="permission.tag"
+          :tag="permission.tag"
           :checked-prop="permissionPinia.permissions[permission.tag]"
           @update="(newValue: boolean) => permissionPinia.setPermission(permission.tag, newValue)">
 

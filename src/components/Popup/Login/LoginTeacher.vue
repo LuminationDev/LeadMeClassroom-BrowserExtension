@@ -25,8 +25,6 @@ function validateAndSubmit() {
       return;
     }
     popupPinia.handleLogin(email.value, password.value)
-    email.value = ''
-    password.value = ''
     v$.value.$reset()
   })
 }
@@ -51,7 +49,6 @@ function validateAndSubmit() {
         v-if="popupPinia.loading"
         class="flex justify-center"
       />
-
     </PopupSecondaryButton>
 
     <p

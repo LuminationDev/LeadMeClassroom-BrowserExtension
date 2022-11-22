@@ -16,7 +16,7 @@ import {
     remove,
     off
 } from 'firebase/database';
-import {browserLocalPersistence, getAuth, setPersistence} from "@firebase/auth";
+import {browserLocalPersistence, getAuth, setPersistence, updateProfile} from "@firebase/auth";
 import * as REQUESTS from '../constants/_requests';
 import {Follower, Leader, Tab} from "../models";
 
@@ -57,8 +57,17 @@ class Firebase {
     }
 
     /**
+     * Update the display name of the currently active user.
+     * @param name
+     */
+    setDisplayName = async (name: string) => {
+        await updateProfile(getAuth().currentUser!, {displayName: name})
+    }
+
+    /**
      * Update the Real Time Database with the pass object.
      * @param {*} leader An object representing the current leader
+     * @param callback
      */
     connectAsLeader(leader: Leader, callback: Function) {
         this.generateRoom(leader, callback);
@@ -200,6 +209,7 @@ class Firebase {
     /**
      * Update the Real Time Database with the pass object.
      * @param {*} leader A JSON structured object to be uploaded into the database.
+     * @param callback
      */
     generateRoom = (leader: Leader, callback: Function) => {
         let completedCount = 0
