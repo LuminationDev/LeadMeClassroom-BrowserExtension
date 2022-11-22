@@ -20,10 +20,10 @@ import {browserLocalPersistence, getAuth, setPersistence, updateProfile} from "@
 import * as REQUESTS from '../constants/_requests';
 import {Follower, Leader, Tab} from "../models";
 
-// const config = process.env.NODE_ENV === 'production' ? prodConfig : devConfig;
+const config = process.env.NODE_ENV === 'production' ? prodConfig : devConfig;
 
 //Use if testing a new feature, remove before development end
-const config = testConfig;
+//const config = testConfig;
 
 class Firebase {
     private readonly callback: Function|null;
