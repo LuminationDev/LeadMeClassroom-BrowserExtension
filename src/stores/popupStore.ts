@@ -4,6 +4,7 @@ import { useStorage } from "../hooks/useStorage";
 const { getSyncStorage, setSyncStorage, removeSyncStorage, removeLocalStorage } = useStorage();
 import {
     createUserWithEmailAndPassword,
+    sendEmailVerification,
     signInWithEmailAndPassword,
     sendPasswordResetEmail,
     getAuth,
@@ -35,7 +36,8 @@ export let usePopupStore = defineStore("popup", {
             error: "",
             name: "",
             loading: false,
-            previousViews: <string[]>([])
+            previousViews: <string[]>([]),
+            justCreatedAccount: false
         };
     },
 
@@ -124,9 +126,12 @@ export let usePopupStore = defineStore("popup", {
                 return;
             }
 
-            getSyncStorage("Teacher").then(result => {
-                (result) ? this.view = "sessionTeacher" : this.view = "login";
-            });
+            const auth = getAuth()
+            if (auth && auth.currentUser) {
+                this.view = auth.currentUser.emailVerified ? 'sessionTeacher' : 'verifyEmail'
+                return
+            }
+            this.view = 'login'
         },
 
         /**
@@ -148,13 +153,15 @@ export let usePopupStore = defineStore("popup", {
             } else {
                 const auth = getAuth();
                 createUserWithEmailAndPassword(auth, email, password)
-                    .then(() => {
+                    .then((user) => {
                         //Set the display name of the user
                         // @ts-ignore
                         updateProfile(auth.currentUser, { displayName: this.name })
                             .catch((err) => console.log(err));
-
+                        sendEmailVerification(user.user)
+                            .catch((err) => console.log(err));
                         // Move to sign in
+                        this.justCreatedAccount = true
                         this.changeView('loginTeacher');
                     })
                     .catch((error) => {
@@ -173,22 +180,39 @@ export let usePopupStore = defineStore("popup", {
         handleLogin(email: string, password: string) {
             this.loading = true;
 
-            //Create a temp variable to access within the callback options
-            const self = this;
             if (getAuth().currentUser) {
-                this.createDashboard();
+                if (!getAuth().currentUser?.emailVerified) {
+                    this.loading = false
+                    this.changeView('verifyEmail')
+                } else {
+                    this.createDashboard()
+                }
             } else {
                 const auth = getAuth();
                 signInWithEmailAndPassword(auth, email, password)
                     .then(() => {
                         this.loading = false;
-                        setSyncStorage({"Teacher": true})
-                            .then(() => self.createDashboard());
+                        if (!auth.currentUser?.emailVerified) {
+                            this.loading = false
+                            this.changeView('verifyEmail')
+                        } else {
+                            this.createDashboard()
+                        }
                     })
                     .catch((error) => {
                         this.loading = false;
                         this.error = this.getUsefulErrorMessageFromFirebaseCode(error.code)
                     });
+            }
+        },
+
+        resendVerificationEmail() {
+            const auth = getAuth()
+            if (auth.currentUser) {
+                this.loading = true
+                sendEmailVerification(auth.currentUser)
+                    .then(() => {this.loading = false})
+                    .catch(() => {this.loading = false})
             }
         },
 

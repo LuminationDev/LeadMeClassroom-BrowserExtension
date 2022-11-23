@@ -15,6 +15,7 @@ import StudentPermissions from "../../components/Popup/Student/StudentPermission
 import StudentSessionLeave from "../../components/Popup/Student/StudentSessionLeave.vue";
 import TeacherPopupSession from "../../components/Popup/Teacher/TeacherPopupSession.vue";
 import TeacherPopupFooter from "../../components/Popup/Teacher/TeacherPopupFooter.vue";
+import LoginVerifyEmail from "./Login/LoginVerifyEmail.vue";
 import { usePopupStore } from "../../stores/popupStore";
 import { onBeforeMount } from "vue";
 const popupPinia = usePopupStore();
@@ -37,6 +38,11 @@ onBeforeMount(() => popupPinia.onOpen());
       <PopupPanel v-else-if="popupPinia.view === 'loginTeacher'">
         <template v-slot:header>Log in with Email</template>
         <template v-slot:content><LoginTeacher /></template>
+      </PopupPanel>
+
+      <PopupPanel v-else-if="popupPinia.view === 'verifyEmail'">
+        <template v-slot:header>Verify Email</template>
+        <template v-slot:content><LoginVerifyEmail /></template>
       </PopupPanel>
 
       <!-- Forgot password -->

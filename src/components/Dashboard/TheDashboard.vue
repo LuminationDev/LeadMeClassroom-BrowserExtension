@@ -9,6 +9,8 @@ import AccountMain from "./Account/AccountMain.vue";
 import { onMounted, ref } from "vue";
 import { useDashboardStore } from "../../stores/dashboardStore";
 import { VOnboardingWrapper, VOnboardingStep, useVOnboarding } from 'v-onboarding'
+import {getAuth} from "@firebase/auth";
+import PopupSecondaryButton from "../Buttons/PopupSecondaryButton.vue";
 
 const dashboardPinia = useDashboardStore();
 
@@ -100,8 +102,14 @@ function closeOnboarding() {
   finish()
 }
 
+const emailVerified = ref(false)
+
 //Check for any active class on load
 onMounted(() => {
+  const auth = getAuth()
+  if (auth && auth.currentUser) {
+    emailVerified.value = auth.currentUser.emailVerified
+  }
   dashboardPinia.attachClassListeners(true)
   chrome.storage.sync.get("onboarding_completed", async (data) => {
     if (data && data.onboarding_completed === true) {
@@ -117,7 +125,7 @@ onMounted(() => {
     <!--SideMenu-->
     <DashboardSideMenu />
 
-    <div id="idddd" class="flex flex-grow flex-col h-screen">
+    <div v-if="emailVerified" class="flex flex-grow flex-col h-screen">
       <!--TitleBar-->
       <DashboardTitleBar />
 
@@ -126,6 +134,9 @@ onMounted(() => {
         <DashboardMain v-show="dashboardPinia.view === 'dashboard'"/>
         <AccountMain v-show="dashboardPinia.view === 'account'"/>
       </div>
+    </div>
+    <div v-else class="flex justify-center items-center w-full">
+      Your email is not verified. Please verify it to continue.
     </div>
     <VOnboardingWrapper ref="wrapper" :steps="steps">
       <template #default="{ previous, next, step, exit, isFirst, isLast, index }">

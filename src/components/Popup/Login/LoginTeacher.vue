@@ -32,6 +32,7 @@ function validateAndSubmit() {
 
 <template>
   <form @submit.prevent="validateAndSubmit" class="mt-6 pb-5">
+    <div v-if="popupPinia.justCreatedAccount">Thanks for signing up, please verify your email and login to get started</div>
     <div class="mb-2">
       <LoginTextInput v-model="v$.email.$model" type="email" placeholder="Email" :v$="v$.email"/>
     </div>
