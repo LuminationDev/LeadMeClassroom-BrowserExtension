@@ -12,12 +12,12 @@ function submit() {
 
 <template>
   <form @submit.prevent="submit" class="mt-6 pb-5">
-    <div class="mb-2">
-      Your email has not been verified. Please verify it to continue
+    <div class="mb-6">
+      We have sent a password recovery link to your email.
     </div>
 
     <!--Display a spinner while waiting for a response-->
-    <PopupSecondaryButton v-on:click="submit">
+    <PopupSecondaryButton class="mb-24" v-on:click="submit">
       <p v-if="!popupPinia.loading">Resend Email</p>
 
       <Spinner
@@ -26,5 +26,7 @@ function submit() {
       />
 
     </PopupSecondaryButton>
+
+    <p class="mb-3 text-gray-separator cursor-pointer" v-on:click="popupPinia.changeView('loginTeacher')">Teacher Login</p>
   </form>
 </template>

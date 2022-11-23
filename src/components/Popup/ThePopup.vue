@@ -36,12 +36,12 @@ onBeforeMount(() => popupPinia.onOpen());
 
       <!-- Teacher login -->
       <PopupPanel v-else-if="popupPinia.view === 'loginTeacher'">
-        <template v-slot:header>Log in with Email</template>
+        <template v-slot:header>Sign in with Email</template>
         <template v-slot:content><LoginTeacher /></template>
       </PopupPanel>
 
       <PopupPanel v-else-if="popupPinia.view === 'verifyEmail'">
-        <template v-slot:header>Verify Email</template>
+        <template v-slot:header>Check your email!</template>
         <template v-slot:content><LoginVerifyEmail /></template>
       </PopupPanel>
 
