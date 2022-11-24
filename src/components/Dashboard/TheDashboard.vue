@@ -52,7 +52,7 @@ const steps = ref([
     content: {
       title: 'Deliver content instantly',
       description: 'Share website content directly to your student\'s browser',
-      image: '/src/assets/img/onboarding/share_code.png'
+      image: '/src/assets/img/onboarding/deliver_content.png'
     },
     options: {
       popper: {
