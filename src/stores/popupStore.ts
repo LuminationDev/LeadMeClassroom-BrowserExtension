@@ -37,7 +37,8 @@ export let usePopupStore = defineStore("popup", {
             name: "",
             loading: false,
             previousViews: <string[]>([]),
-            justCreatedAccount: false
+            justCreatedAccount: false,
+            showSuccess: false
         };
     },
 
@@ -332,8 +333,11 @@ export let usePopupStore = defineStore("popup", {
                         type: "popup",
                         state: "minimized"
                     }).then(result => {
+                        this.showSuccess = true
                         console.log(result)
-                        window.close()
+                        setTimeout(() => {
+                            window.close()
+                        }, 2000)
                     });
 
                     //TODO Close the popup window or go to the student session?
@@ -357,6 +361,7 @@ export let usePopupStore = defineStore("popup", {
          * alerting a teacher that the student has disconnected.
          */
         async handleEndSessionClick() {
+            localStorage.removeItem("firebase:previous_websocket_failure")
             const userData:followerData = await getSyncStorage("follower");
             if (userData == null) { return; }
 
