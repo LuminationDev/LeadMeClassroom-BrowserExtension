@@ -6,6 +6,7 @@ import { ref, computed } from "vue";
 import { usePopupStore } from "../../../stores/popupStore";
 import useVuelidate from "@vuelidate/core";
 import { required, email as emailRule, sameAs, helpers, minLength } from "@vuelidate/validators";
+import LoginEmail from "./LoginEmail.vue";
 
 let popupPinia = usePopupStore();
 
@@ -61,7 +62,7 @@ function validateInputs() {
   <form @submit.prevent="validateInputs" class="mt-9 pb-7">
     <div>
       <LoginTextInput class="mb-2" type="text" placeholder="Name" :v$="v$.name" v-model="popupPinia.name"/>
-      <LoginTextInput class="mb-2" type="text" placeholder="Email" :v$="v$.email" v-model="v$.email.$model"/>
+      <LoginEmail class="mb-2" placeholder="Email" :v$="v$.email" v-model="email"/>
       <LoginTextInput class="mb-3" type="password" placeholder="Password" :v$="v$.password" v-model="v$.password.$model"/>
       <p class="text-red-400">{{ error }}</p>
     </div>
