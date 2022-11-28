@@ -1,11 +1,11 @@
 <script setup lang="ts">
-import PopupSecondaryButton from "@/components/Buttons/PopupSecondaryButton.vue";
 import LoginTextInput from "./LoginTextInput.vue";
 import { ref, computed } from "vue";
 
 import { usePopupStore } from "../../../stores/popupStore";
 import useVuelidate from "@vuelidate/core";
 import { required, email as emailRule, sameAs, helpers, minLength } from "@vuelidate/validators";
+import GenericButton from "../../Buttons/GenericButton.vue";
 
 let popupPinia = usePopupStore();
 
@@ -44,16 +44,15 @@ const termsModel = computed({
   }
 })
 
-function validateInputs() {
-  !v$.value.$validate().then((result: boolean) => {
-    if (!result) {
-      return;
-    }
-    popupPinia.handleSignup(email.value, password.value);
-    email.value = ''
-    password.value = ''
-    v$.value.$reset()
-  })
+async function validateInputs() {
+  const result = await v$.value.$validate();
+  if (!result) { return; }
+
+  await popupPinia.handleSignup(email.value, password.value);
+
+  email.value = ''
+  password.value = ''
+  v$.value.$reset()
 }
 </script>
 
@@ -85,7 +84,7 @@ function validateInputs() {
       <p class="w-56 ml-4 text-xsm text-left text-gray-popup-text">I want to receive emails about product updates, new features and offerings from LeadMe!</p>
     </label>
 
-    <PopupSecondaryButton v-on:click="validateInputs">Sign up</PopupSecondaryButton>
+    <GenericButton :type="'secondary'" :callback="validateInputs">Sign up</GenericButton>
     <p class="text-red-400">{{ popupPinia.error }}</p>
   </form>
 </template>

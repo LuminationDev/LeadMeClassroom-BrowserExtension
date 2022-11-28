@@ -3,11 +3,11 @@ import VOtpInput from 'vue3-otp-input'
 import {computed, ref} from "vue";
 import useVuelidate from "@vuelidate/core";
 import { required, sameAs, helpers } from "@vuelidate/validators";
-import {usePopupStore} from "../../../stores/popupStore";
-import PopupSecondaryButton from "../../Buttons/PopupSecondaryButton.vue";
-let popupPinia = usePopupStore();
+import GenericButton from "../../Buttons/GenericButton.vue";
 
-const error = ref("");
+import {usePopupStore} from "../../../stores/popupStore";
+const popupPinia = usePopupStore();
+
 const authorise = ref(false);
 
 const classCode = computed(() => {
@@ -31,13 +31,11 @@ const authoriseModel = computed({
   }
 })
 
-function validateAndSubmit() {
-  !v$.value.$validate().then((result: boolean) => {
-    if (!result) {
-      return;
-    }
-    popupPinia.connect();
-  })
+async function validateAndSubmit() {
+  const result = await v$.value.$validate();
+  if (!result) { return; }
+
+  await popupPinia.connect();
 }
 </script>
 
@@ -66,8 +64,8 @@ function validateAndSubmit() {
       </div>
     </div>
 
-    <PopupSecondaryButton v-on:click="validateAndSubmit">Enter</PopupSecondaryButton>
-    <p class="text-red-400">{{ error }}</p>
+    <GenericButton :type="'secondary'" :callback="validateAndSubmit">Enter</GenericButton>
+    <p class="text-red-400">{{ popupPinia.error }}</p>
 
     <p class="mt-14 text-gray-separator cursor-pointer" v-on:click="popupPinia.changeView('loginTeacher')">Teacher Login</p>
   </form>

@@ -1,12 +1,11 @@
 <script setup lang="ts">
 import LoginTextInput from "./LoginTextInput.vue";
-import Spinner from "./Spinner.vue";
-import PopupSecondaryButton from "../../../components/Buttons/PopupSecondaryButton.vue";
 import { ref } from "vue";
 import { email as emailRule, required } from "@vuelidate/validators";
 import useVuelidate from "@vuelidate/core";
 
 import { usePopupStore } from "../../../stores/popupStore";
+import GenericButton from "../../Buttons/GenericButton.vue";
 const popupPinia = usePopupStore();
 
 const email = ref("")
@@ -19,14 +18,12 @@ const rules = {
 
 const v$ = useVuelidate(rules, { password, email })
 
-function validateAndSubmit() {
-  !v$.value.$validate().then((result) => {
-    if (!result) {
-      return;
-    }
-    popupPinia.handleLogin(email.value, password.value)
-    v$.value.$reset()
-  })
+async function validateAndSubmit() {
+  const result = await v$.value.$validate();
+  if (!result) { return; }
+
+  await popupPinia.handleLogin(email.value, password.value);
+  v$.value.$reset();
 }
 </script>
 
@@ -41,15 +38,7 @@ function validateAndSubmit() {
       <p class="text-red-400">{{ popupPinia.error }}</p>
     </div>
 
-    <!--Display a spinner while waiting for a response-->
-    <PopupSecondaryButton v-on:click="validateAndSubmit">
-      <p v-if="!popupPinia.loading">Sign in</p>
-
-      <Spinner
-        v-if="popupPinia.loading"
-        class="flex justify-center"
-      />
-    </PopupSecondaryButton>
+    <GenericButton :type="'secondary'" :callback="validateAndSubmit">Sign in</GenericButton>
 
     <p
         class="text-left mt-5 mb-14 text-gray-separator cursor-pointer underline underline-offset-1"

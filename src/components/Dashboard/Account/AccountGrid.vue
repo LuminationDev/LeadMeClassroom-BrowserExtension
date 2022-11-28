@@ -2,11 +2,11 @@
 import AccountGridItem from "./AccountGridItem.vue";
 import {required} from "@vuelidate/validators";
 import LoginTextInput from "../../Popup/Login/LoginTextInput.vue";
-import PopupSecondaryButton from "../../Buttons/PopupSecondaryButton.vue";
 import useVuelidate from "@vuelidate/core";
 import {ref} from "vue";
 
 import {useDashboardStore} from "../../../stores/dashboardStore";
+import GenericButton from "../../Buttons/GenericButton.vue";
 const dashboardPinia = useDashboardStore();
 
 const name = ref('');
@@ -16,14 +16,11 @@ const rules = {
 
 const v$ = useVuelidate(rules, { name })
 
-function validateAndSubmit() {
-  !v$.value.$validate().then((result) => {
-    if (!result) {
-      return;
-    }
+async function validateAndSubmit() {
+  const result = await v$.value.$validate();
+  if (!result) { return; }
 
-    dashboardPinia.changeDisplayName(name.value);
-  })
+  await dashboardPinia.changeDisplayName(name.value);
 }
 </script>
 
@@ -39,7 +36,7 @@ function validateAndSubmit() {
       <AccountGridItem :title="'Back'" v-on:click="dashboardPinia.changeAccountView('menu')"/>
 
       <LoginTextInput v-model="name" :v$="v$.name" class="mb-3" type="text" placeholder="Display Name"/>
-      <PopupSecondaryButton v-on:click="validateAndSubmit">Confirm</PopupSecondaryButton>
+      <GenericButton :type="'primary'" :callback="validateAndSubmit">Confirm</GenericButton>
     </div>
   </Transition>
 </template>

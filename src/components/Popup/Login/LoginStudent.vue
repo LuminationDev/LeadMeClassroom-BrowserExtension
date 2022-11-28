@@ -1,12 +1,12 @@
 <script setup lang="ts">
-import PopupSecondaryButton from "../../../components/Buttons/PopupSecondaryButton.vue";
 import LoginTextInput from "../../../components/Popup/Login/LoginTextInput.vue";
-
-import { usePopupStore } from "../../../stores/popupStore";
 import { computed } from "vue";
 import { required } from "@vuelidate/validators";
 import useVuelidate from "@vuelidate/core";
-let popupPinia = usePopupStore();
+import GenericButton from "../../Buttons/GenericButton.vue";
+
+import { usePopupStore } from "../../../stores/popupStore";
+const popupPinia = usePopupStore();
 
 const name = computed(() => {
   return popupPinia.follower.name
@@ -18,13 +18,11 @@ const rules = {
 
 const v$ = useVuelidate(rules, { name })
 
-function validateAndSubmit() {
-  !v$.value.$validate().then((result) => {
-    if (!result) {
-      return;
-    }
-    popupPinia.changeView('roomCode')
-  })
+async function validateAndSubmit() {
+  const result = await v$.value.$validate();
+  if (!result) { return; }
+
+  await popupPinia.changeView('roomCode');
 }
 </script>
 
@@ -35,7 +33,7 @@ function validateAndSubmit() {
       <p class="text-red-400">{{ popupPinia.error }}</p>
     </div>
 
-    <PopupSecondaryButton v-on:click="validateAndSubmit">Confirm</PopupSecondaryButton>
+    <GenericButton :type="'secondary'" :callback="validateAndSubmit">Confirm</GenericButton>
 
     <p class="mt-24 text-gray-separator cursor-pointer" v-on:click="popupPinia.changeView('loginTeacher')">Teacher Login</p>
   </form>
