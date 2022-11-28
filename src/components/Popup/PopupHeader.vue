@@ -17,17 +17,17 @@ function closePopup ()
 
       <span
           v-else
-          class="mr-6 h-14 pt-4 ml-6 text-base font-poppins cursor-pointer"
+          class="h-14 pt-6 pl-6 text-base font-poppins cursor-pointer"
           v-on:click="popupPinia.back"
       >
-        Back
+        <img src="/src/assets/img/popup-icon-back.svg" alt="back"/>
       </span>
     </Transition>
 
     <span
         class="mr-6 text-base cursor-pointer"
         v-on:click="closePopup">
-      <img src="/src/assets/img/onboarding/close.svg"/>
+      <img src="/src/assets/img/onboarding/close.svg" alt="close"/>
     </span>
   </div>
 </template>
