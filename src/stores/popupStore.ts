@@ -148,14 +148,16 @@ export let usePopupStore = defineStore("popup", {
          * with the supplied display name. This is attached to the authentication portion of firebase instead of creating
          * a new user field.
          */
-        handleSignup(email: string, password: string) {
+        async handleSignup(email: string, password: string) {
             if (getAuth().currentUser) {
                 this.createDashboard();
-            } else {
-                const auth = getAuth();
-                createUserWithEmailAndPassword(auth, email, password)
-                    .then((user) => {
-                        //Set the display name of the user
+                return;
+            }
+
+            const auth = getAuth();
+            await createUserWithEmailAndPassword(auth, email, password)
+                .then(() => {
+                    //Set the display name of the user
                         // @ts-ignore
                         updateProfile(auth.currentUser, { displayName: this.name })
                             .catch((err) => console.log(err));
@@ -164,22 +166,22 @@ export let usePopupStore = defineStore("popup", {
                         // Move to sign in
                         this.justCreatedAccount = true
                         this.changeView('loginTeacher');
-                    })
-                    .catch((error) => {
-                        const errorCode = error.code;
-                        console.log(errorCode);
+                })
+                .catch((error) => {
+                    const errorCode = error.code;
+                    console.log(errorCode);
 
-                        this.error = this.getUsefulErrorMessageFromFirebaseCode(error.code)
-                    });
-            }
+                    this.error = this.getUsefulErrorMessageFromFirebaseCode(error.code)
+                });
         },
 
         /**
          * Handle the logging in of a teacher through email and password or through an external auth provider
          * id.
          */
-        handleLogin(email: string, password: string) {
-            this.loading = true;
+        async handleLogin(email: string, password: string) {
+            //Create a temp variable to access within the callback options
+            const self = this;
 
             if (getAuth().currentUser) {
                 if (!getAuth().currentUser?.emailVerified) {
@@ -188,11 +190,12 @@ export let usePopupStore = defineStore("popup", {
                 } else {
                     this.createDashboard()
                 }
-            } else {
-                const auth = getAuth();
-                signInWithEmailAndPassword(auth, email, password)
+                return;
+            }
+
+            const auth = getAuth();
+                await signInWithEmailAndPassword(auth, email, password)
                     .then(() => {
-                        this.loading = false;
                         if (!auth.currentUser?.emailVerified) {
                             this.loading = false
                             this.changeView('verifyEmail')
@@ -201,10 +204,8 @@ export let usePopupStore = defineStore("popup", {
                         }
                     })
                     .catch((error) => {
-                        this.loading = false;
                         this.error = this.getUsefulErrorMessageFromFirebaseCode(error.code)
                     });
-            }
         },
 
         resendVerificationEmail() {
@@ -220,9 +221,9 @@ export let usePopupStore = defineStore("popup", {
         /**
          * Send the firebase password reset email off to the supplied user.
          */
-        handlePasswordReset(email: string) {
+        async handlePasswordReset(email: string) {
             const auth = getAuth();
-            sendPasswordResetEmail(auth, email)
+            await sendPasswordResetEmail(auth, email)
                 .then(() => {
                     // Password reset email sent!
                     // ..
@@ -287,65 +288,54 @@ export let usePopupStore = defineStore("popup", {
         /**
          * Begin the connection process for a student, ask for permissions to be granted at this stage.
          */
-        connect() {
-            chrome.permissions.request({
-                permissions: [
-                    "storage",
-                    "tabs",
-                    "scripting"
-                ]
-            }, (granted: boolean) => {
-                console.log(granted);
-
-                // The callback argument will be true if the user granted the permissions.
-                if (granted) {
-                    console.log("Permissions have been enabled");
-                    this.connectToClass();
-                } else {
-                    this.error = "Permissions have been denied.";
-                }
-            });
+        async connect() {
+            await new Promise((resolve, reject) => {
+                chrome.permissions.request({
+                    permissions: ["tabs", "scripting"]
+                }, (granted: boolean) => {
+                    granted ? this.connectToClass(resolve) : this.error = "Permissions have been denied.";
+                });
+            })
         },
 
         /**
          * Using the inputted code values check to see if there is a classroom matching these details and then
          * add the student to the class.
          */
-        async connectToClass() {
+        async connectToClass(resolver: any) {
             const userCode = this.classCode;
             const follower = this.follower;
 
             //Queries the currently open tab and sends a message to it
             localStorage.removeItem("firebase:previous_websocket_failure")
-            firebase.checkForClassroom(userCode).then((result?: any) => {
-                if (result) {
-                    setSyncStorage({
-                        "follower":
-                            {
-                                "code": userCode,
-                                "name": follower.name,
-                                "monitoring": false
-                            }
-                    }).then(result => console.log(result));
+            
+            const result = await firebase.checkForClassroom(userCode);
 
-                    chrome.windows.create({
-                        url: chrome.runtime.getURL("src/pages/assistant/assistant.html"),
-                        type: "popup",
-                        state: "minimized"
-                    }).then(result => {
-                        this.showSuccess = true
-                        console.log(result)
-                        setTimeout(() => {
-                            window.close()
-                        }, 2000)
-                    });
+            if (!result) {
+                this.error = "No Class found";
+                resolver();
+                return;
+            }
 
-                    //TODO Close the popup window or go to the student session?
-                    // window.close();
-                    // this.view = 'sessionStudent';
-                } else {
-                    this.error = "No Class found";
+            void await setSyncStorage({
+                "follower": {
+                    "code": userCode,
+                    "name": follower.name,
+                    "monitoring": false
                 }
+            });
+            resolver();
+
+            chrome.windows.create({
+                url: chrome.runtime.getURL("src/pages/assistant/assistant.html"),
+                type: "popup",
+                state: "minimized"
+            }).then(result => {
+                this.showSuccess = true
+                console.log(result)
+                setTimeout(() => {
+                    window.close()
+                }, 2000)
             });
         },
 

@@ -70,13 +70,16 @@ export let useDashboardStore = defineStore("dashboard", {
             localStorage.removeItem("firebase:previous_websocket_failure")
 
             console.log('generating')
-            this.classCode = this.leader.getClassCode()
+
             this.firebase.connectAsLeader(<Leader>this.leader, () => { this.attachClassListeners(false )});
             await this.clearTasks();
-            await setSyncStorage({"CurrentClass": this.classCode});
+            await setSyncStorage({"CurrentClass": this.leader.getClassCode()});
 
             // @ts-ignore
-            this.webRTCPinia.setConnectionDetails(this.sendIceCandidates, this.classCode, "leader");
+            this.webRTCPinia.setConnectionDetails(this.sendIceCandidates, this.leader.getClassCode(), "leader");
+
+            await new Promise(res => setTimeout(res, 200));
+            this.classCode = this.leader.getClassCode();
         },
 
         /**
@@ -134,10 +137,12 @@ export let useDashboardStore = defineStore("dashboard", {
             localStorage.removeItem("firebase:previous_websocket_failure")
             await this.firebase.requestAction(this.classCode, {type: REQUESTS.ENDSESSION});
             this.firebase.removeClass(this.classCode);
-            this.classCode = ""
             this.followers = [];
             await removeSyncStorage("CurrentClass");
             await this.clearTasks();
+
+            await new Promise(res => setTimeout(res, 200));
+            this.classCode = "";
         },
 
         /**
@@ -447,11 +452,9 @@ export let useDashboardStore = defineStore("dashboard", {
          * name as well.
          * @param name A string representing the new display name.
          */
-        changeDisplayName(name: string) {
-            void this.firebase.setDisplayName(name).then(() => {
-                console.log("Success");
-                this.leaderName = name;
-            });
+        async changeDisplayName(name: string) {
+            await this.firebase.setDisplayName(name);
+            this.leaderName = name;
         }
     },
 

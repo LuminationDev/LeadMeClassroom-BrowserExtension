@@ -1,15 +1,26 @@
 <script setup lang="ts">
-import PopupPrimaryButton from "../../../components/Buttons/PopupPrimaryButton.vue";
-import PopupSecondaryButton from "../../../components/Buttons/PopupSecondaryButton.vue";
-
 import { usePopupStore } from "../../../stores/popupStore";
-let popupPinia = usePopupStore();
+import GenericButton from "../../Buttons/GenericButton.vue";
+const popupPinia = usePopupStore();
+
+function changeToTeacher() {
+  popupPinia.changeView('loginTeacher')
+}
+
+function changeToStudent() {
+  popupPinia.changeView('loginStudent')
+}
+
+function changeToSignup() {
+  popupPinia.changeView('signup')
+}
+
 </script>
 
 <template>
   <div class="mt-9 pb-16">
-    <PopupPrimaryButton v-on:click="popupPinia.changeView('loginTeacher')">Teacher</PopupPrimaryButton>
-    <PopupPrimaryButton v-on:click="popupPinia.changeView('loginStudent')">Student</PopupPrimaryButton>
+    <GenericButton :type="'primary'" :callback="changeToTeacher">Teacher</GenericButton>
+    <GenericButton :type="'primary'" :callback="changeToStudent">Student</GenericButton>
 
     <div class="relative mb-3">
       <div class="absolute inset-0 flex items-center">
@@ -20,11 +31,9 @@ let popupPinia = usePopupStore();
       </div>
     </div>
 
-    <PopupSecondaryButton
-        class="text-blue-500 bg-white border border-blue-500 border-2"
-        v-on:click="popupPinia.changeView('signup')"
-    >
-      Sign up
-    </PopupSecondaryButton>
+    <GenericButton class="text-blue-500 bg-white border border-blue-500 border-2"
+                   :type="'secondary'"
+                   :callback="changeToSignup"
+    >Sign up</GenericButton>
   </div>
 </template>
