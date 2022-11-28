@@ -25,6 +25,10 @@ async function validateAndSubmit() {
 
   await dashboardPinia.changeDisplayName(name.value);
 }
+
+async function changeMarketing() {
+  await dashboardPinia.changeMarketingPreference(dashboardPinia.marketing === null);
+}
 </script>
 
 <template>
@@ -32,6 +36,7 @@ async function validateAndSubmit() {
     <div v-if="dashboardPinia.accountView === 'menu'">
       <AccountGridItem :title="'Reset password'"/>
       <AccountGridItem :title="'Change name'" v-on:click="dashboardPinia.changeAccountView('changeName')"/>
+      <AccountGridItem :title="'Marketing preference'" v-on:click="dashboardPinia.changeAccountView('changeMarketing')"/>
     </div>
 
     <div v-else-if="dashboardPinia.accountView === 'changeName'">
@@ -39,6 +44,13 @@ async function validateAndSubmit() {
 
       <LoginTextInput v-model="name" :v$="v$.name" class="mb-3" type="text" placeholder="Display Name"/>
       <GenericButton :type="'primary'" :callback="validateAndSubmit">Confirm</GenericButton>
+    </div>
+
+    <div v-else-if="dashboardPinia.accountView === 'changeMarketing'">
+      <AccountGridItem :title="'Back'" v-on:click="dashboardPinia.changeAccountView('menu')"/>
+
+      <p class="text-base mb-3">{{dashboardPinia.marketing ? "Enabled" : "Disabled"}}</p>
+      <GenericButton :type="'primary'" :callback="changeMarketing">Change</GenericButton>
     </div>
   </Transition>
 </template>

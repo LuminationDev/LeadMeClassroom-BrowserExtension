@@ -1,14 +1,18 @@
-import { defineStore } from "pinia";
-import { useStorage } from "../hooks/useStorage";
-const { getSyncStorage, setSyncStorage, removeSyncStorage, removeLocalStorage } = useStorage();
+import {defineStore} from "pinia";
+import {useStorage} from "../hooks/useStorage";
 import * as REQUESTS from "../constants/_requests.js";
-import { Firebase } from '../controller';
-import { Follower, Tab, Leader } from '../models';
+import {Firebase} from '../controller';
+import {Follower, Leader, Tab} from '../models';
+import {useWebRTCStore} from "./webRTCStore";
+
+interface userDetails {
+    name: string,
+    marketing: string
+}
 
 const firebase = new Firebase();
-const leaderName = <string>await firebase.getDisplayName();
-
-import { useWebRTCStore } from "./webRTCStore";
+const leaderDetails = <userDetails>await firebase.getDisplayDetails();
+const { getSyncStorage, setSyncStorage, removeSyncStorage } = useStorage();
 
 /**
  * When the dashboard is first loaded or if the page is refreshed check to see if there was
@@ -37,10 +41,11 @@ export let useDashboardStore = defineStore("dashboard", {
             accountView: "menu",
             firebase: firebase,
             classCode: activeCode,
-            leaderName: leaderName,
+            leaderName: leaderDetails.name,
+            marketing: <string|null>leaderDetails.marketing,
             followers: <Follower[]>([]),
             webLink: "",
-            leader: new Leader(leaderName),
+            leader: new Leader(leaderDetails.name),
             webRTCPinia: useWebRTCStore(),
             tasks: <String[]>([])
         }
@@ -457,6 +462,10 @@ export let useDashboardStore = defineStore("dashboard", {
         async changeDisplayName(name: string) {
             await this.firebase.setDisplayName(name);
             this.leaderName = name;
+        },
+
+        async changeMarketingPreference(preference: boolean) {
+            this.marketing = <string|null>await this.firebase.setMarketingPreference(preference);
         }
     },
 

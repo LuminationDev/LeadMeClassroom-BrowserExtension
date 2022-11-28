@@ -147,7 +147,7 @@ export let usePopupStore = defineStore("popup", {
          * with the supplied display name. This is attached to the authentication portion of firebase instead of creating
          * a new user field.
          */
-        async handleSignup(email: string, password: string) {
+        async handleSignup(email: string, password: string, marketing: boolean) {
             if (getAuth().currentUser) {
                 this.createDashboard();
                 return;
@@ -157,7 +157,7 @@ export let usePopupStore = defineStore("popup", {
             await createUserWithEmailAndPassword(auth, email, password)
                 .then((user) => {
                     //Set the display name of the user
-                    updateProfile(auth.currentUser!, { displayName: this.name })
+                    updateProfile(auth.currentUser!, { displayName: this.name, photoURL: marketing ? Date.now().toString() : null })
                         .catch((err) => console.log(err));
                     sendEmailVerification(user.user)
                         .catch((err) => console.log(err));

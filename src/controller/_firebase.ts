@@ -45,12 +45,17 @@ class Firebase {
     }
 
     /**
-     * Get the display name of the currently active user.
-     * @returns {string} A string representing a display name.
+     * Get the display name and photoURL (used as marketing preference) of the currently active user.
+     * @returns {object} An object representing a users details.
      */
-    getDisplayName = async () => {
+    getDisplayDetails = async () => {
         await setPersistence(getAuth(), browserLocalPersistence);
-        return getAuth().currentUser?.displayName;
+
+        const currentUser = getAuth().currentUser;
+        return {
+            name: currentUser?.displayName,
+            marketing: currentUser?.photoURL,
+        };
     }
 
     /**
@@ -59,6 +64,15 @@ class Firebase {
      */
     setDisplayName = async (name: string) => {
         await updateProfile(getAuth().currentUser!, {displayName: name})
+    }
+
+    /**
+     * Update the marketing preference of the currently active user.
+     * @param preference
+     */
+    setMarketingPreference = async (preference: boolean) => {
+        await updateProfile(getAuth().currentUser!, { photoURL: preference ? Date.now().toString() : null })
+        return preference ? Date.now().toString() : null;
     }
 
     /**
@@ -388,7 +402,7 @@ class Firebase {
         const followerRef = ref(this.db, `followers/${classCode}/${followerId}/screenshot`);
 
         uploadString(screenshotRef, base64, 'data_url', {contentType:`image/jpg`})
-            .then(snapshot => {
+            .then(() => {
                 set(followerRef, new Date().toJSON()).then(() => { console.log('screenshot updated') })
             });
     }
