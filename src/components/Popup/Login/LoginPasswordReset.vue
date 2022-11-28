@@ -39,7 +39,7 @@ async function resendEmail() {
 <template>
   <form v-if="popupPinia.view === 'forgot'"
         class="pb-5 flex flex-col items-center"
-        @submit.prevent="validateAndSubmit">
+        @submit.prevent>
     <p class="mt-2 mb-9 w-56">Enter the email address associated with your account.</p>
 
     <div class="mb-4">
