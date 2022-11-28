@@ -40,8 +40,12 @@ const props = defineProps({
  * Compute the first three tabs of a follower, ordering by the lastActivated field. Check if the active tab is within
  * the current tasks.
  */
-const firstThreeTabs = computed(() => {
+const firstThreeTabs = computed((): Array<Tab> => {
   if(!props.follower.tabs) {
+    return [];
+  }
+
+  if(props.follower.tabs.length === 0) {
     return [];
   }
 
@@ -106,11 +110,41 @@ const revertInput = () => {
 
   <!--Tab screen-->
   <div v-else-if="screenType === 'tabs'">
-    <div v-for="(tab, index) in firstThreeTabs" class="py-1" :id="index">
+    <!--The assistant page is present but not counted-->
+    <div v-if="firstThreeTabs.length === 0" class="py-1">
       <div class="flex flex-row px-2 items-center">
-        <img class="flex-shrink-0 w-4 h-4 mr-2" :src="tab.favicon"  alt=""/>
-        <span class="overflow-ellipsis whitespace-nowrap overflow-hidden">{{ tab.url.replace("https://", "") }}</span>
+        <img class="flex-shrink-0 w-4 h-4 mr-2" src="@/assets/img/icon-128.png"  alt=""/>
+        <span class="overflow-ellipsis whitespace-nowrap overflow-hidden">No open tabs...</span>
       </div>
     </div>
+
+    <transition-group v-else name="list" tag="div">
+      <div v-for="(tab, index) in firstThreeTabs" v-bind:key="tab" class="py-1" :id="index">
+        <div class="flex flex-row px-2 items-center">
+          <img class="flex-shrink-0 w-4 h-4 mr-2" :src="tab.favicon"  alt=""/>
+          <span class="overflow-ellipsis whitespace-nowrap overflow-hidden">{{ tab.url.replace("https://", "") }}</span>
+        </div>
+      </div>
+    </transition-group>
   </div>
 </template>
+
+<style>
+.list-move, /* apply transition to moving elements */
+.list-enter-active,
+.list-leave-active {
+  transition: all 0.5s ease;
+}
+
+.list-enter-from,
+.list-leave-to {
+  transition: 0s;
+  transform: translateY(30px);
+}
+
+/* ensure leaving items are taken out of layout flow so that moving
+   animations can be calculated correctly. */
+.list-leave-active {
+  position: absolute;
+}
+</style>

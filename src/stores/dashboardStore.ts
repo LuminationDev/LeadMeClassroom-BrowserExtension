@@ -217,6 +217,8 @@ export let useDashboardStore = defineStore("dashboard", {
         followerTabsAdded(response: any, followerId: string) {
             let tabs: Array<Tab> = []
             Object.values(response).forEach((tab: any) => {
+                if(tab.name === undefined && tab.id === undefined) { return; }
+
                 console.log("adding a tab", JSON.stringify(tab))
                 let newTab = new Tab(tab.id, tab.index, tab.windowId, tab.name, tab.favicon, tab.url, tab.lastActivated)
                 newTab.audible = tab.audible ?? false
