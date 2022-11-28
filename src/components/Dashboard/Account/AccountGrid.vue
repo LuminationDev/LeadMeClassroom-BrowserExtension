@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import AccountGridItem from "./AccountGridItem.vue";
-import {required} from "@vuelidate/validators";
+import {required, helpers} from "@vuelidate/validators";
 import LoginTextInput from "../../Popup/Login/LoginTextInput.vue";
 import useVuelidate from "@vuelidate/core";
 import {ref} from "vue";
@@ -11,7 +11,10 @@ const dashboardPinia = useDashboardStore();
 
 const name = ref('');
 const rules = {
-  name: { required, $autoDirty: true }
+  name: {
+    required: helpers.withMessage("Name is required", required),
+    $autoDirty: true
+  }
 }
 
 const v$ = useVuelidate(rules, { name })

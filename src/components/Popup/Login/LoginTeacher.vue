@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import LoginTextInput from "./LoginTextInput.vue";
 import { ref } from "vue";
-import { email as emailRule, required } from "@vuelidate/validators";
+import {email as emailRule, helpers, required} from "@vuelidate/validators";
 import useVuelidate from "@vuelidate/core";
 
 import { usePopupStore } from "../../../stores/popupStore";
@@ -14,8 +14,15 @@ const email = ref("")
 const password = ref("")
 
 const rules = {
-  password: { required },
-  email: { required, emailRule, $lazy: true, $autoDirty: false }
+  password: {
+    required: helpers.withMessage("Password is required", required)
+  },
+  email: {
+    required: helpers.withMessage("Email is required", required),
+    emailRule: helpers.withMessage("Email must be a valid email address", emailRule),
+    $lazy: true,
+    $autoDirty: false
+  }
 }
 
 const v$ = useVuelidate(rules, { password, email })

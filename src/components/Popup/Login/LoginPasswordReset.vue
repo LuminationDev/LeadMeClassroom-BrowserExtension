@@ -3,7 +3,7 @@ import LoginTextInput from "../../../components/Popup/Login/LoginTextInput.vue";
 import LoginEmail from "./LoginEmail.vue";
 import { ref } from "vue";
 import useVuelidate from "@vuelidate/core";
-import { required, email as emailRule } from "@vuelidate/validators";
+import {required, email as emailRule, helpers} from "@vuelidate/validators";
 
 import { usePopupStore } from "../../../stores/popupStore";
 import GenericButton from "../../Buttons/GenericButton.vue";
@@ -12,7 +12,12 @@ const popupPinia = usePopupStore();
 const email = ref("")
 
 const rules = {
-  email: { required, emailRule, $lazy: true, $autoDirty: true }
+  email: {
+    required: helpers.withMessage("Email is required", required),
+    emailRule: helpers.withMessage("Email must be a valid email address", emailRule),
+    $lazy: true,
+    $autoDirty: false
+  }
 }
 
 const v$ = useVuelidate(rules, { email })
