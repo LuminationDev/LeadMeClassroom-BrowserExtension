@@ -1,7 +1,7 @@
 //Store example using pinia
 import {defineStore} from "pinia";
 import { useStorage } from "../hooks/useStorage";
-const { getSyncStorage, setSyncStorage, removeSyncStorage, removeLocalStorage } = useStorage();
+const { getSyncStorage, setSyncStorage, removeSyncStorage } = useStorage();
 import {
     createUserWithEmailAndPassword,
     sendEmailVerification,
@@ -35,7 +35,6 @@ export let usePopupStore = defineStore("popup", {
             classCode: "",
             error: "",
             name: "",
-            loading: false,
             previousViews: <string[]>([]),
             justCreatedAccount: false,
             showSuccess: false
@@ -179,12 +178,8 @@ export let usePopupStore = defineStore("popup", {
          * id.
          */
         async handleLogin(email: string, password: string) {
-            //Create a temp variable to access within the callback options
-            const self = this;
-
             if (getAuth().currentUser) {
                 if (!getAuth().currentUser?.emailVerified) {
-                    this.loading = false
                     this.changeView('verifyEmail')
                 } else {
                     this.createDashboard()
@@ -196,7 +191,6 @@ export let usePopupStore = defineStore("popup", {
                 await signInWithEmailAndPassword(auth, email, password)
                     .then(() => {
                         if (!auth.currentUser?.emailVerified) {
-                            this.loading = false
                             this.changeView('verifyEmail')
                         } else {
                             this.createDashboard()
@@ -337,13 +331,6 @@ export let usePopupStore = defineStore("popup", {
                     window.close()
                 }, 2000)
             });
-        },
-
-        /**
-         * Maximise the assistant page for a student.
-         */
-        handleAssistantClick() {
-            chrome.runtime.sendMessage({"type": "maximize"}).then(result => console.log(result));
         },
 
         /**
