@@ -110,44 +110,46 @@ function closeModal() {
 
         <!--Tab list-->
         <div class="w-modal-width-sm h-96 flex flex-col overflow-y-auto">
-          <div v-for="(tab, index) in follower.tabs" class="py-1" :id="tab.id">
+          <transition-group name="list-complete" tag="div">
+            <div v-for="(tab, index) in follower.tabs" v-bind:key="tab" class="py-1" :id="tab.id">
 
-            <!--Individual tabs-->
-            <div class="flex flex-row w-full px-5 items-center justify-between">
-              <div :class="{
-                  'w-full h-9 px-5 flex flex-row items-center overflow-ellipsis whitespace-nowrap': true,
-                  'overflow-hidden rounded-lg cursor-pointer': true,
-                  'hover:bg-opacity-50 hover:bg-gray-300': selectedTab.id !== tab.id,
-                  'bg-white': selectedTab.id === tab.id,
-                  }"
-                  @click="selectedTabId = tab.id"
-              >
-                <img class="flex-shrink-0 w-5 h-5 mr-2 cursor-pointer" :src="tab.favicon" alt=""/>
-                <span class="flex-shrink overflow-ellipsis whitespace-nowrap overflow-hidden pr-10 mt-0.5">{{ tab.getTabUrlWithoutHttp() }}</span>
+              <!--Individual tabs-->
+              <div class="flex flex-row w-full px-5 items-center justify-between">
+                <div :class="{
+                    'w-full h-9 px-5 flex flex-row items-center overflow-ellipsis whitespace-nowrap': true,
+                    'overflow-hidden rounded-lg cursor-pointer': true,
+                    'hover:bg-opacity-50 hover:bg-gray-300': selectedTab.id !== tab.id,
+                    'bg-white': selectedTab.id === tab.id,
+                    }"
+                    @click="selectedTabId = tab.id"
+                >
+                  <img class="flex-shrink-0 w-5 h-5 mr-2 cursor-pointer" :src="tab.favicon" alt=""/>
+                  <span class="flex-shrink overflow-ellipsis whitespace-nowrap overflow-hidden pr-10 mt-0.5">{{ tab.getTabUrlWithoutHttp() }}</span>
 
-                <!--Audible icons-->
-                <div class="flex flex-shrink-0 flex-[1_1_auto] justify-end">
-                  <div class="h-4 mr-4 flex flex-row justify-center">
-                    <Transition
-                        enter-from-class="opacity-0 scale-110"
-                        enter-to-class="opacity-100 scale-100"
-                        enter-active-class="transition duration-300"
-                        leave-active-class="transition duration-200"
-                        leave-from-class="opacity-100 scale-100"
-                        leave-to-class="opacity-0 scale-110"
-                    >
-                      <div v-if="tab.audible">
-                        <div v-if="tab.muting" class="lds-dual-ring" />
-                        <img v-else-if="tab.muted" src="@/assets/img/studentDetails/student-icon-sound-disabled.svg"  alt=""/>
-                        <img v-else src="@/assets/img/studentDetails/student-icon-sound.svg"  alt=""/>
-                      </div>
-                    </Transition>
+                  <!--Audible icons-->
+                  <div class="flex flex-shrink-0 flex-[1_1_auto] justify-end">
+                    <div class="h-4 mr-4 flex flex-row justify-center">
+                      <Transition
+                          enter-from-class="opacity-0 scale-110"
+                          enter-to-class="opacity-100 scale-100"
+                          enter-active-class="transition duration-300"
+                          leave-active-class="transition duration-200"
+                          leave-from-class="opacity-100 scale-100"
+                          leave-to-class="opacity-0 scale-110"
+                      >
+                        <div v-if="tab.audible">
+                          <div v-if="tab.muting" class="lds-dual-ring" />
+                          <img v-else-if="tab.muted" src="@/assets/img/studentDetails/student-icon-sound-disabled.svg"  alt=""/>
+                          <img v-else src="@/assets/img/studentDetails/student-icon-sound.svg"  alt=""/>
+                        </div>
+                      </Transition>
+                    </div>
                   </div>
                 </div>
               </div>
             </div>
+          </transition-group>
 
-          </div>
         </div>
       </template>
 
@@ -199,5 +201,23 @@ function closeModal() {
   100% {
     transform: rotate(360deg);
   }
+}
+
+.list-complete-move, /* apply transition to moving elements */
+.list-complete-enter-active,
+.list-complete-leave-active {
+  transition: all 0.7s ease;
+}
+
+.list-complete-enter-from,
+.list-complete-leave-to {
+  transition: 0s;
+  transform: translateY(100px);
+}
+
+/* ensure leaving items are taken out of layout flow so that moving
+   animations can be calculated correctly. */
+.list-complete-leave-active {
+  position: absolute;
 }
 </style>
