@@ -1,20 +1,17 @@
 <script setup lang="ts">
 import LoginTextInput from "./LoginTextInput.vue";
 import { ref, computed } from "vue";
-
-import { usePopupStore } from "../../../stores/popupStore";
 import useVuelidate from "@vuelidate/core";
 import { required, email as emailRule, sameAs, helpers, minLength } from "@vuelidate/validators";
-
 import GenericButton from "../../Buttons/GenericButton.vue";
 import LoginEmail from "./LoginEmail.vue";
-
-
-let popupPinia = usePopupStore();
+import { usePopupStore } from "../../../stores/popupStore";
+const popupPinia = usePopupStore();
 
 const error = ref("");
 const password = ref("");
 const email = ref("");
+const marketing = ref(false);
 const terms = ref(false);
 
 const name = computed(() => {
@@ -61,7 +58,7 @@ async function validateInputs() {
   const result = await v$.value.$validate();
   if (!result) { return; }
 
-  await popupPinia.handleSignup(email.value, password.value);
+  await popupPinia.handleSignup(email.value, password.value, marketing.value);
 
   email.value = ''
   password.value = ''
@@ -93,7 +90,7 @@ async function validateInputs() {
     </div>
 
     <label class="inline-flex items-center mb-4">
-      <input class="w-4 h-4" type="checkbox"/>
+      <input class="w-4 h-4" type="checkbox" v-model="marketing"/>
       <p class="w-56 ml-4 text-xsm text-left text-gray-popup-text">I want to receive emails about product updates, new features and offerings from LeadMe!</p>
     </label>
 
