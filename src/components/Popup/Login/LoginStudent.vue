@@ -4,7 +4,7 @@ import LoginTextInput from "../../../components/Popup/Login/LoginTextInput.vue";
 
 import { usePopupStore } from "../../../stores/popupStore";
 import { computed } from "vue";
-import { required } from "@vuelidate/validators";
+import {helpers, required} from "@vuelidate/validators";
 import useVuelidate from "@vuelidate/core";
 let popupPinia = usePopupStore();
 
@@ -13,7 +13,10 @@ const name = computed(() => {
 })
 
 const rules = {
-  name: { required, $autoDirty: true }
+  name: {
+    required: helpers.withMessage("Name is required", required),
+    $autoDirty: true
+  }
 }
 
 const v$ = useVuelidate(rules, { name })

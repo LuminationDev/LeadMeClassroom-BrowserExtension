@@ -21,16 +21,26 @@ const name = computed(() => {
 
 const rules = {
   password: {
-    required,
-    minLength: minLength(8),
-    specialCharacters: helpers.withMessage("The password must have a special character", helpers.regex(/^(?=.*[*.!@$%^&(){}\[\]:;<>,.?\/~_\+\-=|]).*$/)),
-    lowerCase: helpers.withMessage("The password must have a lowercase letter", helpers.regex(/^(?=.*[a-z]).*$/)),
-    upperCase: helpers.withMessage("The password must have an uppercase letter", helpers.regex(/^(?=.*[A-Z]).*$/)),
-    numbers: helpers.withMessage("The password must have at least one number", helpers.regex(/^(?=.*[0-9]).*$/))
+    required: helpers.withMessage("Password is required", required),
+    minLength: helpers.withMessage("Password mus be at least 8 characters", minLength(8)),
+    specialCharacters: helpers.withMessage("Password must have a special character", helpers.regex(/^(?=.*[*.!@$%^&(){}\[\]:;<>,.?\/~_\+\-=|]).*$/)),
+    lowerCase: helpers.withMessage("Password must have a lowercase letter", helpers.regex(/^(?=.*[a-z]).*$/)),
+    upperCase: helpers.withMessage("Password must have an uppercase letter", helpers.regex(/^(?=.*[A-Z]).*$/)),
+    numbers: helpers.withMessage("Password must have at least one number", helpers.regex(/^(?=.*[0-9]).*$/))
   },
-  email: { required, emailRule, $lazy: true },
-  name: { required, $autoDirty: true },
-  terms: { required, sameAs: helpers.withMessage("You must accept the terms and conditions", sameAs(true)) }
+  email: {
+    required: helpers.withMessage("Email is required", required),
+    emailRule: helpers.withMessage("Email must be a valid email address", emailRule),
+    $lazy: true
+  },
+  name: {
+    required: helpers.withMessage("Name is required", required),
+    $autoDirty: true
+  },
+  terms: {
+    required: helpers.withMessage("You must accept the terms and conditions", required),
+    sameAs: helpers.withMessage("You must accept the terms and conditions", sameAs(true))
+  }
 }
 
 const v$ = useVuelidate(rules, { password, email, name, terms })
@@ -67,16 +77,16 @@ function validateInputs() {
       <p class="text-red-400">{{ error }}</p>
     </div>
 
-    <div class="mb-4">
+    <div class="mb-4 flex items-start flex-col">
       <label class="inline-flex items-center">
         <input class="w-4 h-4" type="checkbox" v-model="termsModel"/>
         <p :class="{
-        'w-56 ml-4 text-xsm text-left': true,
-        'text-gray-popup-text': terms,
-        'text-red-800': !terms && v$.terms.$dirty
-      }">By signing up, I agree to LeadMe's <span class="underline  underline-offset-1">Terms and Conditions</span></p>
+          'w-56 ml-4 text-xsm text-left': true,
+          'text-gray-popup-text': terms,
+          'text-red-800': !terms && v$.terms.$dirty
+        }">By signing up, I agree to LeadMe's <span class="underline underline-offset-1">Terms and Conditions</span></p>
       </label>
-      <div v-if="v$.terms && v$.terms.$error">
+      <div class="ml-8 mt-1" v-if="v$.terms && v$.terms.$error">
         <span class="text-red-800" v-for="error in v$.terms.$errors">{{ error.$message }}</span>
       </div>
     </div>

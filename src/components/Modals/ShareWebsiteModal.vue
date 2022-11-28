@@ -2,7 +2,7 @@
 import {Ref, ref} from "vue";
 import {useDashboardStore} from "../../stores/dashboardStore";
 import useVuelidate from "@vuelidate/core";
-import {required} from "@vuelidate/validators";
+import {helpers, required} from "@vuelidate/validators";
 import StudentGridItem from "../Dashboard/ClassControl/GridItem/StudentGridItem.vue";
 import Modal from "./Modal.vue";
 
@@ -13,7 +13,9 @@ const shareTo = ref("all")
 const followersSelected: Ref<string[]> = ref([])
 
 const rules = {
-  websiteLink: { required }
+  websiteLink: {
+    required: helpers.withMessage("Website link is required", required)
+  }
 }
 
 const v$ = useVuelidate(rules, { websiteLink })

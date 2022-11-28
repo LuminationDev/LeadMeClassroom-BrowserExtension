@@ -16,8 +16,15 @@ const classCode = computed(() => {
 })
 
 const rules = {
-  classCode: { required, $autoDirty: true },
-  authorise: { required, sameAs: helpers.withMessage("You must accept the permissions", sameAs(true)), $autoDirty: true }
+  classCode: {
+    required: helpers.withMessage("Class code is required", required),
+    $autoDirty: true
+  },
+  authorise: {
+    required: helpers.withMessage("Email is required", required),
+    sameAs: helpers.withMessage("You must accept the permissions", sameAs(true)),
+    $autoDirty: true
+  }
 }
 
 const v$ = useVuelidate(rules, { classCode, authorise })
@@ -72,12 +79,16 @@ onMounted(() => {
       </div>
     </div>
 
-    <div class="mb-4">
+    <div class="mb-4 flex items-start flex-col">
       <label class="inline-flex items-center">
         <input class="w-4 h-4" v-model="authoriseModel" type="checkbox"/>
-        <p class="w-56 ml-4 text-xsm text-left text-gray-popup-text">I authorise the <span @click.prevent="popupPinia.changeView('permissions')" class="underline underline-offset-1 cursor-pointer">permissions</span> necessary for LeadMe Classroom to function</p>
+        <p :class="{
+          'w-56 ml-4 text-xsm text-left': true,
+          'text-gray-popup-text': authorise,
+          'text-red-800': !authorise && v$.authorise.$dirty
+        }">I authorise the <span @click.prevent="popupPinia.changeView('permissions')" class="underline underline-offset-1 cursor-pointer">permissions</span> necessary for LeadMe Classroom to function</p>
       </label>
-      <div v-if="v$.authorise && v$.authorise.$error">
+      <div class="ml-8 mt-1" v-if="v$.authorise && v$.authorise.$error">
         <span class="text-red-800" v-for="error in v$.authorise.$errors">{{ error.$message }}</span>
       </div>
     </div>
