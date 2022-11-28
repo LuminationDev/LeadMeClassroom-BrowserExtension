@@ -85,7 +85,7 @@ async function validateInputs() {
           'w-56 ml-4 text-xsm text-left': true,
           'text-gray-popup-text': terms,
           'text-red-800': !terms && v$.terms.$dirty
-        }">By signing up, I agree to LeadMe's <span class="underline underline-offset-1">Terms and Conditions</span></p>
+        }">By signing up, I agree to LeadMe's <a target="_blank" href="https://leadmeprivacypolicies.herokuapp.com/policies/classroom" class="underline underline-offset-1">Terms and Conditions</a></p>
       </label>
       <div class="ml-8 mt-1" v-if="v$.terms && v$.terms.$error">
         <span class="text-red-800" v-for="error in v$.terms.$errors">{{ error.$message }}</span>
