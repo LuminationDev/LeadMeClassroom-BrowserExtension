@@ -9,7 +9,7 @@ async function submit() {
 </script>
 
 <template>
-  <form @submit.prevent="submit" class="mt-6 pb-5">
+  <form @submit.prevent class="mt-6 pb-5">
     <div class="mb-2">
       Your email has not been verified. Please verify it to continue
     </div>

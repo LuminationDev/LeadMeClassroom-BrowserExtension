@@ -156,16 +156,16 @@ export let usePopupStore = defineStore("popup", {
 
             const auth = getAuth();
             await createUserWithEmailAndPassword(auth, email, password)
-                .then(() => {
+                .then((user) => {
                     //Set the display name of the user
-                        // @ts-ignore
-                        updateProfile(auth.currentUser, { displayName: this.name })
-                            .catch((err) => console.log(err));
-                        sendEmailVerification(user.user)
-                            .catch((err) => console.log(err));
-                        // Move to sign in
-                        this.justCreatedAccount = true
-                        this.changeView('loginTeacher');
+                    // @ts-ignore
+                    updateProfile(auth.currentUser, { displayName: this.name })
+                        .catch((err) => console.log(err));
+                    sendEmailVerification(user.user)
+                        .catch((err) => console.log(err));
+                    // Move to sign in
+                    this.justCreatedAccount = true
+                    this.changeView('loginTeacher');
                 })
                 .catch((error) => {
                     const errorCode = error.code;

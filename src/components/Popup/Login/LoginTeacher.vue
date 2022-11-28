@@ -37,8 +37,8 @@ async function validateAndSubmit() {
 </script>
 
 <template>
-  <form @submit.prevent="validateAndSubmit" class="mt-6 pb-5">
-    <div v-if="popupPinia.justCreatedAccount">Thanks for signing up, please verify your email and login to get started</div>
+  <form @submit.prevent class="mt-6 pb-5">
+    <div class="mb-3" v-if="popupPinia.justCreatedAccount">Thanks for signing up, please verify your email and login to get started</div>
     <div class="mb-2">
       <LoginEmail v-model="email" :v$="v$.email" placeholder="Email" />
     </div>

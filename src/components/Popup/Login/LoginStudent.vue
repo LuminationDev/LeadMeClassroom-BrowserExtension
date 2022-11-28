@@ -30,7 +30,7 @@ async function validateAndSubmit() {
 </script>
 
 <template>
-  <form class="mt-9 pb-7" @submit.prevent="validateAndSubmit">
+  <form class="mt-9 pb-7" @submit.prevent>
     <div class="mb-4">
       <LoginTextInput v-model="popupPinia.follower.name" :v$="v$.name" class="text-center" type="text" placeholder="Student Name"/>
       <p class="text-red-400">{{ popupPinia.error }}</p>

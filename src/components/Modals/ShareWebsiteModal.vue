@@ -123,9 +123,12 @@ function closeModal() {
           </div>
         </div>
         <div class="w-modal-width max-h-64 overflow-y-auto">
-          <div v-if="shareTo === 'selected'"
+          <div v-if="shareTo === 'selected' && dashboardPinia.followers.length"
                class="mt-4 flex flex-row flex-wrap ml-10 mr-14">
             <StudentGridItem v-for="follower in dashboardPinia.followers" class="pl-4 pt-4 w-1/2 md:w-1/3 lg:w-1/4 xl:w-1/6" :follower="follower" :controls="false" @update="(value: boolean) => { handleFollowerSelection(follower.getUniqueId(), value) }"/>
+          </div>
+          <div class="flex justify-center items-center bg-gray-200 mx-14 mt-4 px-5 py-5" v-else-if="shareTo === 'selected'">
+            <span>No students connected</span>
           </div>
         </div>
       </template>
