@@ -208,14 +208,15 @@ export let usePopupStore = defineStore("popup", {
                     });
         },
 
-        resendVerificationEmail() {
+        async resendVerificationEmail() {
             const auth = getAuth()
-            if (auth.currentUser) {
-                this.loading = true
-                sendEmailVerification(auth.currentUser)
-                    .then(() => {this.loading = false})
-                    .catch(() => {this.loading = false})
+            if (!auth.currentUser) {
+                return;
             }
+
+            await sendEmailVerification(auth.currentUser)
+                .then()
+                .catch((err) => console.log(err));
         },
 
         /**

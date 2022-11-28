@@ -1,12 +1,10 @@
 <script setup lang="ts">
-import Spinner from "./Spinner.vue";
-import PopupSecondaryButton from "../../../components/Buttons/PopupSecondaryButton.vue";
-
 import { usePopupStore } from "../../../stores/popupStore";
+import GenericButton from "../../Buttons/GenericButton.vue";
 const popupPinia = usePopupStore();
 
-function submit() {
-  popupPinia.resendVerificationEmail()
+async function submit() {
+  await popupPinia.resendVerificationEmail()
 }
 </script>
 
@@ -17,14 +15,6 @@ function submit() {
     </div>
 
     <!--Display a spinner while waiting for a response-->
-    <PopupSecondaryButton v-on:click="submit">
-      <p v-if="!popupPinia.loading">Resend Email</p>
-
-      <Spinner
-          v-if="popupPinia.loading"
-          class="flex justify-center"
-      />
-
-    </PopupSecondaryButton>
+    <GenericButton :type="'secondary'" :callback="submit">Resend Email</GenericButton>
   </form>
 </template>
