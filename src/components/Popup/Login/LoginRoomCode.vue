@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import VOtpInput from 'vue3-otp-input'
-import {computed, ref} from "vue";
+import {computed, ref, onMounted} from "vue";
 import useVuelidate from "@vuelidate/core";
 import { required, sameAs, helpers } from "@vuelidate/validators";
 import GenericButton from "../../Buttons/GenericButton.vue";
@@ -9,6 +9,7 @@ import {usePopupStore} from "../../../stores/popupStore";
 const popupPinia = usePopupStore();
 
 const authorise = ref(false);
+const otpCode = ref(null)
 
 const classCode = computed(() => {
   return popupPinia.classCode
@@ -37,15 +38,30 @@ async function validateAndSubmit() {
 
   await popupPinia.connect();
 }
+
+onMounted(() => {
+  // fixes a validation error when letters are in the pin code, as the package by default validates for numbers only :(
+  // @ts-ignore
+  let children = otpCode.value.$el.children
+  if (children) {
+    for (let child of children) {
+      child.children[0].removeAttribute('pattern')
+      child.children[0].removeAttribute('min')
+      child.children[0].removeAttribute('max')
+    }
+  }
+})
 </script>
 
 <template>
   <form class="mt-9 pb-7" @submit.prevent="validateAndSubmit">
     <div class="flex flex-col justify-center mb-4">
       <VOtpInput
+          ref="otpCode"
           class="mr-3"
           :num-inputs="4"
           input-type="letter-numeric"
+          inputmode="text"
           input-classes="w-11 h-16 text-center font-bold text-4xl rounded-lg border-black-form-border border-2 ml-3"
           @on-change="(code: string) => { popupPinia.classCode = code }"
           separator=""/>

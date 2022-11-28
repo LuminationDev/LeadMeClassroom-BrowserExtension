@@ -4,6 +4,7 @@ import { useStorage } from "../hooks/useStorage";
 const { getSyncStorage, setSyncStorage, removeSyncStorage, removeLocalStorage } = useStorage();
 import {
     createUserWithEmailAndPassword,
+    sendEmailVerification,
     signInWithEmailAndPassword,
     sendPasswordResetEmail,
     getAuth,
@@ -35,7 +36,9 @@ export let usePopupStore = defineStore("popup", {
             error: "",
             name: "",
             loading: false,
-            previousViews: <string[]>([])
+            previousViews: <string[]>([]),
+            justCreatedAccount: false,
+            showSuccess: false
         };
     },
 
@@ -124,9 +127,12 @@ export let usePopupStore = defineStore("popup", {
                 return;
             }
 
-            getSyncStorage("Teacher").then(result => {
-                (result) ? this.view = "sessionTeacher" : this.view = "login";
-            });
+            const auth = getAuth()
+            if (auth && auth.currentUser) {
+                this.view = auth.currentUser.emailVerified ? 'sessionTeacher' : 'verifyEmail'
+                return
+            }
+            this.view = 'login'
         },
 
         /**
@@ -152,12 +158,14 @@ export let usePopupStore = defineStore("popup", {
             await createUserWithEmailAndPassword(auth, email, password)
                 .then(() => {
                     //Set the display name of the user
-                    // @ts-ignore
-                    updateProfile(auth.currentUser, { displayName: this.name })
-                        .catch((err) => console.log(err));
-
-                    // Move to sign in
-                    this.changeView('loginTeacher');
+                        // @ts-ignore
+                        updateProfile(auth.currentUser, { displayName: this.name })
+                            .catch((err) => console.log(err));
+                        sendEmailVerification(user.user)
+                            .catch((err) => console.log(err));
+                        // Move to sign in
+                        this.justCreatedAccount = true
+                        this.changeView('loginTeacher');
                 })
                 .catch((error) => {
                     const errorCode = error.code;
@@ -174,19 +182,40 @@ export let usePopupStore = defineStore("popup", {
         async handleLogin(email: string, password: string) {
             //Create a temp variable to access within the callback options
             const self = this;
+
             if (getAuth().currentUser) {
-                this.createDashboard();
+                if (!getAuth().currentUser?.emailVerified) {
+                    this.loading = false
+                    this.changeView('verifyEmail')
+                } else {
+                    this.createDashboard()
+                }
                 return;
             }
 
             const auth = getAuth();
-            await signInWithEmailAndPassword(auth, email, password)
-                .then(() => {
-                    setSyncStorage({"Teacher": true}).then(() => self.createDashboard());
-                })
-                .catch((error) => {
-                    this.error = this.getUsefulErrorMessageFromFirebaseCode(error.code)
-                });
+                await signInWithEmailAndPassword(auth, email, password)
+                    .then(() => {
+                        if (!auth.currentUser?.emailVerified) {
+                            this.loading = false
+                            this.changeView('verifyEmail')
+                        } else {
+                            this.createDashboard()
+                        }
+                    })
+                    .catch((error) => {
+                        this.error = this.getUsefulErrorMessageFromFirebaseCode(error.code)
+                    });
+        },
+
+        resendVerificationEmail() {
+            const auth = getAuth()
+            if (auth.currentUser) {
+                this.loading = true
+                sendEmailVerification(auth.currentUser)
+                    .then(() => {this.loading = false})
+                    .catch(() => {this.loading = false})
+            }
         },
 
         /**
@@ -279,6 +308,7 @@ export let usePopupStore = defineStore("popup", {
 
             //Queries the currently open tab and sends a message to it
             localStorage.removeItem("firebase:previous_websocket_failure")
+            
             const result = await firebase.checkForClassroom(userCode);
 
             if (!result) {
@@ -300,11 +330,13 @@ export let usePopupStore = defineStore("popup", {
                 url: chrome.runtime.getURL("src/pages/assistant/assistant.html"),
                 type: "popup",
                 state: "minimized"
-            }).then(() => window.close());
-
-            //TODO Close the popup window or go to the student session?
-            // window.close();
-            // this.view = 'sessionStudent';
+            }).then(result => {
+                this.showSuccess = true
+                console.log(result)
+                setTimeout(() => {
+                    window.close()
+                }, 2000)
+            });
         },
 
         /**
@@ -319,6 +351,7 @@ export let usePopupStore = defineStore("popup", {
          * alerting a teacher that the student has disconnected.
          */
         async handleEndSessionClick() {
+            localStorage.removeItem("firebase:previous_websocket_failure")
             const userData:followerData = await getSyncStorage("follower");
             if (userData == null) { return; }
 
