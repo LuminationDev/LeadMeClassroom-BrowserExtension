@@ -32,7 +32,6 @@ async function validateAndSubmit() {
     <div v-if="dashboardPinia.accountView === 'menu'">
       <AccountGridItem :title="'Reset password'"/>
       <AccountGridItem :title="'Change name'" v-on:click="dashboardPinia.changeAccountView('changeName')"/>
-      <AccountGridItem :title="'Other setting'"/>
     </div>
 
     <div v-else-if="dashboardPinia.accountView === 'changeName'">

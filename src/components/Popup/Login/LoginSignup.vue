@@ -70,7 +70,7 @@ async function validateInputs() {
 </script>
 
 <template>
-  <form @submit.prevent="validateInputs" class="mt-9 pb-7">
+  <form @submit.prevent class="mt-9 pb-7">
     <div>
       <LoginTextInput class="mb-2" type="text" placeholder="Name" :v$="v$.name" v-model="popupPinia.name"/>
       <LoginEmail class="mb-2" placeholder="Email" :v$="v$.email" v-model="email"/>

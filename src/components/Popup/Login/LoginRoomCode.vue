@@ -61,7 +61,7 @@ onMounted(() => {
 </script>
 
 <template>
-  <form class="mt-9 pb-7" @submit.prevent="validateAndSubmit">
+  <form class="mt-9 pb-7" @submit.prevent>
     <div class="flex flex-col justify-center mb-4">
       <VOtpInput
           ref="otpCode"
