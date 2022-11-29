@@ -125,12 +125,16 @@ chrome.storage.sync.get("follower", async (data) => {
 const setupWebRTCConnection = (UUID: string, classCode: string) => {
   followerData.uuid = UUID;
   followerData.classCode = classCode;
-  // @ts-ignore
+
   webRTCPinia.setConnectionDetails(sendIceCandidates, followerData.classCode, followerData.uuid);
   webRTCPinia.createNewConnection(followerData.uuid);
 }
 
-const sendIceCandidates = (senderId: number, UUID: string, data: object) => {
+const sendIceCandidates = (senderId: string, UUID: string, data: string) => {
+  console.log("Calling");
+  console.log(senderId);
+  console.log(UUID);
+  console.log(data);
   MANAGER.value.firebase.sendIceCandidates(senderId, UUID, data, followerData.classCode);
 }
 

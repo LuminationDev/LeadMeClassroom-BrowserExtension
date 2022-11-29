@@ -20,13 +20,15 @@ interface IRTCConnection {
     stream: MediaStream;
 }
 
+type callbackFunction = (senderId: string, UUID: string, data: string) => void;
+
 export let useWebRTCStore = defineStore("webRTC", {
     state: () => {
         return {
             servers: [{'urls': 'stun:stun.services.mozilla.com'}, {'urls': 'stun:stun.l.google.com:19302'}],
             connectionDetails: <IConnectionDetails>{},
             connections: new Map<string, IRTCConnection>(), //hold all the webrtc connections
-            callback: Function,
+            callback: <callbackFunction>Function,
             connectionStatus: false
         }
     },
@@ -39,7 +41,7 @@ export let useWebRTCStore = defineStore("webRTC", {
          * @param classCode
          * @param UUID
          */
-        setConnectionDetails(callback: typeof Function, classCode: string, UUID: string) {
+        setConnectionDetails(callback: callbackFunction, classCode: string, UUID: string) {
             this.callback = callback;
 
             this.connectionDetails = {
