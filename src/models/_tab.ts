@@ -5,7 +5,7 @@ class Tab {
     id: string;
     index: number;
     windowId: number;
-    lastActivated: number;
+    lastActivated?: number;
     closing: boolean = false;
     audible: boolean = false;
     muted: boolean = false;

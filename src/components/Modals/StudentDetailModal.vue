@@ -5,6 +5,7 @@ import Follower from "../../models/_follower";
 import HoverButton from "../Buttons/HoverButton.vue";
 
 import { useDashboardStore } from "../../stores/dashboardStore";
+import Tooltip from "../Buttons/Tooltip.vue";
 let dashboardPinia = useDashboardStore();
 
 defineEmits<{
@@ -79,32 +80,45 @@ function closeModal() {
           <div class="flex flex-row h-5">
 
             <!--Audio control-->
-            <div v-if="selectedTab.muting" class="lds-dual-ring h-5 w-7 mr-2" />
-            <HoverButton class="h-5 w-7" v-else-if="selectedTab.audible" @click="muteOrUnmuteTab(selectedTab.id, !selectedTab.muted)">
-              <template v-slot:original>
-                <img v-if="selectedTab.muted" src="@/assets/img/studentDetails/student-icon-muted.svg" alt=""/>
-                <img v-else class="h-5 w-5" src="@/assets/img/studentDetails/student-icon-audible.svg"  alt=""/>
-              </template>
-              <template v-slot:hover>
-                <img v-if="selectedTab.muted" src="@/assets/img/studentDetails/student-icon-muted-hover.svg" alt=""/>
-                <img v-else class="h-5 w-5" src="@/assets/img/studentDetails/student-icon-audible-hover.svg"  alt=""/>
-              </template>
-            </HoverButton>
-            <img v-else class="h-5 w-5 mr-2" src="@/assets/img/studentDetails/student-icon-audible-disabled.svg" alt=""/>
+            <div class="has-tooltip">
+              <Tooltip :tip="selectedTab.muted ? 'Unmute' : 'Mute'" />
+
+              <div v-if="selectedTab.muting" class="lds-dual-ring h-5 w-7 mr-2" />
+              <HoverButton class="h-5 w-7" v-else-if="selectedTab.audible" @click="muteOrUnmuteTab(selectedTab.id, !selectedTab.muted)">
+                <template v-slot:original>
+                  <img v-if="selectedTab.muted" src="@/assets/img/studentDetails/student-icon-muted.svg" alt=""/>
+                  <img v-else class="h-5 w-5" src="@/assets/img/studentDetails/student-icon-audible.svg"  alt=""/>
+                </template>
+                <template v-slot:hover>
+                  <img v-if="selectedTab.muted" src="@/assets/img/studentDetails/student-icon-muted-hover.svg" alt=""/>
+                  <img v-else class="h-5 w-5" src="@/assets/img/studentDetails/student-icon-audible-hover.svg"  alt=""/>
+                </template>
+              </HoverButton>
+              <img v-else class="h-5 w-5 mr-2" src="@/assets/img/studentDetails/student-icon-audible-disabled.svg" alt=""/>
+            </div>
 
             <!--Tab focus control-->
-            <HoverButton  v-if="selectedTab.id !== follower.tabs[0].id" class="mx-14 h-5 w-5" @click="changeActiveTab(selectedTab)">
-              <template v-slot:original><img src="@/assets/img/studentDetails/student-icon-focus.svg"  alt="focus"/></template>
-              <template v-slot:hover><img src="@/assets/img/studentDetails/student-icon-focus-hover.svg"  alt="focus"/></template>
-            </HoverButton>
-            <img v-else class="mx-14 h-5" src="@/assets/img/studentDetails/student-icon-focus-disabled.svg"  alt="focus"/>
+            <div class="has-tooltip mx-14">
+              <Tooltip :tip="'Bring to front'" />
+
+              <HoverButton  v-if="selectedTab.id !== follower.tabs[0].id" class="h-5 w-5" @click="changeActiveTab(selectedTab)">
+                <template v-slot:original><img src="@/assets/img/studentDetails/student-icon-focus.svg"  alt="focus"/></template>
+                <template v-slot:hover><img src="@/assets/img/studentDetails/student-icon-focus-hover.svg"  alt="focus"/></template>
+              </HoverButton>
+              <img v-else class="h-5" src="@/assets/img/studentDetails/student-icon-focus-disabled.svg"  alt="focus"/>
+            </div>
 
             <!--Close tab-->
-            <div v-if="selectedTab.closing" class="lds-dual-ring h-5" />
-            <HoverButton v-else @click="deleteFollowerTab(selectedTab.id)" class="h-5 w-5">
-              <template v-slot:original><img class="h-4" src="@/assets/img/studentDetails/student-icon-close-tab.svg"  alt="close"/></template>
-              <template v-slot:hover><img class="h-4" src="@/assets/img/studentDetails/student-icon-close-tab-hover.svg"  alt="close"/></template>
-            </HoverButton>
+            <div class="has-tooltip">
+              <Tooltip :tip="'Close tab'" :toolTipMargin="'-ml-2'" :arrow-margin="'ml-0'" />
+
+              <div v-if="selectedTab.closing" class="lds-dual-ring h-5" />
+              <HoverButton v-else @click="deleteFollowerTab(selectedTab.id)" class="h-5 w-5">
+                <template v-slot:original><img class="h-4" src="@/assets/img/studentDetails/student-icon-close-tab.svg"  alt="close"/></template>
+                <template v-slot:hover><img class="h-4" src="@/assets/img/studentDetails/student-icon-close-tab-hover.svg"  alt="close"/></template>
+              </HoverButton>
+            </div>
+
           </div>
         </div>
 
@@ -211,8 +225,8 @@ function closeModal() {
 
 .list-complete-enter-from,
 .list-complete-leave-to {
-  transition: 0s;
-  transform: translateY(100px);
+  opacity: 0;
+  /*transform: translateX(30px);*/
 }
 
 /* ensure leaving items are taken out of layout flow so that moving

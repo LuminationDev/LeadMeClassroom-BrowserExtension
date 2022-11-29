@@ -318,14 +318,14 @@ class Firebase {
     }
 
     /**
-     * Upload a screenshot of the followers computer to firebase as a base 64 message under that direct follower's
-     * entry.
+     * Update the database entry of a follower, adding/updating the latest tab that have been opened or an action has been
+     * performed on.
      * @param {*} inputCode A string representing the class a user is registered to.
      * @param {*} inputUUID A string representing the unique ID of a follower.
      * @param tab
      */
     updateTab = (inputCode: string, inputUUID: string, tab: Tab) => {
-        set(ref(this.db, `tabs/${inputCode}/${inputUUID}/${tab.id}`), tab)
+        update(ref(this.db, `tabs/${inputCode}/${inputUUID}/${tab.id}`), tab)
             .then(() => console.log("Tab updated"));
     }
 
