@@ -62,7 +62,7 @@ onMounted(() => {
 
 <template>
   <form class="mt-9 pb-7" @submit.prevent>
-    <div class="flex flex-col justify-center mb-4">
+    <div class="flex flex-col justify-center mb-4 ml-2">
       <VOtpInput
           ref="otpCode"
           class="mr-3"
