@@ -96,5 +96,9 @@ async function validateInputs() {
 
     <GenericButton :type="'secondary'" :callback="validateInputs">Sign up</GenericButton>
     <p class="text-red-400">{{ popupPinia.error }}</p>
+
+    <p class="mt-3 cursor-pointer text-blue-400 font-bold" v-on:click="popupPinia.changeView('teacherLogin')">
+      Sign in instead?
+    </p>
   </form>
 </template>

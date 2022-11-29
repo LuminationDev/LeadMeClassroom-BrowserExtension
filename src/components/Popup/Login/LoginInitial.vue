@@ -10,16 +10,11 @@ function changeToTeacher() {
 function changeToStudent() {
   popupPinia.changeView('loginStudent')
 }
-
-function changeToSignup() {
-  popupPinia.changeView('signup')
-}
-
 </script>
 
 <template>
   <div class="mt-9 pb-16">
-    <GenericButton :type="'primary'" :callback="changeToTeacher">Teacher</GenericButton>
+    <p class="text-left mb-3 text-gray-separator">I am a...</p>
     <GenericButton :type="'primary'" :callback="changeToStudent">Student</GenericButton>
 
     <div class="relative mb-3">
@@ -31,9 +26,10 @@ function changeToSignup() {
       </div>
     </div>
 
-    <GenericButton class="text-blue-500 bg-white border border-blue-500 border-2"
-                   :type="'secondary'"
-                   :callback="changeToSignup"
-    >Sign up</GenericButton>
+    <GenericButton
+        class="text-blue-500 bg-white border border-blue-500 border-2 font-bold hover:bg-white-menu-overlay"
+        :type="'primary'"
+        :callback="changeToTeacher"
+    >Teacher</GenericButton>
   </div>
 </template>
