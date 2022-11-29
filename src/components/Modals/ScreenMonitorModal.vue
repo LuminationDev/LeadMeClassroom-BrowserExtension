@@ -126,7 +126,7 @@ function closeModal() {
               </div>
 
               <div v-if="follower.permission === 'declined'" class="flex flex-col items-center">
-                <img class="mt-20 w-32 xs:w-48 rotate-180" src="@/assets/img/happy_col.png" alt="Computer Icon"/>
+                <img class="mt-20 w-32 xs:w-48" src="@/assets/img/shocked_col.png" alt="Computer Icon"/>
                 <p class="mb-6 mt-8 text-sm font-bold">Student has declined the permission...</p>
               </div>
 

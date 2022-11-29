@@ -361,19 +361,19 @@ class Firebase {
         off(iceRef);
 
         remove(followersRef)
-            .then(function () { console.log("Removed class succeeded.") })
+            .then(function () { console.log("Removed followers succeeded.") })
             .catch(function (error) { console.log("Remove failed: " + error.message) });
 
         remove(followerMessagesRef)
-            .then(function () { console.log("Removed class succeeded.") })
+            .then(function () { console.log("Removed followers messages succeeded.") })
             .catch(function (error) { console.log("Remove failed: " + error.message) });
 
         remove(tabsRef)
-            .then(function () { console.log("Removed class succeeded.") })
+            .then(function () { console.log("Removed tabs succeeded.") })
             .catch(function (error) { console.log("Remove failed: " + error.message) });
 
         remove(iceRef)
-            .then(function () { console.log("Removed class succeeded.") })
+            .then(function () { console.log("Removed ice succeeded.") })
             .catch(function (error) { console.log("Remove failed: " + error.message) });
 
         remove(classRef)
@@ -384,7 +384,7 @@ class Firebase {
         listAll(screenshotsRef).then((res) => {
             res.items.forEach(screenshotRef => {
                 deleteObject(screenshotRef)
-                    .then(function () { console.log("Removed class succeeded.") })
+                    .then(function () { console.log("Removed screenshots succeeded.") })
                     .catch(function (error) { console.log("Remove failed: " + error.message) });
             })
         })
@@ -414,7 +414,7 @@ class Firebase {
      * @param data
      * @param classCode
      */
-    sendIceCandidates = (senderId: number, UUID: string, data: object, classCode: string) => {
+    sendIceCandidates = (senderId: string, UUID: string, data: string, classCode: string) => {
         const msgRef = ref(this.db, `ice/${classCode}/${UUID}`);
         push(msgRef, { sender: senderId, message: data }).then(msg => remove(msg));
     }
