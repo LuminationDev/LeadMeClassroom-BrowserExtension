@@ -58,6 +58,9 @@ chrome.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
         let newTab = new Tab(tab.id + "", tab.index, tab.windowId, <string>tab.title, <string>tab.favIconUrl, <string>tab.url)
         newTab.audible = <boolean>tab.audible
         newTab.muted = tab.mutedInfo ? tab.mutedInfo.muted : false
+
+        //if tab action is only mute/unmute
+        if(changeInfo.mutedInfo !== undefined) {delete newTab.lastActivated; }
         chrome.tabs.sendMessage(<number>assistantTab.id, { type: REQUESTS.UPDATE_TAB, tab: newTab });
     });
 

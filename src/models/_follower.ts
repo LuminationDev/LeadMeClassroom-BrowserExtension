@@ -33,7 +33,11 @@ class Follower {
     {
         const index = this.tabs.findIndex(tab => (tab.id + "") === id)
         if (index !== -1) {
-            this.tabs.splice(index, 1, newTab)
+            const obj = <Tab>this.tabs[index];
+            Object.keys(obj).forEach(key => {
+                // @ts-ignore
+                obj[key] = newTab[key];
+            });
         } else {
             this.tabs.push(newTab)
         }

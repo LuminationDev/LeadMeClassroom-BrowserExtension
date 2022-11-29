@@ -49,7 +49,7 @@ const firstThreeTabs = computed((): Array<Tab> => {
     return [];
   }
 
-  let temp = props.follower.tabs.sort((a: Tab, b: Tab) => { return b.lastActivated - a.lastActivated }).slice(0, 3);
+  let temp = props.follower.tabs.sort((a: Tab, b: Tab) => { return b.lastActivated! - a.lastActivated! }).slice(0, 3);
   checkActiveTask(temp[0].url);
   return temp;
 })
@@ -119,7 +119,7 @@ const revertInput = () => {
     </div>
 
     <transition-group v-else name="list" tag="div">
-      <div v-for="(tab, index) in firstThreeTabs" v-bind:key="tab" class="py-1" :id="index">
+      <div v-for="(tab, index) in firstThreeTabs" v-bind:key="tab" class="py-1 w-48" :id="index">
         <div class="flex flex-row px-2 items-center">
           <img class="flex-shrink-0 w-4 h-4 mr-2" :src="tab.favicon"  alt=""/>
           <span class="overflow-ellipsis whitespace-nowrap overflow-hidden">{{ tab.url.replace("https://", "") }}</span>
@@ -130,7 +130,8 @@ const revertInput = () => {
 </template>
 
 <style>
-.list-move, /* apply transition to moving elements */
+/* apply transition to moving elements */
+.list-move,
 .list-enter-active,
 .list-leave-active {
   transition: all 0.5s ease;
@@ -138,8 +139,7 @@ const revertInput = () => {
 
 .list-enter-from,
 .list-leave-to {
-  transition: 0s;
-  transform: translateY(30px);
+  opacity: 0;
 }
 
 /* ensure leaving items are taken out of layout flow so that moving

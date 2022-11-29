@@ -40,7 +40,7 @@ defineProps({
 
 <template>
   <div class="w-48 transition-all duration-500 ease-in-out" :class="removing ? 'opacity-0' : ''" :id="follower.getUniqueId()">
-    <div class="h-28 flex flex-col bg-gray-active-student border-2 border-navy-side-menu rounded-t-sm">
+    <div class="h-[120px] flex flex-col bg-gray-active-student border-2 border-navy-side-menu rounded-t-sm">
       <StudentGridItemHeader
           @update="checked"
           :follower="follower"

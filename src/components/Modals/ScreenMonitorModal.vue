@@ -6,6 +6,7 @@ import * as REQUESTS from "../../constants/_requests";
 
 import {useDashboardStore} from "../../stores/dashboardStore";
 import { useWebRTCStore } from "../../stores/webRTCStore";
+import Tooltip from "../Buttons/Tooltip.vue";
 let dashboardPinia = useDashboardStore();
 let webRTCPinia = useWebRTCStore();
 
@@ -156,11 +157,13 @@ function closeModal() {
               }"
               :disabled="!!(follower.permission !== 'granted' && follower.monitoring)"
               v-on:click="() => { handleMonitorFollowerButton() }"
-          >{{follower.monitoring ? 'Stop screen share' : 'Request screen share'}}</button>
+          >{{follower.monitoring ? 'Stop screen share' : 'Request live screen share'}}</button>
 
           <div v-show="follower.permission !== 'granted'" class="has-tooltip">
-            <span class="tooltip rounded shadow-lg px-3 py-1 bg-gray-700 rounded-xl text-white ml-2 -mt-8">Student permission is required for real time screen monitoring</span>
-            <div class="tooltip h-0 w-0 rotate-180 border-x-8 border-x-transparent border-b-[6px] border-b-gray-700 ml-3.5 -mt-2"></div>
+            <Tooltip
+                :tip="'Student permission is required for real time screen monitoring'"
+                :toolTipMargin="'ml-2'" :arrowMargin="'ml-3.5'"
+            />
 
             <img class="w-6 h-6 ml-2.5" src="@/assets/img/icon-help.svg" alt="Help Icon"/>
           </div>
