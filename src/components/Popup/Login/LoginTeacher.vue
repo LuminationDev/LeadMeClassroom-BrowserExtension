@@ -48,14 +48,20 @@ async function validateAndSubmit() {
       <p class="text-red-400">{{ popupPinia.error }}</p>
     </div>
 
-    <GenericButton :type="'secondary'" :callback="validateAndSubmit">Sign in</GenericButton>
-
     <p
-        class="text-left mt-5 mb-14 text-gray-separator cursor-pointer underline underline-offset-1"
+        class="text-right mb-3 font-bold text-blue-400 cursor-pointer"
         v-on:click="popupPinia.changeView('forgot')"
     >
       Forgot password?
     </p>
 
+    <GenericButton :type="'secondary'" :callback="validateAndSubmit">Sign in</GenericButton>
+
+    <div class="mt-12 font-bold">
+      <p class="text-gray-separator">
+        New to LeadMe?
+        <span class="cursor-pointer text-blue-400" v-on:click="popupPinia.changeView('signup')">Sign up</span>
+      </p>
+    </div>
   </form>
 </template>
