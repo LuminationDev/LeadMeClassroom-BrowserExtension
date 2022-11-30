@@ -93,7 +93,7 @@ export let useDashboardStore = defineStore("dashboard", {
          * @param UUID The unique ID of the student which acts as the database reference location
          * @param data An object that contains the latest ice candidates
          */
-        sendIceCandidates(senderId: number, UUID: string, data: object) {
+        sendIceCandidates(senderId: string, UUID: string, data: string) {
             this.firebase.sendIceCandidates(senderId, UUID, data, this.classCode);
         },
 

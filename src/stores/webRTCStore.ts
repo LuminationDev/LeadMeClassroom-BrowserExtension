@@ -20,6 +20,7 @@ interface IRTCConnection {
     stream: MediaStream;
 }
 
+//NOTE: Must override the basic Function type parameter as it uses eval() which is blocked by chromes CSP.
 type callbackFunction = (senderId: string, UUID: string, data: string) => void;
 
 export let useWebRTCStore = defineStore("webRTC", {
