@@ -24,6 +24,11 @@ const showDetailModal = ref(false);
 //Track the currently selected tab
 const selectedTabId = ref("0");
 const selectedTab = computed(() => {
+  if(props.follower.tabs.length === 0) {
+    selectedTabId.value = "-1";
+    return null;
+  }
+
   let tab = props.follower.tabs.find(res => res.id === selectedTabId.value);
 
   if(tab === undefined) {
@@ -33,6 +38,12 @@ const selectedTab = computed(() => {
     return tab;
   }
 })
+
+const muteTooltip = computed(() => {
+  if(selectedTab.value === null) { return "Mute" };
+
+  return selectedTab.value.muted ? 'Unmute' : 'Mute'
+});
 
 function deleteFollowerTab(tabId: string) {
   dashboardPinia.requestDeleteFollowerTab(props.follower.getUniqueId(), tabId)
@@ -81,9 +92,10 @@ function closeModal() {
 
             <!--Audio control-->
             <div class="has-tooltip">
-              <Tooltip :tip="selectedTab.muted ? 'Unmute' : 'Mute'" />
+              <Tooltip :tip="muteTooltip" />
 
-              <div v-if="selectedTab.muting" class="lds-dual-ring h-5 w-7 mr-2" />
+              <img v-if="selectedTab === null" class="h-5 w-5 mr-2" src="@/assets/img/studentDetails/student-icon-audible-disabled.svg" alt=""/>
+              <div v-else-if="selectedTab.muting" class="lds-dual-ring h-5 w-7 mr-2" />
               <HoverButton class="h-5 w-7" v-else-if="selectedTab.audible" @click="muteOrUnmuteTab(selectedTab.id, !selectedTab.muted)">
                 <template v-slot:original>
                   <img v-if="selectedTab.muted" src="@/assets/img/studentDetails/student-icon-muted.svg" alt=""/>
@@ -101,7 +113,8 @@ function closeModal() {
             <div class="has-tooltip mx-14">
               <Tooltip :tip="'Bring to front'" />
 
-              <HoverButton  v-if="selectedTab.id !== follower.tabs[0].id" class="h-5 w-5" @click="changeActiveTab(selectedTab)">
+              <img v-if="selectedTabId === '-1'" class="h-5" src="@/assets/img/studentDetails/student-icon-focus-disabled.svg"  alt="focus"/>
+              <HoverButton v-else-if="selectedTab.id !== follower.tabs[0].id" class="h-5 w-5" @click="changeActiveTab(selectedTab)">
                 <template v-slot:original><img src="@/assets/img/studentDetails/student-icon-focus.svg"  alt="focus"/></template>
                 <template v-slot:hover><img src="@/assets/img/studentDetails/student-icon-focus-hover.svg"  alt="focus"/></template>
               </HoverButton>
@@ -112,7 +125,11 @@ function closeModal() {
             <div class="has-tooltip">
               <Tooltip :tip="'Close tab'" :toolTipMargin="'-ml-2'" :arrow-margin="'ml-0'" />
 
-              <div v-if="selectedTab.closing" class="lds-dual-ring h-5" />
+              <div v-if="selectedTabId === '-1'" class="h-5 w-5 flex items-center">
+                <img class="h-4" src="@/assets/img/studentDetails/student-icon-close-tab-disabled.svg"  alt="focus"/>
+              </div>
+
+              <div v-else-if="selectedTab.closing" class="lds-dual-ring h-5" />
               <HoverButton v-else @click="deleteFollowerTab(selectedTab.id)" class="h-5 w-5">
                 <template v-slot:original><img class="h-4" src="@/assets/img/studentDetails/student-icon-close-tab.svg"  alt="close"/></template>
                 <template v-slot:hover><img class="h-4" src="@/assets/img/studentDetails/student-icon-close-tab-hover.svg"  alt="close"/></template>
@@ -124,9 +141,16 @@ function closeModal() {
 
         <!--Tab list-->
         <div class="w-modal-width-sm h-96 flex flex-col overflow-y-auto">
-          <transition-group name="list-complete" tag="div">
-            <div v-for="(tab, index) in follower.tabs" v-bind:key="tab" class="py-1" :id="tab.id">
+          <!--The assistant page is present but not counted-->
+          <div v-if="follower.tabs.length === 0" class="py-1 flex flex-row w-full px-5 items-center justify-between">
+            <div class="w-full h-9 px-5 flex flex-row items-center overflow-ellipsis whitespace-nowrap">
+              <img class="flex-shrink-0 w-5 h-5 mr-2" src="@/assets/img/icon-128.png"  alt=""/>
+              <span class="flex-shrink overflow-ellipsis whitespace-nowrap overflow-hidden pr-10 mt-0.5">No open tabs...</span>
+            </div>
+          </div>
 
+          <transition-group v-else name="list-complete" tag="div">
+            <div v-for="(tab, index) in follower.tabs" v-bind:key="tab" class="py-1" :id="tab.id">
               <!--Individual tabs-->
               <div class="flex flex-row w-full px-5 items-center justify-between">
                 <div :class="{

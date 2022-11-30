@@ -35,7 +35,6 @@ const assistantListener = (data: any) => {
       break;
 
     case REQUESTS.CAPTURE:
-      console.log("Updating screenshot");
       MANAGER.value.captureScreen();
       break;
 
@@ -125,12 +124,12 @@ chrome.storage.sync.get("follower", async (data) => {
 const setupWebRTCConnection = (UUID: string, classCode: string) => {
   followerData.uuid = UUID;
   followerData.classCode = classCode;
-  // @ts-ignore
+
   webRTCPinia.setConnectionDetails(sendIceCandidates, followerData.classCode, followerData.uuid);
   webRTCPinia.createNewConnection(followerData.uuid);
 }
 
-const sendIceCandidates = (senderId: number, UUID: string, data: object) => {
+const sendIceCandidates = (senderId: string, UUID: string, data: string) => {
   MANAGER.value.firebase.sendIceCandidates(senderId, UUID, data, followerData.classCode);
 }
 
