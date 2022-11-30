@@ -4,7 +4,7 @@ let popupPinia = usePopupStore();
 </script>
 
 <template>
-  <div class="h-14 flex justify-around bg-white font-bold font-poppins text-sm">
+  <div class="h-14 flex justify-around bg-white font-medium font-poppins text-sm">
     <button
         class="hover:underline hover:decoration-blue-400 hover:decoration-4 hover:underline-offset-[18px]"
       v-show="popupPinia.view !== 'sessionStudent'"

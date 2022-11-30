@@ -3,7 +3,7 @@ import StudentPermissions from "../../components/Popup/Student/StudentPermission
 </script>
 
 <template>
-  <p class="mt-14 text-base font-bold text-black-form-border text-center">Permissions</p>
+  <p class="mt-14 text-base text-black-form-border text-center">Permissions</p>
   <div class="flex justify-center">
     <StudentPermissions class="w-options-panel-width" />
   </div>

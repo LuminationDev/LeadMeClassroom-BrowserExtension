@@ -27,7 +27,7 @@ function changeToStudent() {
     </div>
 
     <GenericButton
-        class="text-blue-500 bg-white border border-blue-500 border-2 font-bold hover:bg-white-menu-overlay"
+        class="text-blue-500 bg-white border border-blue-500 border-2 hover:bg-white-menu-overlay"
         :type="'primary'"
         :callback="changeToTeacher"
     >Teacher</GenericButton>

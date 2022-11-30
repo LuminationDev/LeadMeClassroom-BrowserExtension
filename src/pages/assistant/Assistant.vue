@@ -234,7 +234,7 @@ function minimise() {
     </div>
     <div class="bg-blue-100 flex flex-col justify-center items-center px-10 sm:px-32 py-8 h-full">
       <img class="w-32 xs:w-48" src="@/assets/img/happy_col.png" alt="Computer Icon"/>
-      <p v-if="!updateMessage" class="max-w-sm text-xl text-center mt-5 mb-10">Don't close me! I need to stay open for <b>LeadMe Classroom</b> to maintain a connection.</p>
+      <p v-if="!updateMessage" class="max-w-sm text-xl text-center mt-5 mb-10">Don't close me! I need to stay open for <span class="font-semibold">LeadMe Classroom</span> to maintain a connection.</p>
       <p v-else class="text-xl mt-5 mb-10">{{ updateMessage }}</p>
       <button
           class="bg-blue-500 text-white rounded-full px-10 py-3 text-lg shadow hover:bg-blue-400"

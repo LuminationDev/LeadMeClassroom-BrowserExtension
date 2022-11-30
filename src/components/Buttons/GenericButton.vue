@@ -34,7 +34,7 @@ const asyncCall = () => {
 <template>
   <button
     :class="{
-      'bg-blue-500 rounded-lg text-white text-base': true,
+      'bg-blue-500 font-semibold rounded-lg text-white text-base': true,
       'w-64 h-12 mb-3 hover:bg-blue-400': type === 'primary',
       'w-64 h-10 hover:bg-blue-400': type === 'secondary',
     }"

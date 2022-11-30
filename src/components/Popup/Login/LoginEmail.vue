@@ -16,6 +16,7 @@ const props = defineProps({
 const emit = defineEmits(['update:modelValue'])
 
 function handleInput(inputEvent: InputEvent) {
+  // @ts-ignore
   emit('update:modelValue', inputEvent?.target?.value)
   props.v$.$commit()
   if (!props.v$.$invalid && props.v$.$dirty) {

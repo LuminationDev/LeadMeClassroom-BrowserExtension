@@ -11,7 +11,7 @@ let popupPinia = usePopupStore();
           'px-6': popupPinia.view === 'permissions',
         }"
     >
-      <div class="text-base font-bold text-black-form-border">
+      <div class="text-base font-medium text-black-form-border">
         <slot name="header"></slot>
       </div>
 

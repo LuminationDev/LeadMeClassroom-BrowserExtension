@@ -29,13 +29,13 @@ onBeforeMount(() => popupPinia.onOpen());
     <Transition name="fade" mode="out-in">
       <!-- Basic login panel to start with -->
       <PopupPanel v-if="popupPinia.view === 'login'">
-        <template v-slot:header>Welcome to LeadMe!</template>
+        <template v-slot:header><span class="font-semibold">Welcome to LeadMe!</span></template>
         <template v-slot:content><LoginContent /></template>
       </PopupPanel>
 
       <!-- Teacher login -->
       <PopupPanel v-else-if="popupPinia.view === 'loginTeacher'">
-        <template v-slot:header>Log in with Email</template>
+        <template v-slot:header>Sign in with Email</template>
         <template v-slot:content><LoginTeacher /></template>
       </PopupPanel>
 

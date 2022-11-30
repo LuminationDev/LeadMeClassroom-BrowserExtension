@@ -81,7 +81,7 @@ function closeModal() {
       <template v-slot:header>
         <header class="h-20 px-8 bg-white flex justify-between items-center rounded-t-lg">
           <div class="bg-white flex flex-col">
-            <span class="text-lg font-bold text-black">Screen Monitoring</span>
+            <span class="text-lg font-semibold text-black">Screen Monitoring</span>
             <p class="mt-1 text-sm text-zinc-700">{{ follower.name }}</p>
           </div>
 
@@ -100,7 +100,7 @@ function closeModal() {
           <div v-if="!follower.monitoring" class="w-modal-width-xsm">
             <div v-if="follower.imageBase64 === undefined" class="flex flex-col items-center">
               <p class="mt-20 lds-dual-ring-lg" />
-              <p class="mb-6 mt-8 text-sm font-bold">Collecting current screenshot...</p>
+              <p class="mb-6 mt-8 text-sm ">Collecting current screenshot...</p>
             </div>
 
             <img v-else class="aspect-video" :id="`image_${follower.getUniqueId()}`" :src="follower.imageBase64 ?? undefined" alt="Follower Screen shot"/>
@@ -117,20 +117,20 @@ function closeModal() {
 
               <div v-if="follower.permission === null" class="flex flex-col items-center">
                 <img class="mt-20 w-32 xs:w-48" src="@/assets/img/happy_col.png" alt="Computer Icon"/>
-                <p class="mb-6 mt-8 text-sm font-bold">Waiting for student permission...</p>
+                <p class="mb-6 mt-8 text-sm">Waiting for student permission...</p>
               </div>
 
               <div v-if="follower.permission === 'connecting'" class="flex flex-col items-center">
                 <p class="mt-20 lds-dual-ring-lg" />
-                <p class="mb-6 mt-8 text-sm font-bold">Connecting to student...</p>
+                <p class="mb-6 mt-8 text-sm">Connecting to student...</p>
               </div>
 
               <div v-if="follower.permission === 'declined'" class="flex flex-col items-center">
                 <img class="mt-20 w-32 xs:w-48" src="@/assets/img/shocked_col.png" alt="Computer Icon"/>
-                <p class="mb-6 mt-8 text-sm font-bold">Student has declined the permission...</p>
+                <p class="mb-6 mt-8 text-sm font-semibold">Student has declined the permission...</p>
               </div>
 
-              <button class="mb-28 w-36 h-11 flex-shrink-0 text-white bg-blue-500 text-base rounded-3xl hover:bg-blue-400"
+              <button class="mb-28 w-36 h-11 flex-shrink-0 font-semibold text-sm text-white bg-blue-500 text-base rounded-3xl hover:bg-blue-400"
                       v-on:click="() => { cancelMonitor() }"
               >Cancel</button>
             </div>
