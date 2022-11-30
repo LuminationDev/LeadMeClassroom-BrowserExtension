@@ -86,7 +86,7 @@ class Firebase {
 
     /**
      * Add listeners for followers being added and removed to the database
-     * @param classCode
+     * @param classCode A string representing the class a teacher is currently controlling.
      * @param followerResponse
      * @param {*} followerDisconnected
      * @param followerAdded
@@ -126,7 +126,7 @@ class Firebase {
 
     /**
      * Add listeners for followers being added and removed to the database
-     * @param classCode
+     * @param classCode A string representing the class a teacher is currently controlling.
      * @param followerTabChanged
      * @param followerTabRemoved
      * @param followerTabsAdded
@@ -152,7 +152,7 @@ class Firebase {
     /**
      * Run through all the student entries within the existing class entry and reattach the listeners that may have
      * been severed when a page reload occurred, loading the students again to the dashboard as well.
-     * @param classCode
+     * @param classCode A string representing the class a teacher is currently controlling.
      * @param followerResponse
      */
     reloadFollowers = (classCode: string, followerResponse: Function) => {
@@ -184,17 +184,21 @@ class Firebase {
     addFollower = (data: Follower) => {
         const followerRef = ref(this.db, `/followers/${data.getClassCode()}`);
         update(followerRef, data.getFollowerObject()).then(() => console.log("Follower object added"));
-        onDisconnect(followerRef).remove().then(() => console.log("Follower object removed"));
+
+        const followerIdRef = ref(this.db, `/followers/${data.getClassCode()}/${data.getUniqueId()}`);
+        onDisconnect(followerIdRef).remove().then(() => console.log("Follower object removed"));
 
         const tabRef = ref(this.db, `/tabs/${data.getClassCode()}`);
         update(tabRef, data.getTabsObject()).then(() => console.log("Tab object added"));
-        onDisconnect(tabRef).remove().then(() => console.log("Tab object removed"));
+
+        const tabIdRef = ref(this.db, `/tabs/${data.getClassCode()}/${data.getUniqueId()}`);
+        onDisconnect(tabIdRef).remove().then(() => console.log("Tab object removed"));
     }
 
     /**
      * Update a follower's data entry in firebase. Only the fields present in the details object will be updated.
-     * @param classCode
-     * @param uuid
+     * @param classCode A string representing the class a user is registered to.
+     * @param uuid A string representing the unique ID of a follower.
      * @param details An object holding the fields to update on the follower.
      */
     updateFollower = (classCode: string, uuid: string, details: object) => {
@@ -204,8 +208,8 @@ class Firebase {
 
     /**
      * Remove an entry from firebase at the specified location.
-     * @param {*} classCode 
-     * @param {*} uuid 
+     * @param {*} classCode A string representing the class a user is registered to.
+     * @param {*} uuid A string representing the unique ID of a follower.
      */
     async removeFollower(classCode: string, uuid: string|null) {
         const followerRef = ref(this.db, `/followers/${classCode}/${uuid}`);
@@ -252,8 +256,8 @@ class Firebase {
     }
 
     /**
-     * Sent from a leader, push an action request to all followers. This could be a video_permission, muteTab etc..
-     * @param classCode
+     * Sent from a leader, push an action request to all followers. This could be a video_permission, muteTab etc.
+     * @param classCode A string representing the class a user is registered to.
      * @param {*} type
      */
     requestAction = async (classCode: string, type: object) => {
@@ -262,9 +266,9 @@ class Firebase {
     }
 
     /**
-     * Sent from a leader, push an action request to a particular follower. This could be a video_permission, muteTab etc..
-     * @param classCode
-     * @param uuid
+     * Sent from a leader, push an action request to a particular follower. This could be a video_permission, muteTab etc.
+     * @param classCode A string representing the class a user is registered to.
+     * @param uuid A string representing the unique ID of a follower.
      * @param {*} type
      */
     requestIndividualAction = async (classCode: string, uuid: string, type: object) => {
@@ -273,9 +277,9 @@ class Firebase {
     }
 
     /**
-     * Sent from a follower, push an action response to the leader. This could be a video_permission, off task notification etc..
-     * @param classCode
-     * @param uuid
+     * Sent from a follower, push an action response to the leader. This could be a video_permission, off task notification etc.
+     * @param classCode A string representing the class a user is registered to.
+     * @param uuid A string representing the unique ID of a follower.
      * @param action
      */
     sendResponse = (classCode: string, uuid: string, action: object) => {
@@ -286,7 +290,7 @@ class Firebase {
     /**
      * Register listeners on firebase for a student that has just connected
      * @param {*} classCode A string representing the class a user is registered to.
-     * @param uuid
+     * @param uuid A string representing the unique ID of a follower.
      */
     registerListeners = (classCode: string, uuid: string) => {
         //Listen for group actions
@@ -309,7 +313,7 @@ class Firebase {
     /**
      * Unregister any listeners that may be active.
      * @param {*} inputCode A string representing the class a user is registered to.
-     * @param uuid
+     * @param uuid A string representing the unique ID of a follower.
      */
     unregisterListeners = (inputCode: string, uuid: string) => {
         off(ref(this.db, `classCode/${inputCode}/request`));
@@ -322,7 +326,7 @@ class Firebase {
      * performed on.
      * @param {*} inputCode A string representing the class a user is registered to.
      * @param {*} inputUUID A string representing the unique ID of a follower.
-     * @param tab
+     * @param tab A tab object containing the details of a new tab.
      */
     updateTab = (inputCode: string, inputUUID: string, tab: Tab) => {
         update(ref(this.db, `tabs/${inputCode}/${inputUUID}/${tab.id}`), tab)
@@ -344,7 +348,7 @@ class Firebase {
 
     /**
      * Remove the entity of a class entry, at the end of a session the details of the connects will be erased.
-     * @param {*} classCode 
+     * @param {*} classCode A string representing the class a teacher is currently controlling.
      */
     removeClass = (classCode: string) => {
         const classRef = ref(this.db, `classCode/${classCode}`);
@@ -392,10 +396,10 @@ class Firebase {
     }
 
     /**
-     * Add a follower object to the classrooms followers array.
-     * @param base64
-     * @param classCode
-     * @param followerId
+     * Upload the latest follower screenshot to firebase.
+     * @param base64 A base64 string of the active screen capture.
+     * @param classCode A string representing the class a user is registered to.
+     * @param followerId A string representing the unique ID of a follower.
      */
     uploadScreenshot = (base64: string, classCode: string, followerId: string) => {
         const screenshotRef = storageRef(this.storage, `${classCode}/${followerId}`);
@@ -409,10 +413,10 @@ class Firebase {
 
     /**
      * Send the latest ICE candidates to firebase.
-     * @param senderId
-     * @param UUID
-     * @param data
-     * @param classCode
+     * @param senderId A unique number representing the sender's ID, to differentiate from a reader.
+     * @param UUID A string representing the unique ID of a follower.
+     * @param data A JSON string object of the latest ICE candidates.
+     * @param classCode A string representing the class a user is registered to.
      */
     sendIceCandidates = (senderId: string, UUID: string, data: string, classCode: string) => {
         const msgRef = ref(this.db, `ice/${classCode}/${UUID}`);

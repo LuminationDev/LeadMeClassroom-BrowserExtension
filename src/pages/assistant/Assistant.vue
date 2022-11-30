@@ -35,7 +35,6 @@ const assistantListener = (data: any) => {
       break;
 
     case REQUESTS.CAPTURE:
-      console.log("Updating screenshot");
       MANAGER.value.captureScreen();
       break;
 
@@ -131,10 +130,6 @@ const setupWebRTCConnection = (UUID: string, classCode: string) => {
 }
 
 const sendIceCandidates = (senderId: string, UUID: string, data: string) => {
-  console.log("Calling");
-  console.log(senderId);
-  console.log(UUID);
-  console.log(data);
   MANAGER.value.firebase.sendIceCandidates(senderId, UUID, data, followerData.classCode);
 }
 
