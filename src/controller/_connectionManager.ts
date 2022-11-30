@@ -8,7 +8,7 @@ class ConnectionManager {
     public firebase: Firebase;
     private follower!: Follower;
     private intervalID: NodeJS.Timer|undefined;
-    private refreshTime: number; //seconds between capture timing
+    private readonly refreshTime: number; //seconds between capture timing
 
     constructor(callback: Function) {
         this.firebase = new Firebase(callback);

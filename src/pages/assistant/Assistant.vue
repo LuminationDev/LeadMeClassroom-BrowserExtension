@@ -35,7 +35,6 @@ const assistantListener = (data: any) => {
       break;
 
     case REQUESTS.CAPTURE:
-      console.log("Updating screenshot");
       MANAGER.value.captureScreen();
       break;
 
