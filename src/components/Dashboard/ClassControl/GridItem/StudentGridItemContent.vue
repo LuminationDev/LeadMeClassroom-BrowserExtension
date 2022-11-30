@@ -85,7 +85,7 @@ const revertInput = () => {
 <template>
   <!--Disconnected screen-->
   <div v-if="follower.disconnected" class="text-lg text-center h-full flex flex-col justify-center">
-    <span><b>{{ follower.name }}</b><br/> has left the lesson.</span>
+    <span><span class="font-semibold">{{ follower.name }}</span><br/> has left the lesson.</span>
   </div>
 
   <!--Options screen-->
