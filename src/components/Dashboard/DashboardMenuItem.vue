@@ -15,7 +15,7 @@ defineProps({
 <template>
   <div
       :class="{
-        'w-44 h-9 ml-6 pl-3 flex items-center cursor-pointer rounded-lg': true,
+        'w-44 h-9 ml-6 pl-3 flex items-center cursor-pointer rounded-lg font-light': true,
         'bg-white-menu-overlay': dashboardPinia.view === view,
         'hover:bg-white-menu-overlay': dashboardPinia.view !== view,
       }"

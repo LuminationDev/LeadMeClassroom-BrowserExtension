@@ -171,7 +171,7 @@ onMounted(() => {
                 </div>
                 <div>
                   <button @click="closeOnboarding" class="text-md text-lg">Skip</button>
-                  <button v-if="!isLast" @click="next" class="text-blue-500 text-lg ml-4">Next</button>
+                  <button v-if="!isLast" @click="next" class="text-blue-500 font-semibold text-lg ml-4">Next</button>
                   <button v-else @click="closeOnboarding" class="text-blue-500 text-lg ml-4">Finish</button>
                 </div>
               </div>

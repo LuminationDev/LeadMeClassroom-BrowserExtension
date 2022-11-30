@@ -69,7 +69,7 @@ onMounted(() => {
           :num-inputs="4"
           input-type="letter-numeric"
           inputmode="text"
-          input-classes="w-11 h-16 text-center font-bold text-4xl rounded-lg border-black-form-border border-2 ml-3"
+          input-classes="w-11 h-16 text-center font-medium text-4xl rounded-lg border-black-form-border border-2 ml-3"
           @on-change="(code: string) => { popupPinia.classCode = code }"
           separator=""/>
       <div class="mt-2" v-if="v$.classCode && v$.classCode.$error">

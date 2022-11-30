@@ -66,7 +66,7 @@ function closeModal() {
   <button class="
     w-56 h-9 flex justify-center items-center
     bg-blue-500 hover:bg-blue-400
-    text-white text-base"
+    text-white text-base font-medium"
     v-on:click="showWebsiteModal = true"
     id="share_button"
   >
@@ -81,7 +81,7 @@ function closeModal() {
     <Modal :show="showWebsiteModal" @close="closeModal">
       <template v-slot:header>
         <header class="h-20 px-8 w-modal-width bg-white flex justify-between items-center rounded-t-lg">
-          <p class="text-2xl">Share links with your class</p>
+          <p class="text-2xl font-medium">Share links with your class</p>
 
           <img
               v-on:click="showWebsiteModal = false"
@@ -108,7 +108,7 @@ function closeModal() {
             </div>
           </div>
           <div class="mx-14 mt-8 h-20 bg-white flex items-center justify-between">
-            <p class="ml-8 text-lg">Share to</p>
+            <p class="ml-8 text-lg font-medium">Share to</p>
             <div class="flex">
               <label class="mr-14 flex justify-between items-center">
                 <input class="h-5 w-5 mr-4" name="shareTo" type="radio" v-model="shareTo" value="all">
@@ -135,11 +135,11 @@ function closeModal() {
 
       <template v-slot:footer>
         <footer class="mt-11 mb-8 mr-14 text-right">
-          <button class="w-36 h-11 mr-4 text-blue-500 text-base rounded-lg hover:bg-gray-default"
+          <button class="w-36 h-11 mr-4 text-blue-500 text-base rounded-lg hover:bg-gray-default font-medium"
                   v-on:click="showWebsiteModal = false"
           >Cancel</button>
           <button
-              class="w-52 h-11 text-white bg-blue-500 rounded-lg text-base hover:bg-blue-400"
+              class="w-52 h-11 text-white bg-blue-500 rounded-lg text-base hover:bg-blue-400 font-medium"
               v-on:click="validateAndSubmit"
           >Share link</button>
         </footer>

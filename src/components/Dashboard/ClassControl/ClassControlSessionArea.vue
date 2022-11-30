@@ -17,7 +17,7 @@ async function generateSession() {
     <GenericButton
         v-if="dashboardPinia.classCode"
         class="h-12 w-40 bg-white text-base
-        text-red-end-class font-poppins font-bold
+        text-red-end-class font-poppins font-semibold
         rounded-md border-2 border-red-end-class"
         :callback="endSession"
         :spinnerColor="'#000000'"
@@ -26,7 +26,7 @@ async function generateSession() {
     <button
         v-if="dashboardPinia.classCode"
         class="ml-3 h-12 w-56 bg-navy-side-menu
-        text-base text-white font-poppins font-bold
+        text-base text-white font-poppins font-semibold
         rounded-md"
     >Class Code: {{ dashboardPinia.classCode }}</button>
 
@@ -34,7 +34,7 @@ async function generateSession() {
         v-else
         id="generate_class"
         class="ml-3 h-12 w-56 bg-navy-side-menu
-        text-base text-white font-poppins font-bold
+        text-base text-white font-poppins font-medium
         rounded-md"
         :callback="generateSession"
     >Start Class</GenericButton>

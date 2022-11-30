@@ -84,7 +84,7 @@ async function validateInputs() {
           'text-red-800': !terms && v$.terms.$dirty
         }">By signing up, I agree to LeadMe's <a target="_blank" href="https://leadmeprivacypolicies.herokuapp.com/policies/classroom" class="underline underline-offset-1">Terms and Conditions</a></p>
       </label>
-      <div class="ml-8 mt-1" v-if="v$.terms && v$.terms.$error">
+      <div class="ml-8 mt-1 text-start" v-if="v$.terms && v$.terms.$error">
         <span class="text-red-800" v-for="error in v$.terms.$errors">{{ error.$message }}</span>
       </div>
     </div>
@@ -97,7 +97,7 @@ async function validateInputs() {
     <GenericButton :type="'secondary'" :callback="validateInputs">Sign up</GenericButton>
     <p class="text-red-400">{{ popupPinia.error }}</p>
 
-    <p class="mt-3 cursor-pointer text-blue-400 font-bold" v-on:click="popupPinia.changeView('teacherLogin')">
+    <p class="mt-3 cursor-pointer text-blue-400 font-medium" v-on:click="popupPinia.changeView('loginTeacher')">
       Sign in instead?
     </p>
   </form>
