@@ -1,4 +1,7 @@
 <script setup lang="ts">
+import {useDashboardStore} from "../../../stores/dashboardStore";
+const dashboardPinia = useDashboardStore();
+
 defineProps({
   title: {
     type: String,
@@ -14,7 +17,10 @@ defineProps({
     </div>
 
     <div class="mr-5 flex flex-grow justify-end">
-      <img class="w-7 h-7"
+      <img :class="{
+            'w-7 h-7': true,
+            'rotate-180': dashboardPinia.accountView !== 'menu'
+           }"
            src="@/assets/img/settings-icon-arrow.svg"
            alt="Settings arrow"
       />
