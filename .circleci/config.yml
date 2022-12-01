@@ -5,8 +5,8 @@ jobs:
       default_branch:
         type: string
         default: main
-    environment:
-      SEMGREP_RULES: p/default
+    #environment:
+    #  SEMGREP_RULES: p/default, p/owasp-top-ten, p/cwe-top-25, r2c-security-audit
 
       # Uncomment the following line to scan changed 
       # files in PRs or MRs (diff-aware scanning): 
@@ -20,7 +20,7 @@ jobs:
       - checkout
       - run:
           name: "Semgrep scan"
-          command: semgrep ci
+          command: semgrep ci --config p/default --config p/owasp-top-ten --config p/cwe-top-25 --config r2c-security-audit
 workflows:
   version: 2.1
   automated-scans:
