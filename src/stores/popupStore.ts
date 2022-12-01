@@ -1,7 +1,6 @@
-//Store example using pinia
 import {defineStore} from "pinia";
 import { useStorage } from "../hooks/useStorage";
-const { getSyncStorage, setSyncStorage, removeSyncStorage } = useStorage();
+
 import {
     createUserWithEmailAndPassword,
     sendEmailVerification,
@@ -9,13 +8,13 @@ import {
     sendPasswordResetEmail,
     getAuth,
     signOut,
-    updateProfile
+    updateProfile, setPersistence, browserLocalPersistence
 } from '@firebase/auth'
 import Firebase from "../controller/_firebase";
-// @ts-ignore
-import * as REQUESTS from "@/constants/_requests";
+import * as REQUESTS from "../constants/_requests";
 import Follower from "../models/_follower";
 
+const { getSyncStorage, setSyncStorage, removeSyncStorage } = useStorage();
 const firebase = new Firebase();
 
 interface followerData {
@@ -28,7 +27,7 @@ export let usePopupStore = defineStore("popup", {
     //Data
     state: () => {
         return {
-            view: "login",
+            view: "loading",
             username: null,
             follower: new Follower(),
             classCode: "",
@@ -89,7 +88,8 @@ export let usePopupStore = defineStore("popup", {
          */
         showHeaderIcon() {
             return (
-                this.view !== 'login'
+                this.view !== 'loading'
+                && this.view !== 'login'
                 && this.view !== 'sessionStudent'
                 && this.view !== 'sessionTeacher'
             );
@@ -125,7 +125,8 @@ export let usePopupStore = defineStore("popup", {
                 return;
             }
 
-            const auth = getAuth()
+            await setPersistence(getAuth(), browserLocalPersistence);
+            const auth = getAuth();
             if (auth && auth.currentUser) {
                 this.view = auth.currentUser.emailVerified ? 'sessionTeacher' : 'verifyEmail'
                 return
@@ -256,8 +257,6 @@ export let usePopupStore = defineStore("popup", {
          * Sign a teacher out of their currently active session.
          */
         async handleLogoutClick() {
-            await removeSyncStorage("Teacher");
-
             signOut(getAuth()).then(() => {
                 this.view = "login"
             });
@@ -266,6 +265,10 @@ export let usePopupStore = defineStore("popup", {
             chrome.tabs.query({ pinned: true }, ([dashboard]) => {
                 if (!dashboard) { return; }
                 if (dashboard.url != null) { return; } // the dashboard has no URL associated with it
+
+                if (dashboard.id != null) {
+                    void chrome.tabs.sendMessage(dashboard.id, "EndSession");
+                }
 
                 //Create a blank tab if the dashboard is the only tab open
                 chrome.tabs.query({windowId: dashboard.windowId}, (tabs) => {
@@ -282,7 +285,7 @@ export let usePopupStore = defineStore("popup", {
          * Begin the connection process for a student, ask for permissions to be granted at this stage.
          */
         async connect() {
-            await new Promise((resolve, reject) => {
+            await new Promise((resolve) => {
                 chrome.permissions.request({
                     permissions: ["tabs", "scripting"]
                 }, (granted: boolean) => {
@@ -389,6 +392,20 @@ export let usePopupStore = defineStore("popup", {
                     }
                 } else {
                     this.createDashboard();
+                }
+            });
+        },
+
+        /**
+         * Send a message to the dashboard page from the popup extension.
+         * @param message A string describing the request that is being made.
+         */
+        SendDashboardMessage(message: string) {
+            chrome.tabs.query({ pinned: true }, ([tab]) => {
+                if (!tab) { return; }
+
+                if (tab.id != null && tab.url == null) {
+                    void chrome.tabs.sendMessage(tab.id, message);
                 }
             });
         },

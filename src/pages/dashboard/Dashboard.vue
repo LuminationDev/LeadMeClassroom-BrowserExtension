@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import '@/styles.css'
 import TheDashboard from "../../components/Dashboard/TheDashboard.vue";
-
 import { useDashboardStore } from "../../stores/dashboardStore";
 const dashboardPinia = useDashboardStore();
 
@@ -15,6 +14,11 @@ chrome.runtime.onMessage.addListener(
       switch(request) {
         case "GoToDashboard":
           dashboardPinia.changeView("dashboard");
+          break;
+
+        case "EndSession":
+          dashboardPinia.endSession();
+          break;
       }
     }
 );

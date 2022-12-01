@@ -1,7 +1,9 @@
 <script setup lang="ts">
 import DashboardMenuItem from "../../components/Dashboard/DashboardMenuItem.vue";
+import { useDashboardStore } from "../../stores/dashboardStore";
 import { usePopupStore } from "../../stores/popupStore";
-let popupPinia = usePopupStore();
+const popupPinia = usePopupStore();
+const dashboardPinia = useDashboardStore();
 </script>
 
 <template>
@@ -18,7 +20,10 @@ let popupPinia = usePopupStore();
       <DashboardMenuItem icon="../../assets/img/menu-icon-account.svg" view="account">Account</DashboardMenuItem>
     </div>
 
-    <!--Logout-->
-    <DashboardMenuItem icon="../../assets/img/menu-icon-logout.svg" class="fixed bottom-12" v-on:click="popupPinia.handleLogoutClick()">Log Out</DashboardMenuItem>
+    <!--End the active session and logout-->
+    <DashboardMenuItem
+        icon="../../assets/img/menu-icon-logout.svg" class="fixed bottom-12"
+        v-on:click="dashboardPinia.endSession(); popupPinia.handleLogoutClick()"
+    >Log Out</DashboardMenuItem>
   </div>
 </template>
