@@ -20,8 +20,8 @@ jobs:
       - checkout
       - run:
           name: "Semgrep scan"
-          command: semgrep ci --config p/owasp-top-ten 
-          #--config p/default --config p/cwe-top-25 --config p/r2c-security-audit
+          command: semgrep ci --config p/cwe-top-25
+          #--config p/owasp-top-ten --config p/default  --config p/r2c-security-audit
 workflows:
   version: 2.1
   automated-scans:
