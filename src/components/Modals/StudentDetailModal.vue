@@ -3,9 +3,8 @@ import Modal from "./Modal.vue";
 import {computed, defineProps, PropType, ref} from "vue";
 import Follower from "../../models/_follower";
 import HoverButton from "../Buttons/HoverButton.vue";
-
-import { useDashboardStore } from "../../stores/dashboardStore";
 import Tooltip from "../Buttons/Tooltip.vue";
+import { useDashboardStore } from "../../stores/dashboardStore";
 let dashboardPinia = useDashboardStore();
 
 defineEmits<{
