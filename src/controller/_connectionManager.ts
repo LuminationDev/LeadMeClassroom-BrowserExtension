@@ -2,6 +2,7 @@ import { Firebase } from './';
 import * as REQUESTS from "../constants/_requests";
 import {Follower, Tab} from "../models";
 import { useStorage } from "../hooks/useStorage";
+import { assistantCallbackFunction } from "../constants/_functionTypes";
 const { setSyncStorage } = useStorage();
 
 class ConnectionManager {
@@ -10,7 +11,7 @@ class ConnectionManager {
     private intervalID: NodeJS.Timer|undefined;
     private readonly refreshTime: number; //seconds between capture timing
 
-    constructor(callback: Function) {
+    constructor(callback: assistantCallbackFunction) {
         this.firebase = new Firebase(callback);
         this.refreshTime = 15;
     }

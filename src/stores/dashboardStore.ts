@@ -88,6 +88,35 @@ export let useDashboardStore = defineStore("dashboard", {
         },
 
         /**
+         * Using callback functions attach listeners to within the firebase real time database.
+         * @param active A boolean representing if a class is already running when the screen loads.
+         */
+        async attachClassListeners(active: boolean) {
+            if(this.classCode === "") { return; }
+
+            //Override the auto generated code if there is a saved one
+            this.leader.setClassCode(this.classCode);
+
+            this.firebase.followerListeners(
+                this.classCode,
+                this.followerResponse,
+                this.followerDisconnected,
+                this.followerAdded,
+                this.readIceCandidate
+            );
+            this.firebase.tabListeners(
+                this.classCode,
+                this.followerTabChanged,
+                this.followerTabRemoved,
+                this.followerTabsAdded
+            );
+
+            if(!active) { return; }
+
+            this.firebase.reloadFollowers(this.classCode, this.followerResponse);
+        },
+
+        /**
          * Send WebRTC ice candidates to the Firebase database
          * @param senderId The unique ID of the sender to differentiate between the sender and receiver.
          * @param UUID The unique ID of the student which acts as the database reference location
@@ -104,35 +133,6 @@ export let useDashboardStore = defineStore("dashboard", {
          */
         readIceCandidate(snapshot: any, UUID: string) {
             this.webRTCPinia.readIceCandidate(snapshot, UUID)
-        },
-
-        async attachClassListeners(active: boolean) {
-            //Override the auto generated code if there is a saved one
-            if(this.classCode === "") {
-                return;
-            } else {
-                this.leader.setClassCode(this.classCode);
-            }
-
-            this.firebase.followerListeners(
-                this.classCode,
-                this.followerResponse,
-                this.followerDisconnected,
-                this.followerAdded,
-                this.readIceCandidate
-            );
-            this.firebase.tabListeners(
-                this.classCode,
-                this.followerTabChanged,
-                this.followerTabRemoved,
-                this.followerTabsAdded
-            );
-
-            if(!active) {
-                return;
-            }
-
-            this.firebase.reloadFollowers(this.classCode, this.followerResponse);
         },
 
         /**
@@ -173,7 +173,7 @@ export let useDashboardStore = defineStore("dashboard", {
          * @param id
          * @param key
          */
-        followerResponse(response: any, name: string, id: string, key: string) {
+        followerResponse(response: any, name: string, id: string, key: string|null) {
             if (key === "screenshot") {
                 toDataURL(response).then((result) => {
                     if (typeof result === "string") {
@@ -189,6 +189,55 @@ export let useDashboardStore = defineStore("dashboard", {
                 default:
                     console.log(response);
                     console.log("Unknown command");
+            }
+        },
+
+        /**
+         * Notify the leader that a follower has disconnected
+         * @param UUID A string representing the unique ID of a student.
+         */
+        followerDisconnected(UUID: string) {
+            let follower = this.followers.find(element => element.getUniqueId() === UUID)
+            if (!follower) { return }
+            follower.disconnected = true;
+        },
+
+        /**
+         * Notify the leader that a follower has disconnected
+         * @param snapshot
+         * @param id
+         */
+        followerAdded(snapshot: any, id: string) {
+            let follower = new Follower(this.classCode, snapshot.name, id)
+            follower.monitoring = false
+            follower.muted = false
+            follower.muteAll = false
+            follower.tabs = snapshot.tabs
+            if (snapshot.screenshot) {
+                toDataURL(snapshot.screenshot).then((result) => {
+                    if (typeof result === "string") {
+                        this.updateFollowerScreenshot(result, snapshot.name, id)
+                    }
+                })
+            }
+            const index = this.followers.findIndex(element => element.getUniqueId() === id)
+            if (index === -1) {
+                this.followers.push(follower)
+            } else {
+                this.followers.splice(index, 1, follower)
+            }
+
+            this.webRTCPinia.createNewConnection(id);
+        },
+
+        /**
+         * Notify the leader that a follower has disconnected
+         * @param UUID A string representing the unique ID of a student.
+         */
+        removeFollower(UUID: string) {
+            let index = this.followers.findIndex(element => element.getUniqueId() === UUID)
+            if (index !== -1) {
+                this.followers.splice(index, 1)
             }
         },
 
@@ -327,55 +376,6 @@ export let useDashboardStore = defineStore("dashboard", {
             let follower = this.followers.find(element => element.getUniqueId() === id)
             if (follower) {
                 follower.tabs = tabs
-            }
-        },
-
-        /**
-         * Notify the leader that a follower has disconnected
-         * @param snapshot
-         * @param id
-         */
-        followerAdded(snapshot: any, id: string) {
-            let follower = new Follower(this.classCode, snapshot.name, id)
-            follower.monitoring = false
-            follower.muted = false
-            follower.muteAll = false
-            follower.tabs = snapshot.tabs
-            if (snapshot.screenshot) {
-                toDataURL(snapshot.screenshot).then((result) => {
-                    if (typeof result === "string") {
-                        this.updateFollowerScreenshot(result, snapshot.name, id)
-                    }
-                })
-            }
-            const index = this.followers.findIndex(element => element.getUniqueId() === id)
-            if (index === -1) {
-                this.followers.push(follower)
-            } else {
-                this.followers.splice(index, 1, follower)
-            }
-
-            this.webRTCPinia.createNewConnection(id);
-        },
-
-        /**
-         * Notify the leader that a follower has disconnected
-         * @param UUID A string representing the unique ID of a student.
-         */
-        followerDisconnected(UUID: string) {
-            let follower = this.followers.find(element => element.getUniqueId() === UUID)
-            if (!follower) { return }
-            follower.disconnected = true;
-        },
-
-        /**
-         * Notify the leader that a follower has disconnected
-         * @param UUID A string representing the unique ID of a student.
-         */
-        removeFollower(UUID: string) {
-            let index = this.followers.findIndex(element => element.getUniqueId() === UUID)
-            if (index !== -1) {
-                this.followers.splice(index, 1)
             }
         },
 

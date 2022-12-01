@@ -19,11 +19,18 @@ import {
 import {browserLocalPersistence, getAuth, setPersistence, updateProfile} from "@firebase/auth";
 import * as REQUESTS from '../constants/_requests';
 import {Follower, Leader, Tab} from "../models";
+import {
+    addedType,
+    assistantCallbackFunction,
+    disconnectedType, generateType,
+    readIceCandidateType,
+    responseType, tabChangedType, tabRemovedType, tabsAddedType
+} from "../constants/_functionTypes";
 
 const config = process.env.NODE_ENV === 'production' ? prodConfig : devConfig;
 
 class Firebase {
-    private readonly callback: Function|null;
+    private readonly callback: assistantCallbackFunction|null;
     private readonly firebase: FirebaseApp|undefined;
     private readonly db: Database;
     private readonly storage: FirebaseStorage;
@@ -80,8 +87,42 @@ class Firebase {
      * @param {*} leader An object representing the current leader
      * @param callback
      */
-    connectAsLeader(leader: Leader, callback: Function) {
+    connectAsLeader(leader: Leader, callback: generateType) {
         this.generateRoom(leader, callback);
+    }
+
+    /**
+     * Update the Real Time Database with the pass object.
+     * @param {*} leader A JSON structured object to be uploaded into the database.
+     * @param callback
+     */
+    generateRoom = (leader: Leader, callback: generateType) => {
+        let completedCount = 0
+        update(ref(this.db, `classCode`), leader.getClassroomObject()).then(() => {
+            completedCount++
+        });
+        update(ref(this.db, `followers`), leader.getDefaultFollowersObject()).then(() => {
+            completedCount++
+        });
+        update(ref(this.db, `followerMessages`), leader.getDefaultFollowerMessagesObject()).then(() => {
+            completedCount++
+        });
+        update(ref(this.db, `tabs`), leader.getDefaultTabsObject()).then(() => {
+            completedCount++
+        });
+        update(ref(this.db, `ice`), leader.getDefaultIceObject()).then(() => {
+            completedCount++
+        });
+        let runCallback = () => {
+            setTimeout(() => {
+                if (completedCount === 5) {
+                    callback()
+                } else {
+                    runCallback()
+                }
+            }, 100)
+        }
+        runCallback()
     }
 
     /**
@@ -92,11 +133,17 @@ class Firebase {
      * @param followerAdded
      * @param readIceCandidate
      */
-    followerListeners = (classCode: string, followerResponse: Function, followerDisconnected: Function, followerAdded: Function, readIceCandidate: Function) => {
+    followerListeners = (
+        classCode: string,
+        followerResponse: responseType,
+        followerDisconnected: disconnectedType,
+        followerAdded: addedType,
+        readIceCandidate: readIceCandidateType) => {
+
         const followerRef = ref(this.db, `/followers/${classCode}`);
 
         onChildAdded(followerRef, (snapshot) => {
-            followerAdded(snapshot.val(), snapshot.key)
+            followerAdded(snapshot.val(), snapshot.key!)
             let name = snapshot.val().name
             let id = snapshot.key
 
@@ -105,22 +152,22 @@ class Firebase {
                 if (snapshot.key === 'screenshot') {
                     const screenshotRef = storageRef(this.storage, `${classCode}/${id}`);
                     getDownloadURL(screenshotRef).then(url => {
-                        followerResponse(url, name, id, snapshot.key);
+                        followerResponse(url, name, id!, snapshot.key!);
                     })
                 } else {
-                    followerResponse(snapshot.val(), name, id, snapshot.key);
+                    followerResponse(snapshot.val(), name, id!, snapshot.key!);
                 }
             });
 
             //Add ice listeners
             const iceRef = ref(this.db, `ice/${classCode}/${id}`);
             onChildAdded(iceRef, (snapshot) => {
-                readIceCandidate(snapshot, id)
+                readIceCandidate(snapshot, id!)
             });
         });
 
         onChildRemoved(followerRef, (snapshot) => {
-            followerDisconnected(snapshot.key);
+            followerDisconnected(snapshot.key!);
         });
     }
 
@@ -131,20 +178,20 @@ class Firebase {
      * @param followerTabRemoved
      * @param followerTabsAdded
      */
-    tabListeners = (classCode: string, followerTabChanged: Function, followerTabRemoved: Function, followerTabsAdded: Function) => {
+    tabListeners = (classCode: string, followerTabChanged: tabChangedType, followerTabRemoved: tabRemovedType, followerTabsAdded: tabsAddedType) => {
         const tabRef = ref(this.db, `/tabs/${classCode}`);
 
         onChildAdded(tabRef, (snapshot) => {
-            followerTabsAdded(snapshot.val(), snapshot.key);
+            followerTabsAdded(snapshot.val(), snapshot.key!);
             let followerId = snapshot.key;
 
             const individualTabRef = ref(this.db, `/tabs/${classCode}/${followerId}`);
             onChildChanged(individualTabRef, (snapshot) => {
-                followerTabChanged(snapshot.val(), followerId, snapshot.key);
+                followerTabChanged(snapshot.val(), followerId!, snapshot.key!);
             });
 
             onChildRemoved(individualTabRef, (snapshot) => {
-                followerTabRemoved(followerId, snapshot.key);
+                followerTabRemoved(followerId!, snapshot.key!);
             });
         });
     }
@@ -155,11 +202,11 @@ class Firebase {
      * @param classCode A string representing the class a teacher is currently controlling.
      * @param followerResponse
      */
-    reloadFollowers = (classCode: string, followerResponse: Function) => {
+    reloadFollowers = (classCode: string, followerResponse: responseType) => {
         const followerRef = ref(this.db, `/followers/${classCode}`);
         get(followerRef).then((snapshot) => {
             snapshot.forEach(entry => {
-                followerResponse(entry.val().screenshot, entry.val().name, entry.key);
+                followerResponse(entry.val().screenshot, entry.val().name, entry.key!, null);
             });
         });
     }
@@ -219,40 +266,6 @@ class Firebase {
             console.log(error);
             return false;
         });
-    }
-
-    /**
-     * Update the Real Time Database with the pass object.
-     * @param {*} leader A JSON structured object to be uploaded into the database.
-     * @param callback
-     */
-    generateRoom = (leader: Leader, callback: Function) => {
-        let completedCount = 0
-        update(ref(this.db, `classCode`), leader.getClassroomObject()).then(() => {
-            completedCount++
-        });
-        update(ref(this.db, `followers`), leader.getDefaultFollowersObject()).then(() => {
-            completedCount++
-        });
-        update(ref(this.db, `followerMessages`), leader.getDefaultFollowerMessagesObject()).then(() => {
-            completedCount++
-        });
-        update(ref(this.db, `tabs`), leader.getDefaultTabsObject()).then(() => {
-            completedCount++
-        });
-        update(ref(this.db, `ice`), leader.getDefaultIceObject()).then(() => {
-            completedCount++
-        });
-        let runCallback = () => {
-           setTimeout(() => {
-               if (completedCount === 5) {
-                   callback()
-               } else {
-                   runCallback()
-               }
-           }, 100)
-        }
-        runCallback()
     }
 
     /**
