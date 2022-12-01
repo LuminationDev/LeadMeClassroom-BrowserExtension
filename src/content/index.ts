@@ -1,4 +1,4 @@
-import { Firebase } from '../controller';
+import Firebase from '../controller/_firebase';
 import YoutubeController from "./modules/YoutubeController";
 import ScreenController from "./modules/ScreenController";
 import { useStorage } from "../hooks/useStorage";

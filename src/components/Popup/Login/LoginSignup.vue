@@ -21,8 +21,8 @@ const name = computed(() => {
 const rules = {
   password: {
     required: helpers.withMessage("Password is required", required),
-    minLength: helpers.withMessage("Password mus be at least 8 characters", minLength(8)),
-    specialCharacters: helpers.withMessage("Password must have a special character", helpers.regex(/^(?=.*[*.!@$%^&(){}\[\]:;<>,.?\/~_\+\-=|]).*$/)),
+    minLength: helpers.withMessage("Password must be at least 8 characters", minLength(8)),
+    specialCharacters: helpers.withMessage("Password must have a special character", helpers.regex(/^(?=.*[*.!@#$%^&(){}\[\]:;<>,.?\/~_\+\-=|]).*$/)),
     lowerCase: helpers.withMessage("Password must have a lowercase letter", helpers.regex(/^(?=.*[a-z]).*$/)),
     upperCase: helpers.withMessage("Password must have an uppercase letter", helpers.regex(/^(?=.*[A-Z]).*$/)),
     numbers: helpers.withMessage("Password must have at least one number", helpers.regex(/^(?=.*[0-9]).*$/))

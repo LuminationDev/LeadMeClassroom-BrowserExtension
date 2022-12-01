@@ -27,7 +27,7 @@ export let usePermissionStore = defineStore("permission", {
 
         /**
          * Enable a permission within the extension, this will remain enabled until
-         * it is manually disabled or the extension is uninstall.
+         * it is manually disabled or the extension is uninstalled.
          * @param name
          */
         enablePermission(name: string) {
