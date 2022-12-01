@@ -71,9 +71,7 @@ function closeModal() {
     id="share_button"
   >
     <img class="w-4 h-4 mr-3" src="@/assets/img/session-icon-share.svg" alt="Icon"/>
-
-      Share Website
-
+      Share website
   </button>
 
   <!--Modal body using the Modal template, teleports the html to the bottom of the body tag-->

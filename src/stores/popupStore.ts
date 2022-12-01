@@ -11,8 +11,7 @@ import {
     signOut,
     updateProfile
 } from '@firebase/auth'
-// @ts-ignore
-import {Firebase} from "@/controller";
+import Firebase from "../controller/_firebase";
 // @ts-ignore
 import * as REQUESTS from "@/constants/_requests";
 import Follower from "../models/_follower";

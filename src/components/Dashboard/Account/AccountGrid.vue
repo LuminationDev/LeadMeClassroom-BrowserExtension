@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import AccountGridItem from "./AccountGridItem.vue";
-import {required, helpers} from "@vuelidate/validators";
+import {required, helpers, minLength} from "@vuelidate/validators";
 import LoginTextInput from "../../Popup/Login/LoginTextInput.vue";
 import useVuelidate from "@vuelidate/core";
 import {ref} from "vue";
@@ -11,24 +11,44 @@ const dashboardPinia = useDashboardStore();
 
 const changed = ref(false);
 const name = ref('');
+const password = ref('');
 const rules = {
   name: {
     required: helpers.withMessage("Name is required", required),
     $autoDirty: true
-  }
+  },
+  password: {
+    required: helpers.withMessage("Password is required", required),
+    minLength: helpers.withMessage("Password must be at least 8 characters", minLength(8)),
+    specialCharacters: helpers.withMessage("Password must have a special character", helpers.regex(/^(?=.*[*.!@#$%^&(){}\[\]:;<>,.?\/~_\+\-=|]).*$/)),
+    lowerCase: helpers.withMessage("Password must have a lowercase letter", helpers.regex(/^(?=.*[a-z]).*$/)),
+    upperCase: helpers.withMessage("Password must have an uppercase letter", helpers.regex(/^(?=.*[A-Z]).*$/)),
+    numbers: helpers.withMessage("Password must have at least one number", helpers.regex(/^(?=.*[0-9]).*$/))
+  },
 }
 
-const v$ = useVuelidate(rules, { name })
+const v$ = useVuelidate(rules, { password, name })
+
+async function validatePassword() {
+  const result = await v$.value.password.$validate();
+  if (!result) { return; }
+
+  console.log(password.value);
+  await dashboardPinia.changeUserPassword(password.value);
+
+  password.value = '';
+  v$.value.$reset();
+  changed.value = true;
+}
 
 async function validateAndSubmit() {
-  const result = await v$.value.$validate();
+  const result = await v$.value.name.$validate();
   if (!result) { return; }
 
   await dashboardPinia.changeDisplayName(name.value);
 
   name.value = '';
   v$.value.$reset();
-
   changed.value = true;
 }
 
@@ -46,21 +66,35 @@ function changeView(view: string) {
 <template>
   <Transition name="fade" mode="out-in">
     <div v-if="dashboardPinia.accountView === 'menu'">
-      <AccountGridItem :title="'Reset password'"/>
+      <AccountGridItem :title="'Reset password'" v-on:click="changeView('resetPassword')"/>
       <AccountGridItem :title="'Change name'" v-on:click="changeView('changeName')"/>
       <AccountGridItem :title="'Marketing preference'" v-on:click="changeView('changeMarketing')"/>
     </div>
 
+    <!--Resetting password page-->
+    <div v-else-if="dashboardPinia.accountView === 'resetPassword'">
+      <AccountGridItem :title="'Back'" v-on:click="changeView('menu')"/>
+
+      <LoginTextInput v-model="v$.password.$model" :v$="v$.password" v-on:focusin="changed = false" class="mb-3" type="text" placeholder="New password"/>
+
+      <GenericButton class="flex justify-center items-center" :type="'primary'" :callback="validatePassword">
+        <img v-if="changed" class="w-8 h-8" src="@/assets/img/tick.svg" alt="Icon"/>
+        <p v-else>Confirm</p>
+      </GenericButton>
+    </div>
+
+    <!--Changing display name page-->
     <div v-else-if="dashboardPinia.accountView === 'changeName'">
       <AccountGridItem :title="'Back'" v-on:click="changeView('menu')"/>
 
-      <LoginTextInput v-model="name" :v$="v$.name" v-on:focusin="changed = false" class="mb-3" type="text" placeholder="Display Name"/>
+      <LoginTextInput v-model="name" :v$="v$.name" v-on:focusin="changed = false" class="mb-3" type="text" placeholder="Display name"/>
       <GenericButton class="flex justify-center items-center" :type="'primary'" :callback="validateAndSubmit">
         <img v-if="changed" class="w-8 h-8" src="@/assets/img/tick.svg" alt="Icon"/>
         <p v-else>Confirm</p>
       </GenericButton>
     </div>
 
+    <!--Marketing page-->
     <div v-else-if="dashboardPinia.accountView === 'changeMarketing'">
       <AccountGridItem :title="'Back'" v-on:click="changeView('menu')"/>
 

@@ -1,4 +1,4 @@
-import { Firebase } from './';
+import Firebase from './_firebase';
 import * as REQUESTS from "../constants/_requests";
 import {Follower, Tab} from "../models";
 import { useStorage } from "../hooks/useStorage";

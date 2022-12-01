@@ -16,9 +16,9 @@ import {
     remove,
     off
 } from 'firebase/database';
-import {browserLocalPersistence, getAuth, setPersistence, updateProfile} from "@firebase/auth";
+import { browserLocalPersistence, getAuth, setPersistence, updateProfile, updatePassword } from "@firebase/auth";
 import * as REQUESTS from '../constants/_requests';
-import {Follower, Leader, Tab} from "../models";
+import { Follower, Leader, Tab } from "../models";
 import {
     addedType,
     assistantCallbackFunction,
@@ -63,6 +63,14 @@ class Firebase {
             name: currentUser?.displayName,
             marketing: currentUser?.photoURL,
         };
+    }
+
+    /**
+     * Set a new password for the currently active user.
+     * @param password
+     */
+    setPassword = async (password: string) => {
+        await updatePassword(getAuth().currentUser!, password);
     }
 
     /**

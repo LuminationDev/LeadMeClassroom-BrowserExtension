@@ -1,7 +1,7 @@
 import {defineStore} from "pinia";
 import {useStorage} from "../hooks/useStorage";
 import * as REQUESTS from "../constants/_requests.js";
-import {Firebase} from '../controller';
+import Firebase from '../controller/_firebase';
 import {Follower, Leader, Tab} from '../models';
 import {useWebRTCStore} from "./webRTCStore";
 
@@ -455,6 +455,14 @@ export let useDashboardStore = defineStore("dashboard", {
 
         //Account page functions
         /**
+         * Change the password of the currently signed-in user.
+         * @param password A string of the new password
+         */
+        async changeUserPassword(password: string) {
+            await this.firebase.setPassword(password);
+        },
+
+        /**
          * Change the display name for a user within their firebase account, upon success change the locally held store
          * name as well.
          * @param name A string representing the new display name.
@@ -464,13 +472,12 @@ export let useDashboardStore = defineStore("dashboard", {
             this.leaderName = name;
         },
 
+        /**
+         * Change whether a user has accepted or denied permission to be contacted for marketing purposes.
+         * @param preference A boolean representing if they have opted in for marketing.
+         */
         async changeMarketingPreference(preference: boolean) {
             this.marketing = <string|null>await this.firebase.setMarketingPreference(preference);
         }
-    },
-
-    //Computed properties
-    getters: {
-
-    },
+    }
 });

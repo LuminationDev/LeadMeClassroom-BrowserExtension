@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import '../../styles.css'
-import {ref} from 'vue'
-import {ConnectionManager} from '../../controller'
+import { ref } from 'vue'
+import ConnectionManager from '../../controller/_connectionManager'
 import * as REQUESTS from '../../constants/_requests.js'
 import Tab from "../../models/_tab";
 import Follower from "../../models/_follower";
