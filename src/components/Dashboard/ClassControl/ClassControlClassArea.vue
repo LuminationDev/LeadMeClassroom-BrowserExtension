@@ -28,9 +28,9 @@ function screenControl(action: object) {
           }"
            v-on:click="locked = !locked; screenControl(locked ? REQUESTS.BLOCK : REQUESTS.UNBLOCK);"
       >
-        <img v-if="locked" class="w-4 h-4" src="@/assets/img/session-icon-unlock.svg" alt="Icon"/>
-        <img v-else class="w-4 h-4" src="@/assets/img/session-icon-lock.svg" alt="Icon"/>
-        <p class="w-36 text-base">
+        <img v-if="locked" class="w-4 h-4 mr-3" src="@/assets/img/session-icon-unlock.svg" alt="Icon"/>
+        <img v-else class="w-4 h-4 mr-3" src="@/assets/img/session-icon-lock.svg" alt="Icon"/>
+        <p class="text-base">
           {{locked ? 'Unlock screens' : 'Lock screens'}}
         </p>
       </button>
