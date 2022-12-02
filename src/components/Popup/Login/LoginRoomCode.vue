@@ -8,6 +8,7 @@ import GenericButton from "../../Buttons/GenericButton.vue";
 import {usePopupStore} from "../../../stores/popupStore";
 const popupPinia = usePopupStore();
 
+const classFound = ref(false);
 const authorise = ref(false);
 const otpCode = ref(null)
 
@@ -43,7 +44,15 @@ async function validateAndSubmit() {
   const result = await v$.value.$validate();
   if (!result) { return; }
 
-  await popupPinia.connect();
+  const connected = await popupPinia.connect();
+
+  console.log(connected);
+  if(connected) {
+    classFound.value = true;
+    setTimeout(() => {
+      window.close()
+    }, 1500)
+  }
 }
 
 onMounted(() => {
@@ -91,7 +100,10 @@ onMounted(() => {
       </div>
     </div>
 
-    <GenericButton :type="'secondary'" :callback="validateAndSubmit">Enter</GenericButton>
+    <GenericButton class="flex justify-center items-center" :type="'secondary'" :callback="validateAndSubmit">
+      <img v-if="classFound" class="w-8 h-8" src="@/assets/img/tick.svg" alt="Icon"/>
+      <p v-else>Enter</p>
+    </GenericButton>
     <p class="text-red-400">{{ popupPinia.error }}</p>
 
     <p class="mt-14 text-gray-separator cursor-pointer" v-on:click="popupPinia.changeView('loginTeacher')">Teacher Login</p>

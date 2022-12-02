@@ -98,7 +98,15 @@ function changeView(view: string) {
     <div v-else-if="dashboardPinia.accountView === 'changeMarketing'">
       <AccountGridItem :title="'Back'" v-on:click="changeView('menu')"/>
 
-      <p class="text-base mb-3">{{dashboardPinia.marketing ? "Enabled" : "Disabled"}}</p>
+      <p class="text-base mb-3 text-black">Email subscription:
+        <span :class="{
+          'text-green-400': dashboardPinia.marketing,
+          'text-red-400': !dashboardPinia.marketing,
+        }"
+        >{{dashboardPinia.marketing ? "Enabled" : "Disabled"}}
+        </span>
+      </p>
+
       <GenericButton class="flex justify-center items-center" :type="'primary'" :callback="changeMarketing">
         <img v-if="changed" class="w-8 h-8" src="@/assets/img/tick.svg" alt="Icon"/>
         <p v-else>Change</p>

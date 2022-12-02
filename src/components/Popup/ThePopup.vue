@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import LeadMeHeader from "./PopupHeader.vue";
 import PopupPanel from "./PopupPanel.vue";
+import PopupLoading from "./PopupLoading.vue";
+import PopupFooter from "./PopupFooter.vue";
 import LoginContent from "../../components/Popup/Login/LoginInitial.vue";
 import LoginStudent from "../../components/Popup/Login/LoginStudent.vue";
 import LoginTeacher from "../../components/Popup/Login/LoginTeacher.vue";
@@ -15,8 +17,9 @@ import StudentSessionLeave from "../../components/Popup/Student/StudentSessionLe
 import TeacherPopupSession from "../../components/Popup/Teacher/TeacherPopupSession.vue";
 import TeacherPopupFooter from "../../components/Popup/Teacher/TeacherPopupFooter.vue";
 import LoginVerifyEmail from "./Login/LoginVerifyEmail.vue";
-import { usePopupStore } from "../../stores/popupStore";
 import { onBeforeMount } from "vue";
+
+import { usePopupStore } from "../../stores/popupStore";
 const popupPinia = usePopupStore();
 
 onBeforeMount(() => popupPinia.onOpen());
@@ -27,8 +30,15 @@ onBeforeMount(() => popupPinia.onOpen());
 
   <div class="bg-panel-background">
     <Transition name="fade" mode="out-in">
+      <!-- Loading panel -->
+      <PopupPanel v-if="popupPinia.view === 'loading'">
+        <template v-slot:header><span class="font-semibold">Loading please wait!</span></template>
+        <template v-slot:content><PopupLoading /></template>
+        <template v-slot:footer><PopupFooter /></template>
+      </PopupPanel>
+
       <!-- Basic login panel to start with -->
-      <PopupPanel v-if="popupPinia.view === 'login'">
+      <PopupPanel v-else-if="popupPinia.view === 'login'">
         <template v-slot:header><span class="font-semibold">Welcome to LeadMe!</span></template>
         <template v-slot:content><LoginContent /></template>
       </PopupPanel>
