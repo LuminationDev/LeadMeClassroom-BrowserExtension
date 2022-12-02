@@ -25,7 +25,7 @@ const sortedFollowers = computed((): Array<Follower> => {
 
     <div id="studentGrid" class="flex flex-row flex-wrap">
       <!--Student Grid Item (No active students)-->
-      <StudentPlaceholder v-if="dashboardPinia.followers.length === 0" />
+      <StudentPlaceholder class="mr-4 mt-4" v-if="dashboardPinia.followers.length === 0" />
 
       <!--Student Grid Item (Active student)-->
       <StudentGridItem
