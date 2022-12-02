@@ -38,8 +38,8 @@ async function resendEmail() {
 
 <template>
   <form v-if="popupPinia.view === 'forgot'"
-        class="pb-5 flex flex-col items-center"
-        @submit.prevent>
+    class="pb-5 flex flex-col items-center"
+    @submit.prevent>
     <p class="mt-2 mb-9 w-56">Enter the email address associated with your account.</p>
 
     <div class="mb-4">
@@ -51,9 +51,10 @@ async function resendEmail() {
   </form>
 
   <div v-else-if="popupPinia.view === 'forgotConfirm'" class="pb-5 flex flex-col items-center">
-    <p class="mt-2 mb-9 w-56">We have sent a password recovery link to your email.</p>
+    <p class="mt-2 mb-3 w-56">We have sent a password recovery link to your email.</p>
+    <p class="mb-9 font-semibold">{{ email }}</p>
 
-    <GenericButton class="mb-28" :type="'secondary'" :callback="resendEmail">Resend Email</GenericButton>
+    <GenericButton class="mb-20" :type="'secondary'" :callback="resendEmail">Resend Email</GenericButton>
   </div>
 
   <p class="pb-5 text-gray-separator cursor-pointer"

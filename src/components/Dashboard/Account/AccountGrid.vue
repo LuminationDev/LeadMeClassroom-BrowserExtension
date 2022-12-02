@@ -68,7 +68,7 @@ function changeView(view: string) {
     <div v-if="dashboardPinia.accountView === 'menu'">
       <AccountGridItem :title="'Reset password'" v-on:click="changeView('resetPassword')"/>
       <AccountGridItem :title="'Change name'" v-on:click="changeView('changeName')"/>
-      <AccountGridItem :title="'Marketing preference'" v-on:click="changeView('changeMarketing')"/>
+      <AccountGridItem :title="'Email subscription'" v-on:click="changeView('changeSubscription')"/>
     </div>
 
     <!--Resetting password page-->
@@ -95,7 +95,7 @@ function changeView(view: string) {
     </div>
 
     <!--Marketing page-->
-    <div v-else-if="dashboardPinia.accountView === 'changeMarketing'">
+    <div v-else-if="dashboardPinia.accountView === 'changeSubscription'">
       <AccountGridItem :title="'Back'" v-on:click="changeView('menu')"/>
 
       <p class="text-base mb-3 text-black">Email subscription:

@@ -51,7 +51,7 @@ async function validateAndSubmit() {
     classFound.value = true;
     setTimeout(() => {
       window.close()
-    }, 1500)
+    }, 1000)
   }
 }
 
