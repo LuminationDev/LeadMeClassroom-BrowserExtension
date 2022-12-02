@@ -39,7 +39,7 @@ const selectedTab = computed(() => {
 })
 
 const muteTooltip = computed(() => {
-  if(selectedTab.value === null) { return "Mute" };
+  if(selectedTab.value === null) { return "Mute"; }
 
   return selectedTab.value.muted ? 'Unmute' : 'Mute'
 });
@@ -65,10 +65,10 @@ function closeModal() {
 <template>
   <!--Anchor button used to control the modal-->
   <button class="w-full p-1">
-    <div class="w-full h-full rounded-sm flex justify-center items-center hover:bg-white-menu-overlay"
+    <span class="w-full h-full rounded-sm flex justify-center items-center hover:bg-white-menu-overlay"
          v-on:click="showDetailModal = true; selectedTabId = props.follower.tabs[0].id">
-      <img class="w-5 h-3" src="@/assets/img/student-icon-ham-menu.svg" alt="Icon"/>
-    </div>
+      <img class="w-6 h-6" src="@/assets/img/student-icon-ham-menu.svg" alt="Icon"/>
+    </span>
   </button>
 
   <!--Modal body using the Modal template, teleports the html to the bottom of the body tag-->
@@ -194,19 +194,19 @@ function closeModal() {
         <footer class="w-modal-width-sm">
           <div class="h-12 bg-navy-side-menu rounded-b-sm flex">
             <button class="w-full p-1 flex justify-center">
-              <div class="w-1/2 h-full rounded-sm flex justify-center items-center hover:bg-white-menu-overlay"
+              <span class="w-1/2 h-full rounded-sm flex justify-center items-center hover:bg-white-menu-overlay"
                    v-on:click="$emit('screenMonitor'); showDetailModal = false">
                 <img class="w-9 h-5" src="@/assets/img/student-icon-eye.svg" alt="Icon"/>
-              </div>
+              </span>
             </button>
 
             <div class="h-10 mt-1 w-px bg-white"></div>
 
             <button class="w-full py-1 flex justify-center">
-              <div class="w-1/2 h-full rounded-sm flex justify-center items-center hover:bg-white-menu-overlay"
+              <span class="w-1/2 h-full rounded-sm flex justify-center items-center hover:bg-white-menu-overlay"
                    v-on:click="showDetailModal = false">
                 <img class="w-5 h-3" src="@/assets/img/minimize.svg" alt="Icon"/>
-              </div>
+              </span>
             </button>
           </div>
         </footer>

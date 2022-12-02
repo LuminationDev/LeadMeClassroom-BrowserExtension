@@ -96,20 +96,22 @@ function changeView(view: string) {
 
     <!--Marketing page-->
     <div v-else-if="dashboardPinia.accountView === 'changeSubscription'">
-      <AccountGridItem :title="'Back'" v-on:click="changeView('menu')"/>
+      <AccountGridItem class="mb-10" :title="'Back'" v-on:click="changeView('menu')"/>
 
-      <p class="text-base mb-3 text-black">Email subscription:
+      <p class="text-base mb-3 text-black font-semibold">Email subscription</p>
+      <p class="mb-3 text-sm text-black">Receive emails about product updates, new features and offerings from LeadMe</p>
+      <p class="text-sm mb-10 text-black">Status:
         <span :class="{
           'text-green-400': dashboardPinia.marketing,
           'text-red-400': !dashboardPinia.marketing,
         }"
-        >{{dashboardPinia.marketing ? "Enabled" : "Disabled"}}
+        >{{dashboardPinia.marketing ? "Subscribed" : "Not subscribed"}}
         </span>
       </p>
 
       <GenericButton class="flex justify-center items-center" :type="'primary'" :callback="changeMarketing">
         <img v-if="changed" class="w-8 h-8" src="@/assets/img/tick.svg" alt="Icon"/>
-        <p v-else>Change</p>
+        <p v-else>{{dashboardPinia.marketing ? "Unsubscribe" : "Subscribe"}}</p>
       </GenericButton>
     </div>
   </Transition>
