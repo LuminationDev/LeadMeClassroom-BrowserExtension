@@ -25,6 +25,15 @@ class Tab {
     {
         return this.url.replace("https://", "").replace("http://", "")
     }
+
+    getFavicon()
+    {
+
+        if (this.url.startsWith("chrome://") && (!this.favicon || (this.favicon && !this.favicon.length))) {
+            return "https://www.google.com/favicon.ico"
+        }
+        return this.favicon
+    }
 }
 
 export default Tab;

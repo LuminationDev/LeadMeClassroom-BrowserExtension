@@ -121,8 +121,8 @@ const revertInput = () => {
     <transition-group v-else name="list" tag="div">
       <div v-for="(tab, index) in firstThreeTabs" v-bind:key="tab" class="py-1 w-48" :id="index">
         <div class="flex flex-row px-2 items-center">
-          <img class="flex-shrink-0 w-4 h-4 mr-2" :src="tab.favicon"  alt=""/>
-          <span class="overflow-ellipsis whitespace-nowrap overflow-hidden">{{ tab.url.replace("https://", "") }}</span>
+          <img class="flex-shrink-0 w-4 h-4 mr-2" :src="tab.getFavicon()"  alt=""/>
+          <span class="overflow-ellipsis whitespace-nowrap overflow-hidden">{{ tab.getTabUrlWithoutHttp() }}</span>
         </div>
       </div>
     </transition-group>
