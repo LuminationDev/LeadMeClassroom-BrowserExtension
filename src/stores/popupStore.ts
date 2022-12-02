@@ -34,8 +34,7 @@ export let usePopupStore = defineStore("popup", {
             error: "",
             name: "",
             previousViews: <string[]>([]),
-            justCreatedAccount: false,
-            showSuccess: false
+            justCreatedAccount: false
         };
     },
 
@@ -285,11 +284,11 @@ export let usePopupStore = defineStore("popup", {
          * Begin the connection process for a student, ask for permissions to be granted at this stage.
          */
         async connect() {
-            await new Promise((resolve) => {
+            return await new Promise((resolve) => {
                 chrome.permissions.request({
                     permissions: ["tabs", "scripting"]
-                }, (granted: boolean) => {
-                    granted ? this.connectToClass(resolve) : this.error = "Permissions have been denied.";
+                }, async (granted: boolean) => {
+                    granted ? await this.connectToClass(resolve) : this.error = "Permissions have been denied.";
                 });
             })
         },
@@ -309,8 +308,7 @@ export let usePopupStore = defineStore("popup", {
 
             if (!result) {
                 this.error = "No Class found";
-                resolver();
-                return;
+                resolver(false);
             }
 
             void await setSyncStorage({
@@ -320,18 +318,16 @@ export let usePopupStore = defineStore("popup", {
                     "monitoring": false
                 }
             });
-            resolver();
+            resolver(true);
 
             chrome.windows.create({
                 url: chrome.runtime.getURL("src/pages/assistant/assistant.html"),
                 type: "popup",
                 state: "minimized"
             }).then(result => {
-                this.showSuccess = true
                 console.log(result)
-                setTimeout(() => {
-                    window.close()
-                }, 2000)
+            }).catch(error => {
+                console.log(error)
             });
         },
 
