@@ -90,10 +90,18 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
             //5 ~ 37kb
 
             //Not much difference between 10 and above
-            chrome.tabs.captureVisibleTab({ quality: 10 }, (result) => {
-                console.log(result);
-                sendResponse(result);
-            });
+            try {
+                chrome.tabs.captureVisibleTab({ quality: 10 }, (result) => {
+                    if (result) {
+                        sendResponse(result);
+                    } else {
+                        sendResponse(REQUESTS.CAPTURE_FAILED)
+                    }
+                });
+            } catch (err: any) {
+                sendResponse(REQUESTS.CAPTURE_FAILED)
+            }
+
             return true; //signals that this is an async response
 
         case REQUESTS.WEBSITE:

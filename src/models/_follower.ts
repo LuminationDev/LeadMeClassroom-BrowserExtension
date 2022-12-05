@@ -14,6 +14,7 @@ class Follower {
     webRTC: any;
     UUID: any;
     imageBase64: string|null|undefined;
+    collectingScreenshotFailed: boolean|null|undefined;
     monitoring: boolean|null|undefined;
     permission: string|null|undefined;
     muted: boolean|null|undefined;

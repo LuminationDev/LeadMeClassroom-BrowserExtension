@@ -4,6 +4,7 @@ export const ENDSESSION = "end_session";
 export const REMOVED = "removedByLeader";
 
 export const CAPTURE = "capture";
+export const CAPTURE_FAILED = "captureFailed";
 export const UPDATE_TAB = "updateTab";
 export const UPDATE_ACTIVE_TAB = "updateActiveTab";
 export const REMOVE_TAB = "removeTab";

@@ -63,6 +63,7 @@ function cancelMonitor() {
 function closeModal() {
   cancelMonitor();
   showMonitorModal.value = false
+  props.follower.collectingScreenshotFailed = false
 }
 </script>
 
@@ -98,9 +99,13 @@ function closeModal() {
         <div class="w-auto inline-block max-h-monitor-modal mt-7 mx-9">
           <!--Screenshot content-->
           <div v-if="!follower.monitoring" class="w-modal-width-xsm">
-            <div v-if="follower.imageBase64 === undefined" class="flex flex-col items-center">
+            <div v-if="follower.imageBase64 === undefined && !follower.collectingScreenshotFailed" class="flex flex-col items-center">
               <p class="mt-20 lds-dual-ring-lg" />
               <p class="mb-6 mt-8 text-sm ">Collecting current screenshot...</p>
+            </div>
+            <div v-else-if="follower.collectingScreenshotFailed" class="flex flex-col items-center text-center">
+              <img class="mt-20 w-32 xs:w-48" src="@/assets/img/shocked_col.png" alt="Computer Icon"/>
+              <p class="mb-6 mt-8 text-sm font-semibold">Screenshot could not be collected. This normally happens if the student is on a new empty tab. Try requesting live screen share.</p>
             </div>
 
             <img v-else class="aspect-video" :id="`image_${follower.getUniqueId()}`" :src="follower.imageBase64 ?? undefined" alt="Follower Screen shot"/>
