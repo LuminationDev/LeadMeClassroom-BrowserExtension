@@ -195,7 +195,7 @@ const checkWebsite = (website: string) => {
                   <div class="flex flex-shrink-0 flex-[1_1_auto] justify-end">
                     <div class="h-4 mr-4 flex flex-row justify-center">
                       <Transition name="icon">
-                        <div v-if="tab.audible && !selectedTab.closing">
+                        <div v-if="tab.audible && !selectedTab.closing" class="pulse-icon">
                           <div v-if="tab.muting" class="lds-dual-ring" />
                           <img v-else-if="tab.muted" src="@/assets/img/studentDetails/student-icon-sound-disabled.svg"  alt=""/>
                           <img v-else src="@/assets/img/studentDetails/student-icon-sound.svg"  alt=""/>
@@ -289,6 +289,20 @@ const checkWebsite = (website: string) => {
   position: absolute;
 }
 
+.pulse-icon {
+  animation: pulse 1.2s linear infinite;
+}
+@keyframes pulse {
+  0% {
+    scale: 1.0;
+  }
+  50% {
+    scale: 1.2;
+  }
+  100% {
+    scale: 1.0;
+  }
+}
 
 .icon-enter-from,
 .icon-leave-to {

@@ -74,6 +74,7 @@ defineProps({
 
       <!--Tab screen & Disconnect screen-->
       <img
+          v-else
           v-on:click="$emit('update:screenType', 'options')"
           class="w-4 h-4 mr-2 cursor-pointer"
           src="@/assets/img/student-icon-menu.svg"

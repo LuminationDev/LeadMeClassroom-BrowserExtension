@@ -6,10 +6,15 @@ import { ref } from "vue";
 import { useDashboardStore } from "../../../stores/dashboardStore";
 let dashboardPinia = useDashboardStore();
 
-let locked = ref(false);
+const loading = ref(false);
+const locked = ref(false);
 
-function screenControl(action: object) {
-  dashboardPinia.requestAction({ type: REQUESTS.SCREENCONTROL, action: action });
+async function screenControl() {
+  loading.value = true;
+  await new Promise(res => setTimeout(res, 500));
+  loading.value = false;
+  locked.value = !locked.value;
+  dashboardPinia.requestAction({ type: REQUESTS.SCREENCONTROL, action: locked.value ? REQUESTS.BLOCK : REQUESTS.UNBLOCK });
 }
 </script>
 
@@ -26,14 +31,44 @@ function screenControl(action: object) {
           'bg-navy-side-menu hover:bg-navy-hover-session-button': locked,
           'bg-blue-500 hover:bg-blue-400': !locked
           }"
-           v-on:click="locked = !locked; screenControl(locked ? REQUESTS.BLOCK : REQUESTS.UNBLOCK);"
+           v-on:click="screenControl();"
       >
-        <img v-if="locked" class="w-4 h-4 mr-3" src="@/assets/img/session-icon-unlock.svg" alt="Icon"/>
-        <img v-else class="w-4 h-4 mr-3" src="@/assets/img/session-icon-lock.svg" alt="Icon"/>
-        <p class="text-base">
-          {{locked ? 'Unlock screens' : 'Lock screens'}}
-        </p>
+        <span v-if="loading" class="lds-dual-ring-screen h-4 w-4 mr-3"></span>
+
+        <span v-else class="flex flex-row place-items-center">
+          <img v-if="locked" class="w-4 h-4 mr-3" src="@/assets/img/session-icon-unlock.svg" alt="Icon"/>
+          <img v-else class="w-4 h-4 mr-3" src="@/assets/img/session-icon-lock.svg" alt="Icon"/>
+          <p class="text-base">
+            {{locked ? 'Unlock screens' : 'Lock screens'}}
+          </p>
+        </span>
       </button>
     </div>
   </div>
 </template>
+
+<style>
+.lds-dual-ring-screen {
+  display: inline-block;
+  width: 20px;
+  height: 20px;
+}
+.lds-dual-ring-screen:after {
+  content: " ";
+  display: block;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  border: 2px solid #ffffff;
+  border-color: #ffffff transparent #ffffff transparent;
+  animation: lds-dual-ring-screen 1.2s linear infinite;
+}
+@keyframes lds-dual-ring-screen {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+</style>
