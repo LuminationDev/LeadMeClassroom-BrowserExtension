@@ -1,16 +1,23 @@
 <script setup lang="ts">
-import {Ref, ref} from "vue";
+import {computed, Ref, ref} from "vue";
 import {useDashboardStore} from "../../stores/dashboardStore";
 import useVuelidate from "@vuelidate/core";
 import {helpers, required} from "@vuelidate/validators";
 import StudentGridItem from "../Dashboard/ClassControl/GridItem/StudentGridItem.vue";
 import Modal from "./Modal.vue";
+import {Follower} from "../../models";
 
 const dashboardPinia = useDashboardStore();
 const showWebsiteModal = ref(false);
 const websiteLink = ref("");
 const shareTo = ref("all")
 const followersSelected: Ref<string[]> = ref([])
+
+const sortedFollowers = computed((): Array<Follower> => {
+  return dashboardPinia.followers.sort((a: Follower, b: Follower) => {
+    return a.name.localeCompare(b.name)
+  });
+})
 
 const rules = {
   websiteLink: {
@@ -110,12 +117,12 @@ function closeModal() {
             <div class="flex">
               <label class="mr-14 flex justify-between items-center">
                 <input class="h-5 w-5 mr-4" name="shareTo" type="radio" v-model="shareTo" value="all">
-                <p class="text-base">All connected users</p>
+                <span class="text-base">All connected users</span>
               </label>
 
               <label class="mr-20 flex justify-between items-center">
                 <input class="h-5 w-5 mr-4" name="shareTo" type="radio" v-model="shareTo" value="selected">
-                <p class="text-base">Select users</p>
+                <span class="text-base">Select users</span>
               </label>
             </div>
           </div>
@@ -123,7 +130,12 @@ function closeModal() {
         <div class="w-modal-width max-h-64 overflow-y-auto">
           <div v-if="shareTo === 'selected' && dashboardPinia.followers.length"
                class="mt-4 flex flex-row flex-wrap ml-10 mr-14">
-            <StudentGridItem v-for="follower in dashboardPinia.followers" class="pl-4 pt-4 w-1/2 md:w-1/3 lg:w-1/4 xl:w-1/6" :follower="follower" :controls="false" @update="(value: boolean) => { handleFollowerSelection(follower.getUniqueId(), value) }"/>
+            <StudentGridItem
+                v-for="follower in sortedFollowers"
+                class="pl-4 pt-4 w-1/2 md:w-1/3 lg:w-1/4 xl:w-1/6"
+                :follower="follower"
+                :controls="false"
+                @update="(value: boolean) => { handleFollowerSelection(follower.getUniqueId(), value) }"/>
           </div>
           <div class="flex justify-center items-center bg-gray-200 mx-14 mt-4 px-5 py-5" v-else-if="shareTo === 'selected'">
             <span>No students connected</span>
