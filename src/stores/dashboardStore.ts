@@ -182,6 +182,7 @@ export let useDashboardStore = defineStore("dashboard", {
                 toDataURL(response).then((result) => {
                     if (typeof result === "string") {
                         this.updateFollowerScreenshot(result, name, id)
+                        void this.updateFollowerCaptureFailed(id, false)
                     }
                 })
                 return
@@ -189,6 +190,9 @@ export let useDashboardStore = defineStore("dashboard", {
             switch (response.type) {
                 case REQUESTS.MONITORPERMISSION:
                     void this.monitorRequestResponse(response.message, id);
+                    break;
+                case REQUESTS.CAPTURE_FAILED:
+                    void this.updateFollowerCaptureFailed(id, true)
                     break;
                 default:
                     console.log(response);
@@ -296,6 +300,19 @@ export let useDashboardStore = defineStore("dashboard", {
             let follower = this.followers.find(element => element.getUniqueId() === id)
             if (follower) {
                 follower.imageBase64 = capture
+            }
+        },
+
+        /**
+         * Add new follower or update an existing one
+         * @param capture
+         * @param name
+         * @param id
+         */
+        updateFollowerCaptureFailed(id: string, value: boolean) {
+            let follower = this.followers.find(element => element.getUniqueId() === id)
+            if (follower) {
+                follower.collectingScreenshotFailed = value
             }
         },
 
