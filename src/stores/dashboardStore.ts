@@ -23,7 +23,7 @@ async function onLoad() {
     return currentClass ? currentClass : "";
 }
 
-const activeCode = await onLoad();
+let activeCode = await onLoad();
 
 const toDataURL = (url: string) => fetch(url)
     .then(response =>  response.blob())
@@ -75,13 +75,13 @@ export let useDashboardStore = defineStore("dashboard", {
             localStorage.removeItem("firebase:previous_websocket_failure")
 
             console.log('generating')
+            //Hold a temporary reference to be checked against saved/new codes
+            activeCode = this.leader.getClassCode();
 
+            //Calling before class code can be attached?
             this.firebase.connectAsLeader(<Leader>this.leader, () => { this.attachClassListeners(false )});
             await this.clearTasks();
             await setSyncStorage({"CurrentClass": this.leader.getClassCode()});
-
-            // @ts-ignore
-            this.webRTCPinia.setConnectionDetails(this.sendIceCandidates, this.leader.getClassCode(), "leader");
 
             await new Promise(res => setTimeout(res, 200));
             this.classCode = this.leader.getClassCode();
@@ -92,20 +92,24 @@ export let useDashboardStore = defineStore("dashboard", {
          * @param active A boolean representing if a class is already running when the screen loads.
          */
         async attachClassListeners(active: boolean) {
-            if(this.classCode === "") { return; }
+            //Do not attach listeners if there is not an active class on creation/load/reload
+            if(activeCode === "") { return; }
 
             //Override the auto generated code if there is a saved one
-            this.leader.setClassCode(this.classCode);
+            this.leader.setClassCode(activeCode);
+
+            //Set up the streaming connection
+            this.webRTCPinia.setConnectionDetails(this.sendIceCandidates, activeCode, "leader");
 
             this.firebase.followerListeners(
-                this.classCode,
+                activeCode,
                 this.followerResponse,
                 this.followerDisconnected,
                 this.followerAdded,
                 this.readIceCandidate
             );
             this.firebase.tabListeners(
-                this.classCode,
+                activeCode,
                 this.followerTabChanged,
                 this.followerTabRemoved,
                 this.followerTabsAdded
@@ -113,7 +117,7 @@ export let useDashboardStore = defineStore("dashboard", {
 
             if(!active) { return; }
 
-            this.firebase.reloadFollowers(this.classCode, this.followerResponse);
+            this.firebase.reloadFollowers(activeCode, this.followerResponse);
         },
 
         /**
