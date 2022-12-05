@@ -188,30 +188,14 @@ const checkWebsite = (website: string) => {
                     }"
                     @click="selectedTabId = tab.id"
                 >
-                  <div v-if="checkWebsite(tab.url)" class="has-tooltip">
-                    <Tooltip :tip="'Not in task list'" :toolTipMargin="'-ml-1'" :arrow-margin="'ml-1'" />
-                    <img
-                        class="w-6 h-6 mr-2 cursor-pointer"
-                        src="@/assets/img/student-icon-alert.svg"
-                        alt="alert icon"
-                    />
-                  </div>
-
                   <img class="flex-shrink-0 w-5 h-5 mr-2 cursor-pointer" :src="tab.getFavicon()" alt=""/>
                   <span class="flex-shrink overflow-ellipsis whitespace-nowrap overflow-hidden pr-10 mt-0.5">{{ tab.getTabUrlWithoutHttp() }}</span>
 
                   <!--Audible icons-->
                   <div class="flex flex-shrink-0 flex-[1_1_auto] justify-end">
                     <div class="h-4 mr-4 flex flex-row justify-center">
-                      <Transition
-                          enter-from-class="opacity-0 scale-110"
-                          enter-to-class="opacity-100 scale-100"
-                          enter-active-class="transition duration-300"
-                          leave-active-class="transition duration-200"
-                          leave-from-class="opacity-100 scale-100"
-                          leave-to-class="opacity-0 scale-110"
-                      >
-                        <div v-if="tab.audible">
+                      <Transition name="icon">
+                        <div v-if="tab.audible && !selectedTab.closing">
                           <div v-if="tab.muting" class="lds-dual-ring" />
                           <img v-else-if="tab.muted" src="@/assets/img/studentDetails/student-icon-sound-disabled.svg"  alt=""/>
                           <img v-else src="@/assets/img/studentDetails/student-icon-sound.svg"  alt=""/>
@@ -219,6 +203,17 @@ const checkWebsite = (website: string) => {
                       </Transition>
                     </div>
                   </div>
+
+                  <Transition name="icon">
+                    <div v-if="checkWebsite(tab.url) && !selectedTab.closing" class="has-tooltip">
+                      <Tooltip :tip="'Not in task list'" :toolTipMargin="'-ml-1'" :arrow-margin="'ml-1'" />
+                      <img
+                          class="w-6 h-6 mr-2 cursor-pointer"
+                          src="@/assets/img/student-icon-alert.svg"
+                          alt="alert icon"
+                      />
+                    </div>
+                  </Transition>
                 </div>
               </div>
             </div>
@@ -286,7 +281,6 @@ const checkWebsite = (website: string) => {
 .list-complete-enter-from,
 .list-complete-leave-to {
   opacity: 0;
-  /*transform: translateX(30px);*/
 }
 
 /* ensure leaving items are taken out of layout flow so that moving
@@ -294,4 +288,23 @@ const checkWebsite = (website: string) => {
 .list-complete-leave-active {
   position: absolute;
 }
+
+
+.icon-enter-from,
+.icon-leave-to {
+  opacity: 0;
+}
+.icon-enter-to,
+.icon-leave-from {
+  opacity: 100;
+}
+
+.icon-enter-active{
+  transition-duration: 300ms;
+}
+
+.icon-leave-active{
+  transition-duration: 200ms;
+}
+
 </style>

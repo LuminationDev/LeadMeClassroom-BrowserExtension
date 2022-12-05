@@ -125,14 +125,18 @@ function closeModal() {
                 <p class="mb-6 mt-8 text-sm">Connecting to student...</p>
               </div>
 
-              <div v-if="follower.permission === 'declined'" class="flex flex-col items-center">
+              <div v-if="follower.permission === 'declined' || follower.permission === 'stopped'" class="flex flex-col items-center">
                 <img class="mt-20 w-32 xs:w-48" src="@/assets/img/shocked_col.png" alt="Computer Icon"/>
-                <p class="mb-6 mt-8 text-sm font-semibold">Student has declined the permission...</p>
+                <p class="mb-6 mt-8 text-sm font-semibold">
+                  {{follower.permission === 'declined' ? 'Student has declined the permission...' : 'Student stopped sharing their screen...'}}
+                </p>
               </div>
 
               <button class="mb-28 w-36 h-11 flex-shrink-0 font-semibold text-sm text-white bg-blue-500 text-base rounded-3xl hover:bg-blue-400"
                       v-on:click="() => { cancelMonitor() }"
-              >Cancel</button>
+              >
+                {{follower.permission === 'stopped' ? 'Return' : 'Cancel'}}
+              </button>
             </div>
 
             <!--Video content-->

@@ -392,18 +392,27 @@ export let useDashboardStore = defineStore("dashboard", {
             let follower = this.followers.find(element => element.getUniqueId() === id)
             if (!follower) { return }
 
-            if (message === "granted") {
-                follower.permission = "connecting";
-                await this.webRTCPinia.startFollowerStream(id);
+            switch(message){
+                case "granted":
+                    follower.permission = "connecting";
+                    await this.webRTCPinia.startFollowerStream(id);
 
-                //Wait while the webRTC connections are established in the background
-                setTimeout(() => {
-                    // @ts-ignore
-                    follower.permission = "granted";
-                }, 750);
-            } else {
-                follower.permission = "declined";
-                console.log("User has denied the monitor request");
+                    //Wait while the webRTC connections are established in the background
+                    setTimeout(() => {
+                        // @ts-ignore
+                        follower.permission = "granted";
+                    }, 750);
+                    break;
+
+                case "declined":
+                    follower.permission = "declined";
+                    console.log("User has denied the monitor request");
+                    break;
+
+                case "stopped":
+                    follower.permission = "stopped";
+                    console.log("The user has stopped the monitoring request");
+                    break;
             }
         },
 

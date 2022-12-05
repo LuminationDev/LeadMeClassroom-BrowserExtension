@@ -137,8 +137,21 @@ const monitorRequest = () => {
   chrome.runtime.sendMessage({ "type": "maximize" });
   setTimeout(() => {
     webRTCPinia.prepareScreen(followerData.uuid)
-        .then((result: string|undefined) => {
-          MANAGER.value.sendResponse({"type": REQUESTS.MONITORPERMISSION, message: result});
+        .then((result: MediaStream|string|undefined) => {
+          let response;
+
+          if(result !== "denied" && result instanceof MediaStream) {
+            //Track if the students stops streaming
+            result.getVideoTracks()[0].onended = function () {
+              MANAGER.value.sendResponse({"type": REQUESTS.MONITORPERMISSION, message: "stopped"});
+            };
+
+            response = "granted";
+          } else {
+            response = result;
+          }
+
+          MANAGER.value.sendResponse({"type": REQUESTS.MONITORPERMISSION, message: response});
           chrome.runtime.sendMessage({"type": "minimize"});
         });
   }, 500);
