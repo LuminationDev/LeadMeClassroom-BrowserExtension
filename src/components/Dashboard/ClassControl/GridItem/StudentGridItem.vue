@@ -36,6 +36,13 @@ defineProps({
   }
 });
 
+/**
+ * Opens the
+ */
+const detailsRef = ref<InstanceType<typeof StudentGridItemFooter> | null>(null)
+function openDetails() {
+  detailsRef.value?.openDetailsModal();
+}
 </script>
 
 <template>
@@ -45,7 +52,8 @@ defineProps({
           @update="checked"
           :follower="follower"
           :controls="controls"
-          v-model:screenType="screenType" />
+          v-model:screenType="screenType"
+          @studentDetails="openDetails" />
 
       <StudentGridItemContent
           :follower="follower"
@@ -56,11 +64,12 @@ defineProps({
     </div>
 
     <StudentGridItemFooter
+        ref="detailsRef"
         :follower="follower"
         :controls="controls"
         :name="name"
         :renaming="renaming"
         v-model:removing="removing"
-        v-model:screenType="screenType" />
+        v-model:screenType="screenType"/>
   </div>
 </template>

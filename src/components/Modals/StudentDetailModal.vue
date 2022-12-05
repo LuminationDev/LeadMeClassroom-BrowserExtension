@@ -20,6 +20,18 @@ const props = defineProps({
 
 const showDetailModal = ref(false);
 
+defineExpose({
+  openModal
+});
+
+/**
+ * A generic function that can be exposed to the another component.
+ */
+function openModal() {
+  showDetailModal.value = true
+  selectedTabId.value = props.follower.tabs[0].id;
+}
+
 //Track the currently selected tab
 const selectedTabId = ref("0");
 const selectedTab = computed(() => {
@@ -60,13 +72,28 @@ function changeActiveTab(tab: object) {
 function closeModal() {
   showDetailModal.value = false;
 }
+
+/**
+ * Check if the lastActivated website is within the tasks array. The task array is populated when a teacher pushes
+ * out a website.
+ * @param website A string representing the URL of the currently active website for a follower.
+ */
+const checkWebsite = (website: string) => {
+  let tasks = dashboardPinia.tasks;
+  if(tasks.length === 0) { return; }
+
+  let strict = true; //determine if website needs to be exact or just same hostname
+
+  const { hostname } = new URL(website); //Extract the hostname for non-strict monitoring
+  return !tasks.some((res) => (strict ? website.includes(res.toString()) : res.includes(hostname)));
+}
 </script>
 
 <template>
   <!--Anchor button used to control the modal-->
   <button class="w-full p-1">
     <span class="w-full h-full rounded-sm flex justify-center items-center hover:bg-white-menu-overlay"
-         v-on:click="showDetailModal = true; selectedTabId = props.follower.tabs[0].id">
+         v-on:click="openModal()">
       <img class="w-6 h-6" src="@/assets/img/student-icon-ham-menu.svg" alt="Icon"/>
     </span>
   </button>
@@ -150,6 +177,7 @@ function closeModal() {
 
           <transition-group v-else name="list-complete" tag="div">
             <div v-for="(tab, index) in follower.tabs" v-bind:key="tab" class="py-1" :id="tab.id">
+
               <!--Individual tabs-->
               <div class="flex flex-row w-full px-5 items-center justify-between">
                 <div :class="{
@@ -160,6 +188,15 @@ function closeModal() {
                     }"
                     @click="selectedTabId = tab.id"
                 >
+                  <div v-if="checkWebsite(tab.url)" class="has-tooltip">
+                    <Tooltip :tip="'Not in task list'" :toolTipMargin="'-ml-1'" :arrow-margin="'ml-1'" />
+                    <img
+                        class="w-6 h-6 mr-2 cursor-pointer"
+                        src="@/assets/img/student-icon-alert.svg"
+                        alt="alert icon"
+                    />
+                  </div>
+
                   <img class="flex-shrink-0 w-5 h-5 mr-2 cursor-pointer" :src="tab.getFavicon()" alt=""/>
                   <span class="flex-shrink overflow-ellipsis whitespace-nowrap overflow-hidden pr-10 mt-0.5">{{ tab.getTabUrlWithoutHttp() }}</span>
 
