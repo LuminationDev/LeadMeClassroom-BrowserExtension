@@ -1,6 +1,5 @@
 import {defineStore} from "pinia";
 import { useStorage } from "../hooks/useStorage";
-
 import {
     createUserWithEmailAndPassword,
     sendEmailVerification,
@@ -19,7 +18,8 @@ const firebase = new Firebase();
 
 interface followerData {
     code: string,
-    uuid: string
+    uuid: string,
+    monitoring?: boolean
 }
 
 //name - object
@@ -65,10 +65,9 @@ export let usePopupStore = defineStore("popup", {
         popPreviousView(): string
         {
             if (this.previousViews.length) {
-                // @ts-ignore
-                return this.previousViews.pop()
+                return <string>this.previousViews.pop()
             }
-            if (this.follower) {
+            if (this.follower.name != "") {
                 return "sessionStudent"
             }
             if (this.name) {
@@ -98,9 +97,8 @@ export let usePopupStore = defineStore("popup", {
          * Check for an active user when opening the popup.
          */
         onOpen() {
-            //todo not picking up the key properly
             //Remove the strange firebase bug from application storage
-            //removeLocalStorage("firebase:previous_websocket_failure").then(result => console.log(result));
+            localStorage.removeItem("firebase:previous_websocket_failure");
 
             chrome.permissions.contains({
                 permissions: ["storage"]
@@ -115,13 +113,19 @@ export let usePopupStore = defineStore("popup", {
         },
 
         /**
-         * Check if a student entry exists in local storage.
+         * Check if a student entry exists in local storage and if there is still an active session.
          */
         async checkForFollower() {
-            const follower = await getSyncStorage("follower");
+            const follower = <followerData>await getSyncStorage("follower");
             if(follower != null) {
-                this.view = "sessionStudent";
-                return;
+                const session = await firebase.checkForClassroom(follower.code);
+
+                if(session) {
+                    this.view = "sessionStudent";
+                    return;
+                } else {
+                    await this.handleEndSessionClick();
+                }
             }
 
             await setPersistence(getAuth(), browserLocalPersistence);
@@ -131,6 +135,12 @@ export let usePopupStore = defineStore("popup", {
                 return
             }
             this.view = 'login'
+        },
+
+        async getUserEmail() {
+            await setPersistence(getAuth(), browserLocalPersistence);
+            const auth = await getAuth();
+            return auth.currentUser?.email;
         },
 
         /**
@@ -341,7 +351,7 @@ export let usePopupStore = defineStore("popup", {
          * alerting a teacher that the student has disconnected.
          */
         async handleEndSessionClick() {
-            localStorage.removeItem("firebase:previous_websocket_failure")
+            localStorage.removeItem("firebase:previous_websocket_failure");
             const userData:followerData = await getSyncStorage("follower");
             if (userData == null) { return; }
 

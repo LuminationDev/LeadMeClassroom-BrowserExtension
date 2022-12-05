@@ -69,10 +69,10 @@ function closeModal() {
 <template>
   <!--Anchor button used to control the modal-->
   <button class="w-full p-1">
-    <div class="w-full h-full rounded-sm flex justify-center items-center hover:bg-white-menu-overlay"
+    <span class="w-full h-full rounded-sm flex justify-center items-center hover:bg-white-menu-overlay"
          v-on:click="initiateMonitoring()">
       <img class="w-9 h-5" src="@/assets/img/student-icon-eye.svg" alt="Icon"/>
-    </div>
+    </span>
   </button>
 
   <!--Modal body using the Modal template, teleports the html to the bottom of the body tag-->
