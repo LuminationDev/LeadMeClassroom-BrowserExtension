@@ -20,8 +20,10 @@ interface IRTCConnection {
     stream: MediaStream;
 }
 
-//NOTE: Must override the basic Function type parameter as it uses eval() which is blocked by chromes CSP.
-type callbackFunction = (senderId: string, UUID: string, data: string) => void;
+//NOTE: Must not use the basic typescript Function type parameter as it uses eval() which is blocked by chromes CSP. We
+//can use a separate variable which can be overridden within the store code to work around this issue.
+type callbackType = (senderId: string, UUID: string, data: string) => void;
+let callbackFunction: callbackType;
 
 export let useWebRTCStore = defineStore("webRTC", {
     state: () => {
@@ -29,7 +31,6 @@ export let useWebRTCStore = defineStore("webRTC", {
             servers: [{'urls': 'stun:stun.services.mozilla.com'}, {'urls': 'stun:stun.l.google.com:19302'}],
             connectionDetails: <IConnectionDetails>{},
             connections: new Map<string, IRTCConnection>(), //hold all the webrtc connections
-            callback: <callbackFunction>Function,
             connectionStatus: false
         }
     },
@@ -42,8 +43,8 @@ export let useWebRTCStore = defineStore("webRTC", {
          * @param classCode
          * @param UUID
          */
-        setConnectionDetails(callback: callbackFunction, classCode: string, UUID: string) {
-            this.callback = callback;
+        setConnectionDetails(callback: callbackType, classCode: string, UUID: string) {
+            callbackFunction = callback;
 
             this.connectionDetails = {
                 classCode: classCode,
@@ -73,7 +74,7 @@ export let useWebRTCStore = defineStore("webRTC", {
                     connection.peerConnection.setRemoteDescription(new RTCSessionDescription(msg.sdp))
                         .then(() => connection.peerConnection.createAnswer())
                         .then(answer => connection.peerConnection.setLocalDescription(answer))
-                        .then(() => this.callback(this.connectionDetails.uniqueId, UUID, JSON.stringify({ 'sdp': connection.peerConnection.localDescription })));
+                        .then(() => callbackFunction(this.connectionDetails.uniqueId, UUID, JSON.stringify({ 'sdp': connection.peerConnection.localDescription })));
                 }
                 else if (msg.sdp.type === "answer") {
                     void connection.peerConnection.setRemoteDescription(new RTCSessionDescription(msg.sdp));
@@ -99,7 +100,7 @@ export let useWebRTCStore = defineStore("webRTC", {
          */
         createNewPeerConnection(UUID: string) {
             let peerConnection = new RTCPeerConnection(configuration);
-            peerConnection.onicecandidate = (event => event.candidate ? this.callback(this.connectionDetails.uniqueId, UUID, JSON.stringify({ 'ice': event.candidate })) : console.log("Sent All Ice"));
+            peerConnection.onicecandidate = (event => event.candidate ? callbackFunction(this.connectionDetails.uniqueId, UUID, JSON.stringify({ 'ice': event.candidate })) : console.log("Sent All Ice"));
             return peerConnection;
         },
 
@@ -149,7 +150,7 @@ export let useWebRTCStore = defineStore("webRTC", {
                     //Create offer for one way connection
                     connection.peerConnection.createOffer({ offerToReceiveVideo: true })
                         .then(offer => connection.peerConnection.setLocalDescription(offer))
-                        .then(() => this.callback(this.connectionDetails.uniqueId, UUID, JSON.stringify({ 'sdp': connection.peerConnection.localDescription })));
+                        .then(() => callbackFunction(this.connectionDetails.uniqueId, UUID, JSON.stringify({ 'sdp': connection.peerConnection.localDescription })));
 
                     resolve("Success");
                 }, 500);

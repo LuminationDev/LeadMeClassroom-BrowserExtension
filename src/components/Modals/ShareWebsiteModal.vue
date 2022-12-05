@@ -64,6 +64,7 @@ function submit()
 }
 
 function closeModal() {
+  v$.value.$reset();
   showWebsiteModal.value = false
 }
 </script>
