@@ -42,6 +42,10 @@ const props = defineProps({
   }
 });
 
+defineExpose({
+  openDetailsModal
+});
+
 /**
  * Remove the follower from the class.
  */
@@ -63,9 +67,14 @@ const removeFollower = () => {
 }
 
 //Reference to the screen monitor modal to open it externally
-const childRef = ref<InstanceType<typeof ScreenMonitorModal> | null>(null)
+const monitorRef = ref<InstanceType<typeof ScreenMonitorModal> | null>(null)
 function openMonitorModal() {
-  childRef.value?.initiateMonitoring();
+  monitorRef.value?.initiateMonitoring();
+}
+
+const detailsRef = ref<InstanceType<typeof StudentDetailModal> | null>(null)
+function openDetailsModal() {
+  detailsRef.value?.openModal();
 }
 </script>
 
@@ -102,11 +111,11 @@ function openMonitorModal() {
   <!--Tab screen-->
   <div v-else-if="controls" class="h-12 bg-navy-side-menu rounded-b-sm flex">
     <!--Screenshot and WebRTC modal-->
-    <ScreenMonitorModal ref="childRef" :follower="follower" />
+    <ScreenMonitorModal ref="monitorRef" :follower="follower" />
 
     <div class="h-10 mt-1 w-px bg-white"></div>
 
     <!--Expanded student details modal-->
-    <StudentDetailModal @screenMonitor="openMonitorModal" :follower="follower" />
+    <StudentDetailModal ref="detailsRef" @screenMonitor="openMonitorModal" :follower="follower" />
   </div>
 </template>

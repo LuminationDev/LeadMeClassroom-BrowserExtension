@@ -1,10 +1,12 @@
 <script setup lang="ts">
 import { defineProps, PropType } from "vue";
 import { Follower } from "../../../../models";
+import Tooltip from "../../../Buttons/Tooltip.vue";
 
 defineEmits<{
   (e: 'update', value: boolean): void
   (e: 'update:screenType', value: string): void
+  (e: 'studentDetails'): void
 }>()
 
 defineProps({
@@ -41,11 +43,24 @@ defineProps({
 
     <!--Follower name-->
     <label for="test" class="text-sm" :class="{
-          'mr-3 text-sm overflow-hidden whitespace-nowrap text-ellipsis': true,
+          'mr-3 text-sm overflow-hidden whitespace-nowrap text-ellipsis flex place-items-center': true,
           'ml-2.5': controls,
           'text-gray-400': follower.disconnected,
           'text-black': !follower.disconnected
-        }">{{ follower.name }}</label>
+        }">
+
+      <span v-if="follower.offTask" class="has-tooltip">
+        <Tooltip :tip="'Student off task'" :toolTipMargin="'-ml-1'" :arrow-margin="'ml-1'" />
+        <img
+            v-on:click="$emit('studentDetails')"
+            class="w-6 h-6 mr-2 cursor-pointer"
+            src="@/assets/img/student-icon-alert.svg"
+            alt="alert icon"
+        />
+      </span>
+
+      {{ follower.name }}
+    </label>
 
     <div v-if="controls">
       <!--Options screen & Remove screen-->
@@ -59,19 +74,11 @@ defineProps({
 
       <!--Tab screen & Disconnect screen-->
       <img
-          v-else-if="!follower.offTask"
+          v-else
           v-on:click="$emit('update:screenType', 'options')"
           class="w-4 h-4 mr-2 cursor-pointer"
           src="@/assets/img/student-icon-menu.svg"
           alt="menu icon"
-      />
-
-      <img
-          v-else-if="follower.offTask"
-          v-on:click="$emit('update:screenType', 'options')"
-          class="w-6 h-6 mr-2 cursor-pointer"
-          src="@/assets/img/student-icon-alert.svg"
-          alt="alert icon"
       />
     </div>
   </div>

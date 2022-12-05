@@ -123,8 +123,9 @@ export let useWebRTCStore = defineStore("webRTC", {
                     connection.stream = stream;
                     // @ts-ignore
                     connection.peerConnection.addStream(stream);
+
                     //stream.getTracks().forEach(track => { connection.peerConnection.addTrack(track); });
-                    return "granted";
+                    return stream;
                 })
                 .catch(() => {
                     return "denied";

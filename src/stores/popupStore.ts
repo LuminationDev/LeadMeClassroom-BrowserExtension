@@ -399,7 +399,12 @@ export let usePopupStore = defineStore("popup", {
                 if (tab) {
                     if (tab.id != null && tab.url == null) {
                         chrome.tabs.highlight({tabs: tab.index, windowId: tab.windowId},
-                            () => window.close());
+                    () => {
+                                window.close();
+                                //If the dashboard is in a different browser window, focus that window as well.
+                                void chrome.windows.update(tab.windowId, { focused: true });
+                            }
+                        );
                     }
                 } else {
                     this.createDashboard();

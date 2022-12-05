@@ -20,6 +20,18 @@ const props = defineProps({
 
 const showDetailModal = ref(false);
 
+defineExpose({
+  openModal
+});
+
+/**
+ * A generic function that can be exposed to the another component.
+ */
+function openModal() {
+  showDetailModal.value = true
+  selectedTabId.value = props.follower.tabs[0].id;
+}
+
 //Track the currently selected tab
 const selectedTabId = ref("0");
 const selectedTab = computed(() => {
@@ -60,13 +72,28 @@ function changeActiveTab(tab: object) {
 function closeModal() {
   showDetailModal.value = false;
 }
+
+/**
+ * Check if the lastActivated website is within the tasks array. The task array is populated when a teacher pushes
+ * out a website.
+ * @param website A string representing the URL of the currently active website for a follower.
+ */
+const checkWebsite = (website: string) => {
+  let tasks = dashboardPinia.tasks;
+  if(tasks.length === 0) { return; }
+
+  let strict = true; //determine if website needs to be exact or just same hostname
+
+  const { hostname } = new URL(website); //Extract the hostname for non-strict monitoring
+  return !tasks.some((res) => (strict ? website.includes(res.toString()) : res.includes(hostname)));
+}
 </script>
 
 <template>
   <!--Anchor button used to control the modal-->
   <button class="w-full p-1">
     <span class="w-full h-full rounded-sm flex justify-center items-center hover:bg-white-menu-overlay"
-         v-on:click="showDetailModal = true; selectedTabId = props.follower.tabs[0].id">
+         v-on:click="openModal()">
       <img class="w-6 h-6" src="@/assets/img/student-icon-ham-menu.svg" alt="Icon"/>
     </span>
   </button>
@@ -150,6 +177,7 @@ function closeModal() {
 
           <transition-group v-else name="list-complete" tag="div">
             <div v-for="(tab, index) in follower.tabs" v-bind:key="tab" class="py-1" :id="tab.id">
+
               <!--Individual tabs-->
               <div class="flex flex-row w-full px-5 items-center justify-between">
                 <div :class="{
@@ -166,15 +194,8 @@ function closeModal() {
                   <!--Audible icons-->
                   <div class="flex flex-shrink-0 flex-[1_1_auto] justify-end">
                     <div class="h-4 mr-4 flex flex-row justify-center">
-                      <Transition
-                          enter-from-class="opacity-0 scale-110"
-                          enter-to-class="opacity-100 scale-100"
-                          enter-active-class="transition duration-300"
-                          leave-active-class="transition duration-200"
-                          leave-from-class="opacity-100 scale-100"
-                          leave-to-class="opacity-0 scale-110"
-                      >
-                        <div v-if="tab.audible">
+                      <Transition name="icon">
+                        <div v-if="tab.audible && !selectedTab.closing" class="pulse-icon">
                           <div v-if="tab.muting" class="lds-dual-ring" />
                           <img v-else-if="tab.muted" src="@/assets/img/studentDetails/student-icon-sound-disabled.svg"  alt=""/>
                           <img v-else src="@/assets/img/studentDetails/student-icon-sound.svg"  alt=""/>
@@ -182,6 +203,17 @@ function closeModal() {
                       </Transition>
                     </div>
                   </div>
+
+                  <Transition name="icon">
+                    <div v-if="checkWebsite(tab.url) && !selectedTab.closing" class="has-tooltip">
+                      <Tooltip :tip="'Not in task list'" :toolTipMargin="'-ml-1'" :arrow-margin="'ml-1'" />
+                      <img
+                          class="w-6 h-6 mr-2 cursor-pointer"
+                          src="@/assets/img/student-icon-alert.svg"
+                          alt="alert icon"
+                      />
+                    </div>
+                  </Transition>
                 </div>
               </div>
             </div>
@@ -249,7 +281,6 @@ function closeModal() {
 .list-complete-enter-from,
 .list-complete-leave-to {
   opacity: 0;
-  /*transform: translateX(30px);*/
 }
 
 /* ensure leaving items are taken out of layout flow so that moving
@@ -257,4 +288,37 @@ function closeModal() {
 .list-complete-leave-active {
   position: absolute;
 }
+
+.pulse-icon {
+  animation: pulse 1.2s linear infinite;
+}
+@keyframes pulse {
+  0% {
+    scale: 1.0;
+  }
+  50% {
+    scale: 1.2;
+  }
+  100% {
+    scale: 1.0;
+  }
+}
+
+.icon-enter-from,
+.icon-leave-to {
+  opacity: 0;
+}
+.icon-enter-to,
+.icon-leave-from {
+  opacity: 100;
+}
+
+.icon-enter-active{
+  transition-duration: 300ms;
+}
+
+.icon-leave-active{
+  transition-duration: 200ms;
+}
+
 </style>
