@@ -22,7 +22,7 @@ const rules = {
     $autoDirty: true
   },
   authorise: {
-    required: helpers.withMessage("Email is required", required),
+    required: helpers.withMessage("You must accept the permissions", required),
     sameAs: helpers.withMessage("You must accept the permissions", sameAs(true)),
     $autoDirty: true
   }
@@ -43,16 +43,17 @@ const authoriseModel = computed({
 async function validateAndSubmit() {
   const result = await v$.value.$validate();
   if (!result) { return; }
-
-  const connected = await popupPinia.connect();
-
-  console.log(connected);
-  if(connected) {
-    classFound.value = true;
-    setTimeout(() => {
-      window.close()
-    }, 1000)
-  }
+  popupPinia.connect().then((connected) => {
+    console.log(connected);
+    if(connected) {
+      classFound.value = true;
+      setTimeout(() => {
+        window.close()
+      }, 1000)
+    }
+  }, () => {
+    // rejected, an error should be displayed from the connect function
+  })
 }
 
 onMounted(() => {

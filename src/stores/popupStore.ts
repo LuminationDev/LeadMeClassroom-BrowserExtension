@@ -294,11 +294,16 @@ export let usePopupStore = defineStore("popup", {
          * Begin the connection process for a student, ask for permissions to be granted at this stage.
          */
         async connect() {
-            return await new Promise((resolve) => {
+            return await new Promise((resolve, reject) => {
                 chrome.permissions.request({
                     permissions: ["tabs", "scripting"]
                 }, async (granted: boolean) => {
-                    granted ? await this.connectToClass(resolve) : this.error = "Permissions have been denied.";
+                    if (granted) {
+                        await this.connectToClass(resolve)
+                    } else {
+                        this.error = "Please accept the permissions when prompted";
+                        reject()
+                    }
                 });
             })
         },

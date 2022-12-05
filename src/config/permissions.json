@@ -2,16 +2,16 @@
     {
       "tag": "storage",
       "title": "Storage",
-      "description": "Grants access to the browsers local and synchronised storage. It can directly access data that is saved within a browsers storage."
+      "description": "Grants access to the browsers local and synchronised storage. It can directly access data that is saved within a browsers storage. This permission is required for your connection to be maintained as you navigate between tabs."
     },
     {
       "tag": "tabs",
       "title": "Tabs",
-      "description": "Grants access to privileged fields within an active or inactive opened Tab."
+      "description": "Grants access to privileged fields within an active or inactive opened Tab. This permission is required to allow your leader to see which tabs you have open, see a screenshot of your active tab and close, mute and unmute your open tabs."
     },
     {
       "tag": "scripting",
       "title": "Scripting",
-      "description": "Grants the ability for the extension to inject JavaScript and CSS into websites."
+      "description": "Grants the ability for the extension to inject JavaScript and CSS into websites. This permission is required for your connection to be maintained as you navigate between tabs. It also allows your leader to block your screen."
     }
 ]
