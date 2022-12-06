@@ -59,17 +59,19 @@ defineProps({
         />
       </span>
 
-      {{ follower.name }}
+      <span class="overflow-ellipsis whitespace-nowrap overflow-hidden">
+        {{ follower.name }}
+      </span>
     </label>
 
 
-    <div v-if="controls && !follower.disconnected">
+    <div v-if="controls && !follower.disconnected" class="mr-2">
       <Transition name="fade" mode="out-in">
         <!--Options screen & Remove screen-->
         <img
             v-if="screenType === 'options' || screenType === 'remove'"
             v-on:click="$emit('update:screenType', 'tabs')"
-            class="w-4 h-4 mr-2 cursor-pointer"
+            class="w-4 h-4 cursor-pointer"
             src="@/assets/img/options-back.svg"
             alt="menu icon"
         />
@@ -78,7 +80,7 @@ defineProps({
         <img
             v-else
             v-on:click="$emit('update:screenType', 'options')"
-            class="w-4 h-4 mr-2 cursor-pointer"
+            class="w-4 h-4 cursor-pointer"
             src="@/assets/img/student-icon-menu.svg"
             alt="menu icon"
         />

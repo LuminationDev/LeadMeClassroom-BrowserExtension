@@ -421,8 +421,8 @@ export let useDashboardStore = defineStore("dashboard", {
                     }, 750);
                     break;
 
-                case "declined":
-                    follower.permission = "declined";
+                case "denied":
+                    follower.permission = "denied";
                     console.log("User has denied the monitor request");
                     break;
 

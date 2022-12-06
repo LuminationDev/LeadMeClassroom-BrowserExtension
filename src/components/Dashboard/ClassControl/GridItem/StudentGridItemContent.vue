@@ -87,7 +87,12 @@ const revertInput = () => {
 
     <!--Disconnected screen-->
     <div v-if="follower.disconnected" class="text-lg text-center h-full flex flex-col justify-center">
-      <span><span class="font-semibold">{{ follower.name }}</span><br/> has left the lesson.</span>
+      <span class="mx-2 overflow-ellipsis whitespace-nowrap overflow-hidden">
+        <span class="font-semibold">
+          {{ follower.name }}
+        </span>
+        <br/> has left the lesson.
+      </span>
     </div>
 
     <!--Options screen-->
@@ -95,13 +100,13 @@ const revertInput = () => {
       <div class="h-6 cursor-pointer flex flex-row mx-2 px-2 items-center hover:bg-white-menu-overlay rounded">
         <img class="flex-shrink-0 w-3 h-3 mr-2" src="@/assets/img/options-edit.svg"  alt=""/>
         <span v-if="!renaming" v-on:click="$emit('update:renaming', true); focusInput()">Rename User</span>
-        <input v-else ref="inputField" @input="$emit('update:name', $event.target.value)" @focusout="revertInput" class="bg-navy-side-menu w-full pl-1"/>
+        <input v-else ref="inputField" class="bg-navy-side-menu w-full pl-1" @input="$emit('update:name', $event.target.value)" @focusout="revertInput"/>
       </div>
 
       <div class="h-6 mt-1.5 cursor-pointer flex flex-row mx-2 px-2 items-center hover:bg-white-menu-overlay rounded"
            v-on:click="$emit('update:screenType', 'remove')">
         <img class="flex-shrink-0 w-3 h-3 mr-2" src="@/assets/img/options-remove.svg"  alt=""/>
-        <span class="">Remove {{follower.name}}</span>
+        <span class="overflow-ellipsis whitespace-nowrap overflow-hidden">Remove {{follower.name}}</span>
       </div>
     </div>
 
