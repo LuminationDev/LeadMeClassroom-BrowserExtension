@@ -18,8 +18,8 @@ defineProps({
     leave-from-class="opacity-100 scale-100"
     leave-to-class="opacity-0 scale-110"
   >
-    <div v-if="show" @click="$emit('close')" class="fixed inset-0 bg-modal-site-background grid place-items-center font-poppins">
-      <div @click.stop class="bg-panel-background" :class="rounded ? 'rounded-lg' : ''">
+    <div v-if="show" @mousedown="$emit('close')" class="fixed inset-0 bg-modal-site-background grid place-items-center font-poppins">
+      <div @mousedown.stop class="bg-panel-background" :class="rounded ? 'rounded-lg' : ''">
         <slot name="header"></slot>
         <slot name="content"></slot>
         <slot name="footer"></slot>
