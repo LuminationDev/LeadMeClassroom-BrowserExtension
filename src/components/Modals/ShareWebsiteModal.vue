@@ -12,6 +12,7 @@ const showWebsiteModal = ref(false);
 const websiteLink = ref("");
 const shareTo = ref("all")
 const followersSelected: Ref<string[]> = ref([])
+const submissionAttempted = ref(false)
 
 const sortedFollowers = computed((): Array<Follower> => {
   return dashboardPinia.followers.sort((a: Follower, b: Follower) => {
@@ -28,6 +29,10 @@ const rules = {
 const v$ = useVuelidate(rules, { websiteLink })
 
 function validateAndSubmit() {
+  submissionAttempted.value = true
+  if (shareTo.value === "selected" && followersSelected.value.length === 0) {
+    return;
+  }
   !v$.value.$validate().then((result: boolean) => {
     if (!result) {
       return;
@@ -66,6 +71,7 @@ function submit()
 function closeModal() {
   v$.value.$reset();
   showWebsiteModal.value = false
+  submissionAttempted.value = false
 }
 </script>
 
@@ -90,7 +96,7 @@ function closeModal() {
           <p class="text-2xl font-medium">Share links with your class</p>
 
           <img
-              v-on:click="showWebsiteModal = false"
+              v-on:click="closeModal"
               class="w-4 h-4 cursor-pointer"
               src="@/assets/img/modal-icon-exit.svg"
               alt="Close Icon"
@@ -145,14 +151,29 @@ function closeModal() {
       </template>
 
       <template v-slot:footer>
-        <footer class="mt-11 mb-8 mr-14 text-right">
+        <footer class="mt-11 mb-8 mr-14 text-right flex flex-row justify-end">
           <button class="w-36 h-11 mr-4 text-blue-500 text-base rounded-lg hover:bg-gray-default font-medium"
                   v-on:click="showWebsiteModal = false"
           >Cancel</button>
-          <button
-              class="w-52 h-11 text-white bg-blue-500 rounded-lg text-base hover:bg-blue-400 font-medium"
-              v-on:click="validateAndSubmit"
-          >Share link</button>
+          <div class="relative">
+            <div
+                v-if="submissionAttempted && shareTo === 'selected' && followersSelected.length === 0"
+                class="absolute bottom-12 min-w-max right-0 rounded shadow-lg
+                px-3 py-1 rounded-xl bg-white text-black border-gray-600
+                border-1 flex flex-row items-center mb-2">
+              <img
+                  class="w-5 h-5 mr-2"
+                  src="@/assets/img/student-icon-alert.svg"
+                  alt="alert icon"
+              />
+              <span>Please select a user to share this link to</span>
+              <div class="absolute bottom-0 right-0 border-b-white h-0 w-0 rotate-180 border-x-8 border-x-transparent border-b-[1rem] -mb-2 mr-10"></div>
+            </div>
+            <button
+                class="w-52 h-12 text-white bg-blue-500 rounded-lg text-base hover:bg-blue-400 font-medium"
+                v-on:click="validateAndSubmit"
+            >Share link</button>
+          </div>
         </footer>
       </template>
     </Modal>
