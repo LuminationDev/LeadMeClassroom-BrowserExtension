@@ -151,6 +151,8 @@ const monitorRequest = () => {
             response = result;
           }
 
+          console.log(result);
+
           MANAGER.value.sendResponse({"type": REQUESTS.MONITORPERMISSION, message: response});
           chrome.runtime.sendMessage({"type": "minimize"});
         });

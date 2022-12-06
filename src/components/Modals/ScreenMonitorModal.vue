@@ -130,10 +130,10 @@ function closeModal() {
                 <p class="mb-6 mt-8 text-sm">Connecting to student...</p>
               </div>
 
-              <div v-if="follower.permission === 'declined' || follower.permission === 'stopped'" class="flex flex-col items-center">
+              <div v-if="follower.permission === 'denied' || follower.permission === 'stopped'" class="flex flex-col items-center">
                 <img class="mt-20 w-32 xs:w-48" src="@/assets/img/shocked_col.png" alt="Computer Icon"/>
                 <p class="mb-6 mt-8 text-sm font-semibold">
-                  {{follower.permission === 'declined' ? 'Student has declined the permission...' : 'Student stopped sharing their screen...'}}
+                  {{follower.permission === 'denied' ? 'Student has declined the permission...' : 'Student stopped sharing their screen...'}}
                 </p>
               </div>
 
