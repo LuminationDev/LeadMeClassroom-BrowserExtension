@@ -46,7 +46,6 @@ async function validateAndSubmit() {
 
   const connected = await popupPinia.connect();
 
-  console.log(connected);
   if(connected) {
     classFound.value = true;
     setTimeout(() => {
@@ -89,11 +88,11 @@ onMounted(() => {
     <div class="mb-4 flex items-start flex-col">
       <label class="inline-flex items-center">
         <input class="w-4 h-4" v-model="authoriseModel" type="checkbox"/>
-        <p :class="{
+        <span :class="{
           'w-56 ml-4 text-xsm text-left': true,
           'text-gray-popup-text': authorise,
           'text-red-800': !authorise && v$.authorise.$dirty
-        }">I authorise the <span @click.prevent="popupPinia.changeView('permissions')" class="underline underline-offset-1 cursor-pointer">permissions</span> necessary for LeadMe Classroom to function</p>
+        }">I authorise the <span @click.prevent="popupPinia.changeView('permissions')" class="underline underline-offset-1 cursor-pointer">permissions</span> necessary for LeadMe Classroom to function</span>
       </label>
       <div class="ml-8 mt-1" v-if="v$.authorise && v$.authorise.$error">
         <span class="text-red-800" v-for="error in v$.authorise.$errors">{{ error.$message }}</span>

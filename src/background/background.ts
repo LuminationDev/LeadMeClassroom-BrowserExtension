@@ -62,10 +62,14 @@ chrome.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
         newTab.muted = tab.mutedInfo ? tab.mutedInfo.muted : false
 
         //if tab action is only mute/unmute
-        if(changeInfo.mutedInfo !== undefined) { delete newTab.lastActivated; }
-
+        if(changeInfo.mutedInfo !== undefined) {
+            delete newTab.lastActivated;
+        }
         //Tab was opened in background or right click -> new tab
-        if(!tab.active) { newTab.lastActivated = 0; }
+        else if(!tab.active && (changeInfo.status === 'loading' || changeInfo.status === 'complete' || changeInfo.favIconUrl !== null)) {
+            newTab.lastActivated = 0;
+        }
+
         chrome.tabs.sendMessage(<number>assistantTab.id, { type: REQUESTS.UPDATE_TAB, tab: newTab });
     });
 

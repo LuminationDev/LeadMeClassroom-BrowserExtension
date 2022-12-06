@@ -305,9 +305,8 @@ export let useDashboardStore = defineStore("dashboard", {
 
         /**
          * Add new follower or update an existing one
-         * @param capture
-         * @param name
          * @param id
+         * @param value
          */
         updateFollowerCaptureFailed(id: string, value: boolean) {
             let follower = this.followers.find(element => element.getUniqueId() === id)

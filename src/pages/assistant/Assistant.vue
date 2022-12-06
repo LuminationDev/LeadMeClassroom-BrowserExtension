@@ -12,8 +12,6 @@ const webRTCPinia = useWebRTCStore();
 const assistantListener = (data: any) => {
   if (data == null) { return; }
 
-  console.log(data);
-
   switch (data.type) {
     case REQUESTS.MONITORPERMISSION:
       webRTCPinia.connectionStatus = true;
@@ -59,11 +57,11 @@ const assistantListener = (data: any) => {
       break;
 
     case REQUESTS.REMOVED:
-      removedByLeader();
+      endSession(`Leader has removed you from the session`);
       break;
 
     case REQUESTS.ENDSESSION:
-      sessionEndedByLeader();
+      endSession(`Leader has ended session`);
       break;
 
     case REQUESTS.YOUTUBE:
@@ -159,18 +157,22 @@ const monitorRequest = () => {
   }, 500);
 }
 
+//The message present on the assistant page UI
 const updateMessage = ref("")
 
 /**
- * The leader has removed this follower from the class.
+ * Stop any active webRTC tracks, remove the follower details from chrome storage, remove the block DIV if it exists
+ * then close the window.
  */
-const removedByLeader = () => {
+const endSession = (notification: string) => {
   webRTCPinia.stopTracks(followerData.uuid);
   chrome.runtime.sendMessage({ "type": "maximize" });
 
-  //Disconnect the user first
   MANAGER.value.disconnectFollower();
   MANAGER.value.disconnect();
+
+  chrome.runtime.sendMessage({type: REQUESTS.SCREENCONTROL, action: "unblock"})
+      .then(result => console.log(result));
 
   chrome.storage.sync.remove("follower", () => {
     console.log("Data removed");
@@ -178,7 +180,7 @@ const removedByLeader = () => {
 
   let count = 3;
   let countDown = setInterval(() => {
-    updateMessage.value = `Leader has removed you from the session, window closing in ${count} seconds.`
+    updateMessage.value = `${notification}, window closing in ${count} seconds.`
 
     count--;
     if (count < 0) {
@@ -186,42 +188,6 @@ const removedByLeader = () => {
       closeAssistant()
     }
   }, 1000);
-}
-
-/**
- * Print a message to the assistant page that the Leader has ended the current
- * session.
- */
-const sessionEndedByLeader = () => {
-  webRTCPinia.stopTracks(followerData.uuid);
-  chrome.runtime.sendMessage({ "type": "maximize" });
-
-  let count = 5;
-  let countDown = setInterval(() => {
-    updateMessage.value = `Leader has ended session, window closing in ${count} seconds.`
-
-    count--;
-    if (count < 0) {
-      clearInterval(countDown);
-      endSession();
-    }
-  }, 1000);
-}
-
-/**
- * Remove the follower details from chrome storage then close the window. The
- * window.open("", "_self") does nothing except give JavaScript ownership over
- * the window allowing it to be closed programmatically.
- */
-const endSession = () => {
-  MANAGER.value.disconnectFollower();
-  MANAGER.value.disconnect();
-
-  chrome.storage.sync.remove("follower", () => {
-    console.log("Data removed");
-  });
-
-  closeAssistant();
 }
 
 const closeAssistant = () => {
