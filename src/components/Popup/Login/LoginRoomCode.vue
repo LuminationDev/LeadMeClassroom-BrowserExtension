@@ -43,17 +43,16 @@ const authoriseModel = computed({
 async function validateAndSubmit() {
   const result = await v$.value.$validate();
   if (!result) { return; }
-  popupPinia.connect().then((connected) => {
-    console.log(connected);
-    if(connected) {
-      classFound.value = true;
-      setTimeout(() => {
-        window.close()
-      }, 1000)
-    }
-  }, () => {
-    // rejected, an error should be displayed from the connect function
-  })
+
+  const connected = await popupPinia.connect();
+
+  console.log(connected);
+  if(connected) {
+    classFound.value = true;
+    setTimeout(() => {
+      window.close()
+    }, 1000)
+  }
 }
 
 onMounted(() => {

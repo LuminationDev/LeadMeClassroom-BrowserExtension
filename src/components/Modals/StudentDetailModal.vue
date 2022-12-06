@@ -29,7 +29,10 @@ defineExpose({
  */
 function openModal() {
   showDetailModal.value = true
-  selectedTabId.value = props.follower.tabs[0].id;
+
+  if(props.follower.tabs.length > 0) {
+    selectedTabId.value = props.follower.tabs[0].id;
+  }
 }
 
 //Track the currently selected tab
