@@ -63,7 +63,7 @@ defineProps({
     </label>
 
 
-    <div v-if="controls">
+    <div v-if="controls && !follower.disconnected">
       <Transition name="fade" mode="out-in">
         <!--Options screen & Remove screen-->
         <img
