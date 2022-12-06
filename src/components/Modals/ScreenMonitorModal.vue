@@ -64,6 +64,7 @@ function closeModal() {
   cancelMonitor();
   showMonitorModal.value = false
   props.follower.collectingScreenshotFailed = false
+  props.follower.imageBase64 = null
 }
 </script>
 
@@ -99,7 +100,7 @@ function closeModal() {
         <div class="w-auto inline-block max-h-monitor-modal mt-7 mx-9">
           <!--Screenshot content-->
           <div v-if="!follower.monitoring" class="w-modal-width-xsm">
-            <div v-if="follower.imageBase64 === undefined && !follower.collectingScreenshotFailed" class="flex flex-col items-center">
+            <div v-if="!follower.imageBase64 && !follower.collectingScreenshotFailed" class="flex flex-col items-center">
               <p class="mt-20 lds-dual-ring-lg" />
               <p class="mb-6 mt-8 text-sm ">Collecting current screenshot...</p>
             </div>
