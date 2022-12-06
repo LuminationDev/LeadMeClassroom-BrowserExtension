@@ -79,43 +79,41 @@ function openDetailsModal() {
 </script>
 
 <template>
-  <!--Student Footer-->
-  <!--Disconnected screen-->
-  <div v-if="follower.disconnected" class="h-12 bg-navy-side-menu rounded-b-sm flex">
-    <button @click="removeFollower" class="w-full flex justify-center items-center">
-      <span class="text-sm text-white font-poppins">Dismiss</span>
-    </button>
-  </div>
+    <!--Student Footer-->
+    <div v-if="controls" class="h-12 bg-navy-side-menu rounded-b-sm flex">
+      <Transition name="fade" mode="out-in">
 
-  <!--Rename screen--->
-  <div v-else-if="screenType === 'options' && renaming" class="h-12 bg-navy-side-menu rounded-b-sm flex">
-    <button @click="updateFollowerName" class="w-full flex justify-center items-center">
-      <span class="text-sm text-white font-poppins">Update</span>
-    </button>
-  </div>
+        <!--Disconnected screen-->
+        <button v-if="follower.disconnected" @click="removeFollower" class="w-full flex justify-center items-center">
+          <span class="text-sm text-white font-poppins">Dismiss</span>
+        </button>
 
-  <!--Options screen-->
-  <div v-else-if="screenType === 'options'" class="h-12 bg-navy-side-menu rounded-b-sm flex">
-    <button @click="$emit('update:screenType', 'tabs')" class="w-full flex justify-center items-center">
-      <span class="text-sm text-white font-poppins">Return</span>
-    </button>
-  </div>
+        <!--Rename screen--->
+        <button v-else-if="screenType === 'options' && renaming" @click="updateFollowerName" class="w-full flex justify-center items-center">
+          <span class="text-sm text-white font-poppins">Update</span>
+        </button>
 
-  <!--Remove screen--->
-  <div v-else-if="screenType === 'remove'" class="h-12 bg-navy-side-menu rounded-b-sm flex">
-    <button @click="kickFollower" class="w-full flex justify-center items-center">
-      <span class="text-sm text-white font-poppins">Confirm</span>
-    </button>
-  </div>
+        <!--Options screen-->
+        <button v-else-if="screenType === 'options'" @click="$emit('update:screenType', 'tabs')" class="w-full flex justify-center items-center">
+          <span class="text-sm text-white font-poppins">Return</span>
+        </button>
 
-  <!--Tab screen-->
-  <div v-else-if="controls" class="h-12 bg-navy-side-menu rounded-b-sm flex">
-    <!--Screenshot and WebRTC modal-->
-    <ScreenMonitorModal ref="monitorRef" :follower="follower" />
+        <!--Remove screen--->
+        <button v-else-if="screenType === 'remove'" @click="kickFollower" class="w-full flex justify-center items-center">
+          <span class="text-sm text-white font-poppins">Confirm</span>
+        </button>
 
-    <div class="h-10 mt-1 w-px bg-white"></div>
+        <!--Tab screen-->
+        <div v-else-if="controls" class="flex w-full">
+          <!--Screenshot and WebRTC modal-->
+          <ScreenMonitorModal ref="monitorRef" :follower="follower" />
 
-    <!--Expanded student details modal-->
-    <StudentDetailModal ref="detailsRef" @screenMonitor="openMonitorModal" :follower="follower" />
-  </div>
+          <div class="h-10 mt-1 w-px bg-white"></div>
+
+          <!--Expanded student details modal-->
+          <StudentDetailModal ref="detailsRef" @screenMonitor="openMonitorModal" :follower="follower" />
+        </div>
+
+      </Transition>
+    </div>
 </template>

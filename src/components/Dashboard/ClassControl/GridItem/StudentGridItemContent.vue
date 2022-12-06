@@ -83,50 +83,54 @@ const revertInput = () => {
 </script>
 
 <template>
-  <!--Disconnected screen-->
-  <div v-if="follower.disconnected" class="text-lg text-center h-full flex flex-col justify-center">
-    <span><span class="font-semibold">{{ follower.name }}</span><br/> has left the lesson.</span>
-  </div>
+  <Transition name="fade" mode="out-in">
 
-  <!--Options screen-->
-  <div v-else-if="screenType === 'options'" class="h-full text-sm text-white flex flex-col justify-center bg-navy-side-menu border-b border-t-modal-site-background">
-    <div class="h-6 cursor-pointer flex flex-row mx-2 px-2 items-center hover:bg-white-menu-overlay rounded">
-      <img class="flex-shrink-0 w-3 h-3 mr-2" src="@/assets/img/options-edit.svg"  alt=""/>
-      <span v-if="!renaming" v-on:click="$emit('update:renaming', true); focusInput()">Rename User</span>
-      <input v-else ref="inputField" @input="$emit('update:name', $event.target.value)" @focusout="revertInput" class="bg-navy-side-menu w-full pl-1"/>
+    <!--Disconnected screen-->
+    <div v-if="follower.disconnected" class="text-lg text-center h-full flex flex-col justify-center">
+      <span><span class="font-semibold">{{ follower.name }}</span><br/> has left the lesson.</span>
     </div>
 
-    <div class="h-6 mt-1.5 cursor-pointer flex flex-row mx-2 px-2 items-center hover:bg-white-menu-overlay rounded"
-         v-on:click="$emit('update:screenType', 'remove')">
-      <img class="flex-shrink-0 w-3 h-3 mr-2" src="@/assets/img/options-remove.svg"  alt=""/>
-      <span class="">Remove {{follower.name}}</span>
-    </div>
-  </div>
+    <!--Options screen-->
+    <div v-else-if="screenType === 'options'" class="h-full text-sm text-white flex flex-col justify-center bg-navy-side-menu border-b border-t-modal-site-background">
+      <div class="h-6 cursor-pointer flex flex-row mx-2 px-2 items-center hover:bg-white-menu-overlay rounded">
+        <img class="flex-shrink-0 w-3 h-3 mr-2" src="@/assets/img/options-edit.svg"  alt=""/>
+        <span v-if="!renaming" v-on:click="$emit('update:renaming', true); focusInput()">Rename User</span>
+        <input v-else ref="inputField" @input="$emit('update:name', $event.target.value)" @focusout="revertInput" class="bg-navy-side-menu w-full pl-1"/>
+      </div>
 
-  <!--Remove screen-->
-  <div v-else-if="screenType === 'remove'" class="text-base text-center h-full flex flex-col justify-center">
-    <span>Remove from session?</span>
-  </div>
-
-  <!--Tab screen-->
-  <div v-else-if="screenType === 'tabs'">
-    <!--The assistant page is present but not counted-->
-    <div v-if="firstThreeTabs.length === 0" class="py-1">
-      <div class="flex flex-row px-2 items-center">
-        <img class="flex-shrink-0 w-4 h-4 mr-2" src="@/assets/img/icon-128.png"  alt=""/>
-        <span class="overflow-ellipsis whitespace-nowrap overflow-hidden">No open tabs...</span>
+      <div class="h-6 mt-1.5 cursor-pointer flex flex-row mx-2 px-2 items-center hover:bg-white-menu-overlay rounded"
+           v-on:click="$emit('update:screenType', 'remove')">
+        <img class="flex-shrink-0 w-3 h-3 mr-2" src="@/assets/img/options-remove.svg"  alt=""/>
+        <span class="">Remove {{follower.name}}</span>
       </div>
     </div>
 
-    <transition-group v-else name="list" tag="div">
-      <div v-for="(tab, index) in firstThreeTabs" v-bind:key="tab" class="py-1 w-48" :id="index">
+    <!--Remove screen-->
+    <div v-else-if="screenType === 'remove'" class="text-base text-center h-full flex flex-col justify-center">
+      <span>Remove from session?</span>
+    </div>
+
+    <!--Tab screen-->
+    <div v-else-if="screenType === 'tabs'">
+      <!--The assistant page is present but not counted-->
+      <div v-if="firstThreeTabs.length === 0" class="py-1">
         <div class="flex flex-row px-2 items-center">
-          <img class="flex-shrink-0 w-4 h-4 mr-2" :src="tab.getFavicon()"  alt=""/>
-          <span class="overflow-ellipsis whitespace-nowrap overflow-hidden">{{ tab.getTabUrlWithoutHttp() }}</span>
+          <img class="flex-shrink-0 w-4 h-4 mr-2" src="@/assets/img/icon-128.png"  alt=""/>
+          <span class="overflow-ellipsis whitespace-nowrap overflow-hidden">No open tabs...</span>
         </div>
       </div>
-    </transition-group>
-  </div>
+
+      <transition-group v-else name="list" tag="div">
+        <div v-for="(tab, index) in firstThreeTabs" v-bind:key="tab" class="py-1 w-48" :id="index">
+          <div class="flex flex-row px-2 items-center">
+            <img class="flex-shrink-0 w-4 h-4 mr-2" :src="tab.getFavicon()"  alt=""/>
+            <span class="overflow-ellipsis whitespace-nowrap overflow-hidden">{{ tab.getTabUrlWithoutHttp() }}</span>
+          </div>
+        </div>
+      </transition-group>
+    </div>
+
+  </Transition>
 </template>
 
 <style>

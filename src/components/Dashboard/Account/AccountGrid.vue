@@ -33,12 +33,11 @@ async function validatePassword() {
   const result = await v$.value.password.$validate();
   if (!result) { return; }
 
-  console.log(password.value);
   await dashboardPinia.changeUserPassword(password.value);
 
   password.value = '';
   v$.value.$reset();
-  changed.value = true;
+  resetChanged();
 }
 
 async function validateAndSubmit() {
@@ -49,12 +48,17 @@ async function validateAndSubmit() {
 
   name.value = '';
   v$.value.$reset();
-  changed.value = true;
+  resetChanged();
 }
 
 async function changeMarketing() {
   await dashboardPinia.changeMarketingPreference(dashboardPinia.marketing === null);
+  resetChanged();
+}
+
+function resetChanged() {
   changed.value = true;
+  setTimeout(() => { changed.value = false; }, 2000);
 }
 
 function changeView(view: string) {

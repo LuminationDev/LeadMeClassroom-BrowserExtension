@@ -4,7 +4,7 @@ import * as REQUESTS from "../../../constants/_requests";
 import { ref } from "vue";
 
 import { useDashboardStore } from "../../../stores/dashboardStore";
-let dashboardPinia = useDashboardStore();
+const dashboardPinia = useDashboardStore();
 
 const loading = ref(false);
 const locked = ref(false);
@@ -12,8 +12,8 @@ const locked = ref(false);
 async function screenControl() {
   loading.value = true;
   await new Promise(res => setTimeout(res, 500));
-  loading.value = false;
   locked.value = !locked.value;
+  loading.value = false;
   dashboardPinia.requestAction({ type: REQUESTS.SCREENCONTROL, action: locked.value ? REQUESTS.BLOCK : REQUESTS.UNBLOCK });
 }
 </script>
@@ -31,16 +31,17 @@ async function screenControl() {
           'bg-navy-side-menu hover:bg-navy-hover-session-button': locked,
           'bg-blue-500 hover:bg-blue-400': !locked
           }"
-           v-on:click="screenControl();"
+          :disabled="loading"
+          v-on:click="screenControl();"
       >
         <span v-if="loading" class="lds-dual-ring-screen h-4 w-4 mr-3"></span>
 
         <span v-else class="flex flex-row place-items-center">
           <img v-if="locked" class="w-4 h-4 mr-3" src="@/assets/img/session-icon-unlock.svg" alt="Icon"/>
           <img v-else class="w-4 h-4 mr-3" src="@/assets/img/session-icon-lock.svg" alt="Icon"/>
-          <p class="text-base">
+          <span class="text-base">
             {{locked ? 'Unlock screens' : 'Lock screens'}}
-          </p>
+          </span>
         </span>
       </button>
     </div>

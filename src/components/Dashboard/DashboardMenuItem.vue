@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { useDashboardStore } from "../../stores/dashboardStore";
-let dashboardPinia = useDashboardStore();
+const dashboardPinia = useDashboardStore();
 
 defineProps({
   view: {

@@ -62,24 +62,27 @@ defineProps({
       {{ follower.name }}
     </label>
 
-    <div v-if="controls">
-      <!--Options screen & Remove screen-->
-      <img
-          v-if="screenType === 'options' || screenType === 'remove'"
-          v-on:click="$emit('update:screenType', 'tabs')"
-          class="w-4 h-4 mr-2 cursor-pointer"
-          src="@/assets/img/options-back.svg"
-          alt="menu icon"
-      />
 
-      <!--Tab screen & Disconnect screen-->
-      <img
-          v-else
-          v-on:click="$emit('update:screenType', 'options')"
-          class="w-4 h-4 mr-2 cursor-pointer"
-          src="@/assets/img/student-icon-menu.svg"
-          alt="menu icon"
-      />
+    <div v-if="controls">
+      <Transition name="fade" mode="out-in">
+        <!--Options screen & Remove screen-->
+        <img
+            v-if="screenType === 'options' || screenType === 'remove'"
+            v-on:click="$emit('update:screenType', 'tabs')"
+            class="w-4 h-4 mr-2 cursor-pointer"
+            src="@/assets/img/options-back.svg"
+            alt="menu icon"
+        />
+
+        <!--Tab screen & Disconnect screen-->
+        <img
+            v-else
+            v-on:click="$emit('update:screenType', 'options')"
+            class="w-4 h-4 mr-2 cursor-pointer"
+            src="@/assets/img/student-icon-menu.svg"
+            alt="menu icon"
+        />
+      </Transition>
     </div>
   </div>
 </template>
