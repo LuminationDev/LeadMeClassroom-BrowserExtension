@@ -6,6 +6,7 @@ import {helpers, required} from "@vuelidate/validators";
 import StudentGridItem from "../Dashboard/ClassControl/GridItem/StudentGridItem.vue";
 import Modal from "./Modal.vue";
 import {Follower} from "../../models";
+import GenericButton from "../Buttons/GenericButton.vue";
 
 const dashboardPinia = useDashboardStore();
 const showWebsiteModal = ref(false);
@@ -28,17 +29,16 @@ const rules = {
 
 const v$ = useVuelidate(rules, { websiteLink })
 
-function validateAndSubmit() {
+async function validateAndSubmit() {
   submissionAttempted.value = true
   if (shareTo.value === "selected" && followersSelected.value.length === 0) {
     return;
   }
-  !v$.value.$validate().then((result: boolean) => {
-    if (!result) {
-      return;
-    }
-    submit()
-  })
+
+  const result = await v$.value.$validate();
+  if (!result) { return; }
+
+  submit();
 }
 
 function handleFollowerSelection(followerId: string, value: boolean) {
@@ -169,10 +169,11 @@ function closeModal() {
               <span>Please select a user to share this link to</span>
               <div class="absolute bottom-0 right-0 border-b-white h-0 w-0 rotate-180 border-x-8 border-x-transparent border-b-[1rem] -mb-2 mr-10"></div>
             </div>
-            <button
+
+            <GenericButton
                 class="w-52 h-12 text-white bg-blue-500 rounded-lg text-base hover:bg-blue-400 font-medium"
-                v-on:click="validateAndSubmit"
-            >Share link</button>
+                :callback="validateAndSubmit"
+            >Share link</GenericButton>
           </div>
         </footer>
       </template>
