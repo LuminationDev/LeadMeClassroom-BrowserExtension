@@ -16,7 +16,7 @@ import {
     remove,
     off
 } from 'firebase/database';
-import { browserLocalPersistence, getAuth, setPersistence, updateProfile, updatePassword } from "@firebase/auth";
+import { browserLocalPersistence, getAuth, setPersistence, updateProfile, updatePassword, reauthenticateWithCredential, EmailAuthProvider } from "@firebase/auth";
 import * as REQUESTS from '../constants/_requests';
 import { Follower, Leader, Tab } from "../models";
 import {
@@ -66,11 +66,25 @@ class Firebase {
     }
 
     /**
-     * Set a new password for the currently active user.
-     * @param password
+     * Set a new password for the currently active user. Reauthenticate the user before attempting to change the current
+     * password.
+     * @param email
+     * @param currentPassword
+     * @param newPassword
      */
-    setPassword = async (password: string) => {
-        await updatePassword(getAuth().currentUser!, password);
+    setPassword = async (email: string, currentPassword: string, newPassword: string) => {
+        const user = getAuth().currentUser;
+        const credential = EmailAuthProvider.credential(email, currentPassword);
+
+        return reauthenticateWithCredential(user!, credential).then(async result => {
+            if(result) {
+                await updatePassword(user!, newPassword);
+            }
+
+            return true;
+        }).catch(error => {
+            return error.code;
+        });
     }
 
     /**
