@@ -1,20 +1,35 @@
 <script setup lang="ts">
 import AccountGridItem from "./AccountGridItem.vue";
-import {required, helpers, minLength} from "@vuelidate/validators";
+import {required, helpers, minLength, email as emailRule} from "@vuelidate/validators";
 import LoginTextInput from "../../Popup/Login/LoginTextInput.vue";
 import useVuelidate from "@vuelidate/core";
 import {ref} from "vue";
 import GenericButton from "../../Buttons/GenericButton.vue";
 
 import {useDashboardStore} from "../../../stores/dashboardStore";
+import LoginEmail from "../../Popup/Login/LoginEmail.vue";
 const dashboardPinia = useDashboardStore();
 
+const response = ref('');
+const error = ref('');
+const passwordView = ref('change');
 const changed = ref(false);
 const name = ref('');
+const email = ref('');
+const oldPassword = ref('');
 const password = ref('');
 const rules = {
   name: {
     required: helpers.withMessage("Name is required", required),
+    $autoDirty: true
+  },
+  email: {
+    required: helpers.withMessage("Email is required", required),
+    emailRule: helpers.withMessage("Email must be a valid email address", emailRule),
+    $lazy: true
+  },
+  oldPassword: {
+    required: helpers.withMessage("Current password is required", required),
     $autoDirty: true
   },
   password: {
@@ -27,18 +42,46 @@ const rules = {
   },
 }
 
-const v$ = useVuelidate(rules, { password, name })
+const v$ = useVuelidate(rules, { name, email, oldPassword, password })
 
-async function validatePassword() {
-  const result = await v$.value.password.$validate();
+async function validateEmail() {
+  const result = await v$.value.email.$validate();
   if (!result) { return; }
 
-  await dashboardPinia.changeUserPassword(password.value);
+  const success = await dashboardPinia.handlePasswordReset(email.value);
+  if(success !== 'success') {
+    error.value = success;
+    return;
+  }
 
+  error.value = '';
+  response.value = 'We have sent a password recovery link to your email.';
+  email.value = '';
+  v$.value.$reset();
+  resetChanged();
+}
+
+async function validatePassword() {
+  const emailResult = await v$.value.email.$validate();
+  const oldResult = await v$.value.oldPassword.$validate();
+  const passwordResult = await v$.value.password.$validate();
+  if (!emailResult || !oldResult || !passwordResult) { return; }
+
+  const success = await dashboardPinia.changeUserPassword(email.value, oldPassword.value, password.value);
+  if(success !== 'success') {
+    error.value = success;
+    return;
+  }
+
+  error.value = '';
+  response.value = 'Your password has been updated!';
+  email.value = '';
+  oldPassword.value = '';
   password.value = '';
   v$.value.$reset();
   resetChanged();
 }
+
 
 async function validateAndSubmit() {
   const result = await v$.value.name.$validate();
@@ -61,9 +104,28 @@ function resetChanged() {
   setTimeout(() => { changed.value = false; }, 2000);
 }
 
+/**
+ * Swap between the change password and forgot password fields whilst resetting the validation and input fields.
+ * @param view
+ */
+function changePasswordView(view: string) {
+  clearFields();
+  v$.value.$reset();
+  passwordView.value = view;
+}
+
 function changeView(view: string) {
+  clearFields();
   changed.value = false;
-  dashboardPinia.changeAccountView(view)
+  dashboardPinia.changeAccountView(view);
+}
+
+function clearFields() {
+  response.value = '';
+  error.value = '';
+  email.value = '';
+  password.value = '';
+  v$.value.$reset();
 }
 </script>
 
@@ -79,12 +141,50 @@ function changeView(view: string) {
     <div v-else-if="dashboardPinia.accountView === 'resetPassword'">
       <AccountGridItem :title="'Back'" v-on:click="changeView('menu')"/>
 
-      <LoginTextInput v-model="v$.password.$model" :v$="v$.password" v-on:focusin="changed = false" class="mb-3" type="text" placeholder="New password"/>
+      <!--Change password area-->
+      <div v-if="passwordView === 'change'">
+        <!--Account email-->
+        <LoginEmail v-model="email" :v$="v$.email" class="mb-3" placeholder="Email" />
 
-      <GenericButton class="flex justify-center items-center" :type="'primary'" :callback="validatePassword">
-        <img v-if="changed" class="w-8 h-8" src="@/assets/img/tick.svg" alt="Icon"/>
-        <p v-else>Confirm</p>
-      </GenericButton>
+        <!--Old password-->
+        <LoginTextInput v-model="oldPassword" :v$="v$.oldPassword" class="mb-3" type="password" placeholder="Old Password"/>
+
+        <!--New password-->
+        <LoginTextInput v-model="v$.password.$model" :v$="v$.password" v-on:focusin="changed = false" type="password" placeholder="New password"/>
+
+        <p class="w-64 px-1 text-red-400 mb-3">{{ error }}</p>
+        <p class="w-64 px-1 text-green-400 mb-3">{{ response }}</p>
+
+        <GenericButton class="flex justify-center items-center" :type="'primary'" :callback="validatePassword">
+          <img v-if="changed" class="w-8 h-8" src="@/assets/img/tick.svg" alt="Icon"/>
+          <p v-else>Reset Password</p>
+        </GenericButton>
+
+        <p
+            class="mb-3 font-medium text-blue-400 cursor-pointer"
+            v-on:click="changePasswordView('forgot')"
+        >Forgot password?</p>
+      </div>
+
+      <!--Forgot password area-->
+      <div v-else-if="passwordView === 'forgot'">
+        <!--Forgot password area-->
+        <!--Account email-->
+        <LoginEmail v-model="email" :v$="v$.email" placeholder="Email" />
+
+        <p class="w-64 px-1 text-red-400 mb-3">{{ error }}</p>
+        <p class="w-64 px-1 text-green-400 mb-3">{{ response }}</p>
+
+        <GenericButton class="flex justify-center items-center" :type="'primary'" :callback="validateEmail">
+          <img v-if="changed" class="w-8 h-8" src="@/assets/img/tick.svg" alt="Icon"/>
+          <p v-else>Forgot password</p>
+        </GenericButton>
+
+        <p
+            class="mb-3 font-medium text-blue-400 cursor-pointer"
+            v-on:click="changePasswordView('change')"
+        >Change password?</p>
+      </div>
     </div>
 
     <!--Changing display name page-->

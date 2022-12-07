@@ -1,9 +1,10 @@
-import {defineStore} from "pinia";
-import {useStorage} from "../hooks/useStorage";
+import { defineStore } from "pinia";
+import { useStorage } from "../hooks/useStorage";
 import * as REQUESTS from "../constants/_requests.js";
 import Firebase from '../controller/_firebase';
-import {Follower, Leader, Tab} from '../models';
-import {useWebRTCStore} from "./webRTCStore";
+import { Follower, Leader, Tab } from '../models';
+import { useWebRTCStore } from "./webRTCStore";
+import { getAuth, sendPasswordResetEmail } from "@firebase/auth";
 
 interface userDetails {
     name: string,
@@ -484,11 +485,49 @@ export let useDashboardStore = defineStore("dashboard", {
 
         //Account page functions
         /**
-         * Change the password of the currently signed-in user.
-         * @param password A string of the new password
+         * Send the firebase password reset email off to the supplied user.
          */
-        async changeUserPassword(password: string) {
-            await this.firebase.setPassword(password);
+        async handlePasswordReset(email: string) {
+            const auth = getAuth();
+            return await sendPasswordResetEmail(auth, email)
+                .then(() => { return "success"; })
+                .catch((error) => { return this.getUsefulErrorMessageFromFirebaseCode(error.code); });
+        },
+
+        /**
+         * Change the password of the currently signed-in user.
+         * @param email
+         * @param currentPassword
+         * @param newPassword
+         */
+        async changeUserPassword(email: string, currentPassword: string, newPassword: string) {
+            const result = await this.firebase.setPassword(email, currentPassword, newPassword);
+
+            if(result) { return "success"; }
+            return this.getUsefulErrorMessageFromFirebaseCode(result);
+        },
+
+        getUsefulErrorMessageFromFirebaseCode(error: string) {
+            switch (error) {
+                case 'auth/email-already-exists':
+                    return 'This email is already in use. Try signing in instead.'
+                case 'auth/id-token-expired':
+                case 'auth/id-token-revoked':
+                case 'auth/invalid-id-token':
+                    return 'Your login session has expired. Please logout and try again'
+                case 'auth/invalid-email':
+                    return 'This email is invalid. Please check your email address and try again.'
+                case 'auth/invalid-password':
+                    return 'This password is invalid. Please check that it is at least 6 characters.'
+                case 'auth/user-not-found':
+                    return 'No account was found for these login details. Please check your details and try again.'
+                case 'auth/wrong-password':
+                    return 'This password does not match the login details for this account. Please try again.'
+                case 'auth/too-many-requests':
+                    return 'Too many attempts have been made to login to this account. Please reset your password or try again later.'
+                default:
+                    return 'An error has occurred. Please contact support and give them this error code: ' + error
+            }
         },
 
         /**
