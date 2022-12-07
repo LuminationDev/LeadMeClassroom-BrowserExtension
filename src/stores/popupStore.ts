@@ -266,6 +266,7 @@ export let usePopupStore = defineStore("popup", {
          * Sign a teacher out of their currently active session.
          */
         async handleLogoutClick() {
+            localStorage.removeItem("firebase:previous_websocket_failure")
             signOut(getAuth()).then(() => {
                 this.view = "login"
             });
