@@ -113,19 +113,13 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
             break;
 
         case REQUESTS.MAXIMIZE:
-            maximize();
-            break;
-
         case REQUESTS.MINIMIZE:
-            minimize();
+            resize(request);
             break;
 
         case REQUESTS.MUTETAB:
-            muteTab(request);
-            break;
-
         case REQUESTS.UNMUTETAB:
-            unmuteTab(request);
+            muteTab(request, request.type === REQUESTS.MUTETAB);
             break;
 
         case REQUESTS.YOUTUBE:
@@ -193,55 +187,25 @@ const updateTabURL = (message: any) => {
 }
 
 /**
- * Send a message to the assistant page to request that a screen capture
- * is to be taken.
+ * Send a message to the assistant page to request a resize of the page to minimise or maximise the page.
  */
-const maximize = () => {
+const resize = (request: any) => {
     //Send a message to the assistant page
     chrome.tabs.query({ url: REQUESTS.ASSISTANT_MATCH_URL }, ([tab]) => {
-        void chrome.windows.update(tab.windowId, { state: 'maximized' });
+        void chrome.windows.update(tab.windowId, { state: request.type === REQUESTS.MAXIMIZE ? 'maximized' : 'minimized' });
     });
 }
 
 /**
- * Send a message to the assistant page to request that a screen capture
- * is to be taken.
+ * Mute or unmute the currently active tab or all tabs.
  */
-const minimize = () => {
-    //Send a message to the assistant page
-    chrome.tabs.query({ url: REQUESTS.ASSISTANT_MATCH_URL }, ([tab]) => {
-        void chrome.windows.update(tab.windowId, { state: 'minimized' });
-    });
-}
-
-/**
- * Mute the currently active tab or all tabs.
- */
-const muteTab = (request: any) => {
+const muteTab = (request: any, mute: boolean) => {
     if (request.tabId) {
-        void chrome.tabs.update(parseInt(request.tabId), { muted: true });
-    } else if (request.tabs === REQUESTS.MULTITAB) {
-        console.log("MULTI-TAB MUTE");
-        chrome.tabs.query({}, function (tabs) {
-            console.log(tabs);
-            tabs.forEach(tab => {
-                console.log(tab);
-                void chrome.tabs.update(<number>tab.id, { muted: true });
-            });
-        });
-    }
-}
-
-/**
- * Unmute the currently active tab or all tabs.
- */
-const unmuteTab = (request: any) => {
-    if (request.tabId) {
-        void chrome.tabs.update(parseInt(request.tabId), { muted: false });
+        void chrome.tabs.update(parseInt(request.tabId), { muted: mute });
     } else if (request.tabs === REQUESTS.MULTITAB) {
         chrome.tabs.query({}, function (tabs) {
             tabs.forEach(tab => {
-                void chrome.tabs.update(<number>tab.id, { muted: false });
+                void chrome.tabs.update(<number>tab.id, { muted: mute });
             });
         });
     }
@@ -263,6 +227,9 @@ const youtubeAction = (request: object) => {
  * @param request
  */
 const contentAction = (request: any) => {
+    request.tabs = REQUESTS.MULTITAB
+    muteTab(request, request.action === "block");
+
     chrome.tabs.query({}, function (tabs) {
         tabs.forEach(tab => {
             let url = <string>tab.url;
