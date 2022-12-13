@@ -81,7 +81,7 @@ class Firebase {
                 await updatePassword(user!, newPassword);
             }
 
-            return true;
+            return "success";
         }).catch(error => {
             return error.code;
         });

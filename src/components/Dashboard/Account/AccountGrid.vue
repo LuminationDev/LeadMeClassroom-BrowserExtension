@@ -1,14 +1,14 @@
 <script setup lang="ts">
 import AccountGridItem from "./AccountGridItem.vue";
 import {required, helpers, minLength, email as emailRule} from "@vuelidate/validators";
-import LoginTextInput from "../../InputFields/TextInput.vue";
-import LoginPasswordInput from "../../InputFields/PasswordInput.vue";
+import TextInput from "../../InputFields/TextInput.vue";
+import PasswordInput from "../../InputFields/PasswordInput.vue";
+import EmailInput from "../../InputFields/EmailInput.vue";
 import useVuelidate from "@vuelidate/core";
 import {ref} from "vue";
 import GenericButton from "../../Buttons/GenericButton.vue";
 
 import {useDashboardStore} from "../../../stores/dashboardStore";
-import LoginEmail from "../../InputFields/EmailInput.vue";
 const dashboardPinia = useDashboardStore();
 
 const response = ref('');
@@ -36,7 +36,7 @@ const rules = {
   password: {
     required: helpers.withMessage("Password is required", required),
     minLength: helpers.withMessage("Password must be at least 8 characters", minLength(8)),
-    specialCharacters: helpers.withMessage("Password must have a special character", helpers.regex(/^(?=.*[*.!@#$%^&(){}\[\]:;<>,.?\/~_\+\-=|]).*$/)),
+    specialCharacters: helpers.withMessage("Password must have a special character", helpers.regex(/^(?=.*[*.!@#$%^&(){}\[\]:;<>,?\/~_+\-=|]).*$/)),
     lowerCase: helpers.withMessage("Password must have a lowercase letter", helpers.regex(/^(?=.*[a-z]).*$/)),
     upperCase: helpers.withMessage("Password must have an uppercase letter", helpers.regex(/^(?=.*[A-Z]).*$/)),
     numbers: helpers.withMessage("Password must have at least one number", helpers.regex(/^(?=.*[0-9]).*$/))
@@ -68,9 +68,9 @@ async function validatePassword() {
   const passwordResult = await v$.value.password.$validate();
   if (!emailResult || !oldResult || !passwordResult) { return; }
 
-  const success = await dashboardPinia.changeUserPassword(email.value, oldPassword.value, password.value);
-  if(success !== 'success') {
-    error.value = success;
+  const result = await dashboardPinia.changeUserPassword(email.value, oldPassword.value, password.value);
+  if(result !== 'success') {
+    error.value = result;
     return;
   }
 
@@ -145,13 +145,13 @@ function clearFields() {
       <!--Change password area-->
       <div v-if="passwordView === 'change'">
         <!--Account email-->
-        <LoginEmail v-model="email" :v$="v$.email" class="mb-3" placeholder="Email" />
+        <EmailInput v-model="email" :v$="v$.email" class="mb-3" placeholder="Email" />
 
         <!--Old password-->
-        <LoginPasswordInput v-model="oldPassword" :v$="v$.oldPassword" class="mb-3" placeholder="Old Password"/>
+        <PasswordInput v-model="oldPassword" :v$="v$.oldPassword" class="mb-3" placeholder="Old Password"/>
 
         <!--New password-->
-        <LoginPasswordInput v-model="v$.password.$model" :v$="v$.password" v-on:focusin="changed = false" placeholder="New password"/>
+        <PasswordInput v-model="v$.password.$model" :v$="v$.password" v-on:focusin="changed = false" placeholder="New password"/>
 
         <p class="w-64 px-1 text-red-400 mb-3">{{ error }}</p>
         <p class="w-64 px-1 text-green-400 mb-3">{{ response }}</p>
@@ -171,7 +171,7 @@ function clearFields() {
       <div v-else-if="passwordView === 'forgot'">
         <!--Forgot password area-->
         <!--Account email-->
-        <LoginEmail v-model="email" :v$="v$.email" placeholder="Email" />
+        <EmailInput v-model="email" :v$="v$.email" placeholder="Email" />
 
         <p class="w-64 px-1 text-red-400 mb-3">{{ error }}</p>
         <p class="w-64 px-1 text-green-400 mb-3">{{ response }}</p>
@@ -192,7 +192,7 @@ function clearFields() {
     <div v-else-if="dashboardPinia.accountView === 'changeName'">
       <AccountGridItem :title="'Back'" v-on:click="changeView('menu')"/>
 
-      <LoginTextInput v-model="name" :v$="v$.name" v-on:focusin="changed = false" class="mb-3" type="text" placeholder="Display name"/>
+      <TextInput v-model="name" :v$="v$.name" v-on:focusin="changed = false" class="mb-3" type="text" placeholder="Display name"/>
       <GenericButton class="flex justify-center items-center" :type="'primary'" :callback="validateAndSubmit">
         <img v-if="changed" class="w-8 h-8" src="@/assets/img/tick.svg" alt="Icon"/>
         <p v-else>Confirm</p>
