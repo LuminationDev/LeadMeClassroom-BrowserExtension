@@ -1,13 +1,12 @@
 <script setup lang="ts">
-import LoginTextInput from "./LoginTextInput.vue";
+import PasswordInput from "../../InputFields/PasswordInput.vue";
+import GenericButton from "../../Buttons/GenericButton.vue";
+import EmailInput from "../../InputFields/EmailInput.vue";
 import { ref } from "vue";
 import {email as emailRule, helpers, required} from "@vuelidate/validators";
 import useVuelidate from "@vuelidate/core";
 
 import { usePopupStore } from "../../../stores/popupStore";
-import GenericButton from "../../Buttons/GenericButton.vue";
-import LoginEmail from "./LoginEmail.vue";
-
 const popupPinia = usePopupStore();
 
 const email = ref("")
@@ -40,11 +39,11 @@ async function validateAndSubmit() {
   <form @submit.prevent class="mt-6 pb-5">
     <div class="mb-3" v-if="popupPinia.justCreatedAccount">Thanks for signing up, please verify your email and login to get started</div>
     <div class="mb-2">
-      <LoginEmail v-model="email" :v$="v$.email" placeholder="Email" />
+      <EmailInput v-model="email" :v$="v$.email" placeholder="Email" />
     </div>
 
     <div class="mb-3">
-      <LoginTextInput v-model="v$.password.$model" type="password" placeholder="Password" :v$="v$.password"/>
+      <PasswordInput v-model="v$.password.$model" placeholder="Password" :v$="v$.password"/>
       <p class="text-red-400">{{ popupPinia.error }}</p>
     </div>
 

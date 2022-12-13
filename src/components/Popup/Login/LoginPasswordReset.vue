@@ -1,6 +1,5 @@
 <script setup lang="ts">
-import LoginTextInput from "../../../components/Popup/Login/LoginTextInput.vue";
-import LoginEmail from "./LoginEmail.vue";
+import EmailInput from "../../InputFields/EmailInput.vue";
 import { ref } from "vue";
 import useVuelidate from "@vuelidate/core";
 import {required, email as emailRule, helpers} from "@vuelidate/validators";
@@ -43,7 +42,7 @@ async function resendEmail() {
     <p class="mt-2 mb-9 w-56">Enter the email address associated with your account.</p>
 
     <div class="mb-4">
-      <LoginEmail v-model="email" :v$="v$.email" placeholder="Email" />
+      <EmailInput v-model="email" :v$="v$.email" placeholder="Email" />
       <p class="text-red-400">{{ popupPinia.error }}</p>
     </div>
 

@@ -1,13 +1,14 @@
 <script setup lang="ts">
 import AccountGridItem from "./AccountGridItem.vue";
 import {required, helpers, minLength, email as emailRule} from "@vuelidate/validators";
-import LoginTextInput from "../../Popup/Login/LoginTextInput.vue";
+import LoginTextInput from "../../InputFields/TextInput.vue";
+import LoginPasswordInput from "../../InputFields/PasswordInput.vue";
 import useVuelidate from "@vuelidate/core";
 import {ref} from "vue";
 import GenericButton from "../../Buttons/GenericButton.vue";
 
 import {useDashboardStore} from "../../../stores/dashboardStore";
-import LoginEmail from "../../Popup/Login/LoginEmail.vue";
+import LoginEmail from "../../InputFields/EmailInput.vue";
 const dashboardPinia = useDashboardStore();
 
 const response = ref('');
@@ -147,10 +148,10 @@ function clearFields() {
         <LoginEmail v-model="email" :v$="v$.email" class="mb-3" placeholder="Email" />
 
         <!--Old password-->
-        <LoginTextInput v-model="oldPassword" :v$="v$.oldPassword" class="mb-3" type="password" placeholder="Old Password"/>
+        <LoginPasswordInput v-model="oldPassword" :v$="v$.oldPassword" class="mb-3" placeholder="Old Password"/>
 
         <!--New password-->
-        <LoginTextInput v-model="v$.password.$model" :v$="v$.password" v-on:focusin="changed = false" type="password" placeholder="New password"/>
+        <LoginPasswordInput v-model="v$.password.$model" :v$="v$.password" v-on:focusin="changed = false" placeholder="New password"/>
 
         <p class="w-64 px-1 text-red-400 mb-3">{{ error }}</p>
         <p class="w-64 px-1 text-green-400 mb-3">{{ response }}</p>
