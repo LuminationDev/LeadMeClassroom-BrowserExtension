@@ -96,7 +96,7 @@ async function validateAndSubmit() {
 }
 
 async function changeMarketing() {
-  await dashboardPinia.changeMarketingPreference(dashboardPinia.marketing === null);
+  await dashboardPinia.changeMarketingPreference(dashboardPinia.marketing === 'false');
   resetChanged();
 }
 
@@ -207,16 +207,16 @@ function clearFields() {
       <p class="mb-3 text-sm text-black">Receive emails about product updates, new features and offerings from LeadMe</p>
       <p class="text-sm mb-10 text-black">Status:
         <span :class="{
-          'text-green-400': dashboardPinia.marketing,
-          'text-red-400': !dashboardPinia.marketing,
+          'text-green-400': dashboardPinia.marketing !== 'false',
+          'text-red-400': dashboardPinia.marketing === 'false',
         }"
-        >{{dashboardPinia.marketing ? "Subscribed" : "Not subscribed"}}
+        >{{dashboardPinia.marketing === "false" ? "Not subscribed" : "Subscribed"}}
         </span>
       </p>
 
       <GenericButton class="flex justify-center items-center" :type="'primary'" :callback="changeMarketing">
         <img v-if="changed" class="w-8 h-8" src="@/assets/img/tick.svg" alt="Icon"/>
-        <p v-else>{{dashboardPinia.marketing ? "Unsubscribe" : "Subscribe"}}</p>
+        <p v-else>{{dashboardPinia.marketing === "false" ? "Subscribe" : "Unsubscribe"}}</p>
       </GenericButton>
     </div>
   </Transition>

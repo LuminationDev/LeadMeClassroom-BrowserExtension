@@ -100,8 +100,8 @@ class Firebase {
      * @param preference
      */
     setMarketingPreference = async (preference: boolean) => {
-        await updateProfile(getAuth().currentUser!, { photoURL: preference ? Date.now().toString() : null })
-        return preference ? Date.now().toString() : null;
+        await updateProfile(getAuth().currentUser!, { photoURL: preference ? Date.now().toString() : 'false' })
+        return preference ? Date.now().toString() : 'false';
     }
 
     /**
