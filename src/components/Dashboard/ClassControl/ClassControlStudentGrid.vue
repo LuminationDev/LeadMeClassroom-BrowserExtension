@@ -11,15 +11,24 @@ const sortedFollowers = computed((): Array<Follower> => {
   return dashboardPinia.followers.sort((a: Follower, b: Follower) => {
     return a.name.localeCompare(b.name)
   });
-})
+});
+
+/** Only count followers that are connected within the active students number. */
+const activeFollowers = computed((): number => {
+  const active = dashboardPinia.followers.filter(follower => {
+    return !follower.disconnected
+  })
+
+  return active.length;
+});
 </script>
 
 <template>
   <div class="mt-14 ml-10">
     <p class="text-base text-black">
       Active Students
-      <span v-if="dashboardPinia.followers.length !== 0">
-        ({{ dashboardPinia.followers.length }})
+      <span v-if="activeFollowers !== 0">
+        ({{ activeFollowers }})
       </span>
     </p>
 
