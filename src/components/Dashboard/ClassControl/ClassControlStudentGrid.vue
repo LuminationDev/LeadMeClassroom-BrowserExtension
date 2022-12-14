@@ -1,10 +1,9 @@
 <script setup lang="ts">
 import StudentPlaceholder from "./GridItem/StudentPlaceholder.vue";
 import StudentGridItem from "./GridItem/StudentGridItem.vue";
-import {computed} from "vue";
-import {useDashboardStore} from "../../../stores/dashboardStore";
-import {Follower} from "../../../models";
-
+import { Follower } from "../../../models";
+import { computed } from "vue";
+import { useDashboardStore } from "../../../stores/dashboardStore";
 const dashboardPinia = useDashboardStore();
 
 const sortedFollowers = computed((): Array<Follower> => {

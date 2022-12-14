@@ -1,7 +1,7 @@
 import * as REQUESTS from "../constants/_requests";
 import { Tab } from "../models";
 import { useStorage } from "../hooks/useStorage";
-const { getSyncStorage } = useStorage();
+const { getSyncStorage, removeSyncStorage } = useStorage();
 
 interface storageFollower {
     code: string,
@@ -27,9 +27,12 @@ chrome.tabs.onActivated.addListener(async () => {
 
     //Need to collect the current tab details for the index number
     chrome.tabs.query({ active: true, lastFocusedWindow: true }, ([currentTab]) => {
-        chrome.tabs.query({ url: REQUESTS.ASSISTANT_MATCH_URL }, ([assistantTab]) => {
-            if(assistantTab == null) { return; }
-            chrome.tabs.sendMessage(<number>assistantTab.id, { type: REQUESTS.UPDATE_ACTIVE_TAB, tab: currentTab });
+        chrome.tabs.query({ url: REQUESTS.ASSISTANT_MATCH_URL }, async ([assistantTab]) => {
+            if(assistantTab == null) {
+                await removeSyncStorage("follower");
+                return;
+            }
+            void await chrome.tabs.sendMessage(<number>assistantTab.id, { type: REQUESTS.UPDATE_ACTIVE_TAB, tab: currentTab });
         });
     });
 });
@@ -39,9 +42,13 @@ chrome.tabs.onRemoved.addListener(async (tabId) => {
     if (data == null) { return; }
     if (data.monitoring) { captureScreen(); }
 
-    chrome.tabs.query({ url: REQUESTS.ASSISTANT_MATCH_URL }, ([assistantTab]) => {
-        if(assistantTab == null) { return; }
-        chrome.tabs.sendMessage(<number>assistantTab.id, { type: REQUESTS.REMOVE_TAB, tabId: tabId });
+    chrome.tabs.query({ url: REQUESTS.ASSISTANT_MATCH_URL }, async ([assistantTab]) => {
+        //The assistant tab has been closed therefore the user is no longer logged in
+        if(assistantTab == null) {
+            await removeSyncStorage("follower");
+            return;
+        }
+        void await chrome.tabs.sendMessage(<number>assistantTab.id, {type: REQUESTS.REMOVE_TAB, tabId: tabId});
     });
 });
 
@@ -52,8 +59,6 @@ chrome.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
 
     let url = <string>tab.url;
     if (url.includes("assistant.html")) { return }
-
-    console.log(tab);
 
     chrome.tabs.query({ url: REQUESTS.ASSISTANT_MATCH_URL }, ([assistantTab]) => {
         if(assistantTab == null) { return; }

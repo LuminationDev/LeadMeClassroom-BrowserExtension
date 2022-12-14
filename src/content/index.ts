@@ -49,7 +49,7 @@ chrome.runtime.onMessage.addListener(
                 break;
 
             default:
-                console.log("Unknown command");
+                console.log("Unknown command: " + JSON.stringify(request));
         }
     }
 );
