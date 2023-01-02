@@ -503,7 +503,7 @@ export let useDashboardStore = defineStore("dashboard", {
         async changeUserPassword(email: string, currentPassword: string, newPassword: string) {
             const result = await this.firebase.setPassword(email, currentPassword, newPassword);
 
-            if(result) { return "success"; }
+            if(result === "success") { return result; }
             return this.getUsefulErrorMessageFromFirebaseCode(result);
         },
 
@@ -516,6 +516,7 @@ export let useDashboardStore = defineStore("dashboard", {
                 case 'auth/invalid-id-token':
                     return 'Your login session has expired. Please logout and try again'
                 case 'auth/invalid-email':
+                case 'auth/user-mismatch':
                     return 'This email is invalid. Please check your email address and try again.'
                 case 'auth/invalid-password':
                     return 'This password is invalid. Please check that it is at least 6 characters.'

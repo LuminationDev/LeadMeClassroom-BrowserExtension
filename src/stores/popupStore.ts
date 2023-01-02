@@ -334,7 +334,6 @@ export let usePopupStore = defineStore("popup", {
                     "monitoring": false
                 }
             });
-            resolver(true);
 
             chrome.windows.create({
                 url: chrome.runtime.getURL("src/pages/assistant/assistant.html"),
@@ -345,6 +344,17 @@ export let usePopupStore = defineStore("popup", {
             }).catch(error => {
                 console.log(error)
             });
+
+            //Wait for the initial tab list to be sent through before refreshing the tabs
+            setTimeout(() => {
+                //Reload all inactive tabs as they may not register the extension is now active
+                chrome.tabs.query({active: false}, (tabs) => {
+                    tabs.forEach(tab => {
+                        void chrome.tabs.reload(<number>tab.id);
+                    });
+                    resolver(true);
+                })
+            }, 1000)
         },
 
         /**
