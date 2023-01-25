@@ -33,6 +33,7 @@ const showPassword = ref(false)
           @input="$emit('update:modelValue', $event.target.value)"
       />
       <button
+          type="button"
           class="w-12 h-12 rounded-br-lg rounded-tr-lg bg-white
             border-2 border-r-px border-r-gray-200 border-b-gray-200
             border-t-gray-200"

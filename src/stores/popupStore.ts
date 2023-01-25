@@ -242,6 +242,7 @@ export let usePopupStore = defineStore("popup", {
         getUsefulErrorMessageFromFirebaseCode(error: string) {
           switch (error) {
               case 'auth/email-already-exists':
+              case 'auth/email-already-in-use':
                   return 'This email is already in use. Try signing in instead.'
               case 'auth/id-token-expired':
               case 'auth/id-token-revoked':
@@ -325,6 +326,7 @@ export let usePopupStore = defineStore("popup", {
             if (!result) {
                 this.error = "No Class found";
                 resolver(false);
+                return;
             }
 
             void await setSyncStorage({
