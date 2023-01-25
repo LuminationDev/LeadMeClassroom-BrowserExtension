@@ -6,9 +6,6 @@ import ClassControlStudentGrid from "./ClassControlStudentGrid.vue";
 
 <template>
   <div>
-    <!--Current Session Area-->
-    <ClassControlSessionArea />
-
     <!--Class Area-->
     <ClassControlClassArea />
 

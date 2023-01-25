@@ -13,7 +13,7 @@ async function generateSession() {
 </script>
 
 <template>
-  <div class="mt-9 mr-12 absolute right-0">
+  <div class="flex flex-wrap justify-end gap-1">
     <GenericButton
         v-if="dashboardPinia.classCode"
         class="h-12 w-40 bg-white text-base
@@ -25,7 +25,7 @@ async function generateSession() {
 
     <button
         v-if="dashboardPinia.classCode"
-        class="ml-3 h-12 w-56 bg-navy-side-menu
+        class="h-12 w-56 bg-navy-side-menu
         text-base text-white font-poppins font-semibold
         rounded-md"
     >Class Code: {{ dashboardPinia.classCode }}</button>
@@ -33,7 +33,7 @@ async function generateSession() {
     <GenericButton
         v-else
         id="generate_class"
-        class="ml-3 h-12 w-56 bg-navy-side-menu
+        class="h-12 w-56 bg-navy-side-menu
         text-base text-white font-poppins font-medium
         rounded-md"
         :callback="generateSession"

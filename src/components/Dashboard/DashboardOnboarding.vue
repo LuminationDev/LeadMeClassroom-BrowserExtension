@@ -4,7 +4,7 @@ import { VOnboardingWrapper, VOnboardingStep, useVOnboarding } from 'v-onboardin
 const steps = ref([
   {
     attachTo: {
-      element: '#generate_class'
+      element: '#generate_class',
     },
     content: {
       title: 'Get started',
@@ -14,6 +14,20 @@ const steps = ref([
     options: {
       popper: {
         placement: 'left-start'
+      },
+      overlay: {
+        padding: {
+          top: 5,
+          right: 5,
+          bottom: 5,
+          left: 5
+        },
+        borderRadius: {
+          leftTop: 10,
+          rightTop: 10,
+          rightBottom: 10,
+          leftBottom: 10
+        }
       }
     }
   },
@@ -29,6 +43,20 @@ const steps = ref([
     options: {
       popper: {
         placement: 'left-start'
+      },
+      overlay: {
+        padding: {
+          top: 5,
+          right: 5,
+          bottom: 5,
+          left: 5
+        },
+        borderRadius: {
+          leftTop: 10,
+          rightTop: 10,
+          rightBottom: 10,
+          leftBottom: 10
+        }
       }
     }
   },
@@ -44,6 +72,20 @@ const steps = ref([
     options: {
       popper: {
         placement: 'bottom-start'
+      },
+      overlay: {
+        padding: {
+          top: 5,
+          right: 5,
+          bottom: 5,
+          left: 5
+        },
+        borderRadius: {
+          leftTop: 10,
+          rightTop: 10,
+          rightBottom: 10,
+          leftBottom: 10
+        }
       }
     }
   },
@@ -59,6 +101,20 @@ const steps = ref([
     options: {
       popper: {
         placement: 'right-start'
+      },
+      overlay: {
+        padding: {
+          top: 5,
+          right: 5,
+          bottom: 5,
+          left: 5
+        },
+        borderRadius: {
+          leftTop: 10,
+          rightTop: 10,
+          rightBottom: 10,
+          leftBottom: 10
+        }
       }
     }
   },
@@ -74,6 +130,20 @@ const steps = ref([
     options: {
       popper: {
         placement: 'right-start'
+      },
+      overlay: {
+        padding: {
+          top: 5,
+          right: 5,
+          bottom: 5,
+          left: 5
+        },
+        borderRadius: {
+          leftTop: 10,
+          rightTop: 10,
+          rightBottom: 10,
+          leftBottom: 10
+        }
       }
     }
   }
@@ -108,14 +178,14 @@ defineExpose({
               </button>
             </div>
             <div class="px-6 py-6">
-              <div v-if="step.content" class="flex flex-row">
-                <div class="pr-16">
+              <div v-if="step.content" class="flex flex-row items-center">
+                <div class="pr-16" style="width: 50%">
                   <h3 v-if="step.content.title" class="text-2xl font-medium leading-8">{{ step.content.title }}</h3>
                   <div v-if="step.content.description" class="mt-2 text-lg font-normal">
                     <p>{{ step.content.description }}</p>
                   </div>
                 </div>
-                <img :src="step.content.image" class="w-52" alt="image step"/>
+                <img :src="step.content.image" class="h-fit" style="width: 50%" alt="image step"/>
               </div>
             </div>
 

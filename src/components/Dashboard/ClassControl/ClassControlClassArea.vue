@@ -4,6 +4,7 @@ import * as REQUESTS from "../../../constants/_requests";
 import { ref } from "vue";
 
 import { useDashboardStore } from "../../../stores/dashboardStore";
+import ClassControlSessionArea from "./ClassControlSessionArea.vue";
 const dashboardPinia = useDashboardStore();
 
 const loading = ref(false);
@@ -19,8 +20,11 @@ async function screenControl() {
 </script>
 
 <template>
-  <div class="mt-14 ml-10">
-    <p class="text-3xl font-medium">{{ dashboardPinia.leaderName }}'{{ dashboardPinia?.leaderName?.endsWith('s') ? '' : 's' }} Class</p>
+  <div class="mt-14 mx-10">
+    <div class="flex flex-row justify-between items-center">
+      <p class="text-3xl font-medium">{{ dashboardPinia.leaderName }}'{{ dashboardPinia?.leaderName?.endsWith('s') ? '' : 's' }} Class</p>
+      <ClassControlSessionArea />
+    </div>
 
     <!--Action Area-->
     <div class="mt-8 flex child:mr-4">
