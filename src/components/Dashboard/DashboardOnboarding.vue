@@ -179,13 +179,13 @@ defineExpose({
             </div>
             <div class="px-6 py-6">
               <div v-if="step.content" class="flex flex-row items-center">
-                <div class="pr-16" style="width: 50%">
+                <div class="pr-16" style="width: 55%">
                   <h3 v-if="step.content.title" class="text-2xl font-medium leading-8">{{ step.content.title }}</h3>
                   <div v-if="step.content.description" class="mt-2 text-lg font-normal">
                     <p>{{ step.content.description }}</p>
                   </div>
                 </div>
-                <img :src="step.content.image" class="h-fit" style="width: 50%" alt="image step"/>
+                <img :src="step.content.image" class="h-fit" style="width: 45%" alt="image step"/>
               </div>
             </div>
 

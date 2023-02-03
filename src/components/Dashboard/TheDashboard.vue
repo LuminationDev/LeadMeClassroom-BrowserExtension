@@ -28,8 +28,9 @@ onMounted(() => {
   }
   dashboardPinia.attachClassListeners(true)
 
+  startOnboarding()
   getSyncStorage("onboarding_completed").then(result => {
-    if (result && result === true) { return; }
+    // if (result && result === true) { return; }
     startOnboarding()
   });
 });
