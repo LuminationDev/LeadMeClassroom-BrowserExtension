@@ -13,11 +13,4 @@ export const prodConfig = {
 
 // Testing firebase with no rules - (Now with rules!)
 export const devConfig = {
-    apiKey: "AIzaSyD0nGSl2f_jxBjsXtdi66fNeHFFjisd4Mo",
-    authDomain: "browsernorules.firebaseapp.com",
-    databaseURL: "https://browsernorules-default-rtdb.asia-southeast1.firebasedatabase.app",
-    projectId: "browsernorules",
-    storageBucket: "browsernorules.appspot.com",
-    messagingSenderId: "90215888337",
-    appId: "1:90215888337:web:2b75b70246ce5a35935cf0"
 };

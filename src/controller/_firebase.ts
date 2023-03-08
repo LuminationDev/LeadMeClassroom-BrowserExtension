@@ -27,7 +27,8 @@ import {
     responseType, tabChangedType, tabRemovedType, tabsAddedType
 } from "../constants/_functionTypes";
 
-const config = process.env.NODE_ENV === 'production' ? prodConfig : devConfig;
+const config = prodConfig;
+console.log(config)
 
 class Firebase {
     private readonly callback: assistantCallbackFunction|null;

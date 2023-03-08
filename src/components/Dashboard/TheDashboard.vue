@@ -9,6 +9,8 @@ import { getAuth } from "@firebase/auth";
 import { useStorage } from "../../hooks/useStorage";
 
 import { useDashboardStore } from "../../stores/dashboardStore";
+import LessonPlanningMain from "../../lesson_planning/components/lesson_plans/LessonPlanningMain.vue";
+import BookmarkMain from "../../lesson_planning/components/bookmarks/BookmarkMain.vue";
 const dashboardPinia = useDashboardStore();
 
 const { getSyncStorage } = useStorage();
@@ -46,9 +48,11 @@ onMounted(() => {
       <DashboardTitleBar />
 
       <!--MainArea-->
-      <div class="flex flex-col flex-grow bg-panel-background font-poppins">
+      <div class="flex flex-col flex-grow bg-panel-background font-poppins overflow-hidden">
         <DashboardMain v-show="dashboardPinia.view === 'dashboard'"/>
         <AccountMain v-show="dashboardPinia.view === 'account'"/>
+        <LessonPlanningMain v-show="dashboardPinia.view === 'lessonPlanning'"/>
+        <BookmarkMain v-show="dashboardPinia.view === 'bookmark'"/>
       </div>
     </div>
     <div v-else class="flex justify-center items-center w-full">
