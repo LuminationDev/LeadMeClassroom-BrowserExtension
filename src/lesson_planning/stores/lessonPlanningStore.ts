@@ -13,6 +13,7 @@ export const useLessonPlanningStore = defineStore('lessonPlanning', {
         return {
             lessons: <Lesson[]>([]),
             bookmarks: <Bookmark[]>([]),
+            bookmarksPagination: <any>{},
             view: 'lessons'
         }
     },
@@ -30,15 +31,23 @@ export const useLessonPlanningStore = defineStore('lessonPlanning', {
             })
         },
 
-        loadBookmarks() {
-            return axios.get(apiBase + '/bookmark', {
+        loadBookmarks({ search, page }: { search: string, page: number }) {
+            let query = '/bookmark'
+            if (search !== null && search.length > 0) {
+                query += `?search=${search}`
+            }
+            if (page !== null) {
+                query += `?page=${page}`
+            }
+            return axios.get(apiBase + query, {
                 headers: {
                     // @ts-ignore
                     Authorization: `Bearer ${getAuth().currentUser?.accessToken}`
                 }
 
             }).then(({ data }) => {
-                this.bookmarks = data
+                this.bookmarks = data.data
+                this.bookmarksPagination = data.meta
             })
         },
 

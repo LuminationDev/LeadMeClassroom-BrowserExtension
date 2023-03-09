@@ -1,12 +1,18 @@
 <script setup lang="ts">
-defineProps({
+import {computed} from "vue";
+
+const props = defineProps({
   tag: {
     type: Object,
     required: true,
   },
   canDelete: {
     type: Boolean,
-    default: true
+    default: false
+  },
+  theme: {
+    type: String,
+    default: 'dark'
   }
 });
 
@@ -15,8 +21,13 @@ defineEmits<{
 }>()
 </script>
 <template>
-  <div class="flex flex-row bg-zinc-800 text-white rounded-md px-2 py-1">
-    <img alt="tag icon" src="../assets/tag.svg" class="pr-1" />
+  <div class="flex flex-row bg-zinc-800 text-white rounded-md py-1"
+      :class="{
+        'bg-zinc-800 text-white px-2': theme === 'dark',
+        'bg-transparent text-black': theme === 'light'
+      }">
+    <img v-if="theme === 'dark'" alt="tag icon" src="../assets/tag.svg" class="pr-1" />
+    <img v-else-if="theme === 'light'" alt="tag icon" src="../assets/tag_grey.svg" class="pr-1" />
     <span>{{ tag.name }}</span>
     <img v-if="canDelete" @click="$emit('delete')"
          alt="cross icon, click to remove tag"
