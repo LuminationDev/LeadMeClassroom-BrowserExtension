@@ -5,6 +5,8 @@ import LessonPlanCard from "./LessonPlanCard.vue";
 import Lesson from "../../models/lesson";
 import ViewLessonPlan from "./ViewLessonPlan.vue";
 import GenericButton from "../../../components/Buttons/GenericButton.vue";
+import CreateLessonPlan from "./CreateLessonPlan.vue";
+import SelectBookmarks from "./SelectBookmarks.vue";
 
 let lessonPlanningStore = useLessonPlanningStore()
 
@@ -18,7 +20,7 @@ onBeforeMount(() => {
   <div class="mt-14 mx-10 overflow-y-scroll">
     <div>
       <h1 class="text-2xl font-medium mb-4">Lesson Plans</h1>
-      <GenericButton type="primary" :callback="() => {}">
+      <GenericButton type="primary" :callback="() => { lessonPlanningStore.setView('create-lesson') }">
         <div class="flex flex-row justify-center">
           <img src="../../assets/external_link.svg" alt="icon representing link" class="mr-2"/>
           <span class="font-medium">New lesson plan</span>
@@ -37,6 +39,8 @@ onBeforeMount(() => {
     </div>
     <div class="flex justify-center overflow-hidden">
       <ViewLessonPlan v-if="lessonPlanningStore.view === 'lesson'" :lesson-plan="lessonBeingViewed"></ViewLessonPlan>
+      <CreateLessonPlan v-if="lessonPlanningStore.view === 'create-lesson'" :lesson-plan="lessonBeingViewed"></CreateLessonPlan>
+      <SelectBookmarks v-if="lessonPlanningStore.view === 'select-bookmarks'" :lesson="lessonBeingViewed"></SelectBookmarks>
     </div>
   </div>
 </template>

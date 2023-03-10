@@ -31,6 +31,17 @@ export const useLessonPlanningStore = defineStore('lessonPlanning', {
             })
         },
 
+        createLesson(lessonDto: createLessonDto) {
+            return axios.post(apiBase + '/lesson', lessonDto, {
+                headers: {
+                    // @ts-ignore
+                    Authorization: `Bearer ${getAuth().currentUser?.accessToken}`
+                }
+            }).then((response) => {
+                return response
+            } )
+        },
+
         loadBookmarks({ search, page }: { search: string, page: number }) {
             let query = '/bookmark'
             if (search !== null && search.length > 0) {
@@ -62,6 +73,28 @@ export const useLessonPlanningStore = defineStore('lessonPlanning', {
             } )
         },
 
+        saveBookmarkAsLessonPart(lessonId: string, bookmarkId: string) {
+            return axios.post(apiBase + `/lesson/${lessonId}/attach_bookmark/${bookmarkId}`, {}, {
+                headers: {
+                    // @ts-ignore
+                    Authorization: `Bearer ${getAuth().currentUser?.accessToken}`
+                }
+            }).then((response) => {
+                return response
+            } )
+        },
+
+        createLessonPart(lessonId: string, lessonPartDto: createLessonPartDto) {
+            return axios.post(apiBase + '/lesson-part', { lessonId, ...lessonPartDto }, {
+                headers: {
+                    // @ts-ignore
+                    Authorization: `Bearer ${getAuth().currentUser?.accessToken}`
+                }
+            }).then((response) => {
+                return response
+            } )
+        },
+
         setView(view: string) {
             this.view = view
         },
@@ -79,6 +112,13 @@ export const useLessonPlanningStore = defineStore('lessonPlanning', {
     }
 })
 
+type createLessonDto = {
+    name: string
+    description: string
+    yearLevels: string;
+    tags: Array<tag>
+}
+
 type createBookmarkDto = {
     name: string
     description: string
@@ -86,4 +126,12 @@ type createBookmarkDto = {
     action: string;
     actionType: string;
     tags: Array<tag>
+}
+
+type createLessonPartDto = {
+    name: string
+    description: string
+    yearLevels: string;
+    action: string;
+    actionType: string;
 }

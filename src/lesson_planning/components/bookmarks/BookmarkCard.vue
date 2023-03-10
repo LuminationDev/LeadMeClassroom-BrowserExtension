@@ -4,6 +4,7 @@ import Bookmark from "../../models/bookmark";
 
 defineEmits<{
   (e: 'selectBookmark', bookmark: Bookmark): void
+  (e: 'update:modelValue', checked: boolean, id: string): void
 }>()
 
 defineProps({
@@ -11,10 +12,24 @@ defineProps({
     type: Bookmark,
     required: true,
   },
+  hasCheckbox: {
+    type: Boolean,
+    required: false,
+    default: false
+  },
+  modelValue: {
+    type: Array,
+    required: false
+  }
 });
 </script>
 <template>
   <div class="flex flex-col w-full h-full" @click="$emit('selectBookmark', bookmark)">
+    <input
+        v-if="hasCheckbox"
+        type="checkbox"
+        :checked="modelValue.includes(bookmark.id)"
+        @change="(event) => { $emit('update:modelValue', event.target.checked, bookmark.id) }">
     <div class="mx-4 bg-white rounded-md">
       <img class="w-full h-40 object-cover rounded-t-md" alt="header image for lesson" :src="bookmark.imageUrl" />
       <div class="px-4 mt-4 text-neutral-400">{{ new Date(bookmark.created_at).toLocaleDateString('en-AU', { month: 'long', day: 'numeric' }) }}</div>

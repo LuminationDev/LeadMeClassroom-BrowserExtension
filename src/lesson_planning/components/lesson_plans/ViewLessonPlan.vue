@@ -4,6 +4,10 @@ import Lesson from "../../models/lesson";
 import LessonPartListItem from "./LessonPartListItem.vue";
 import { formatTimeFromMinutes } from "../../utils/formatters";
 import GenericButton from "../../../components/Buttons/GenericButton.vue";
+import {useLessonPlanningStore} from "../../stores/lessonPlanningStore";
+import CreateLessonPart from "./CreateLessonPart.vue";
+
+let lessonPlanningStore = useLessonPlanningStore()
 
 defineProps({
   lessonPlan: {
@@ -44,10 +48,8 @@ defineProps({
           :lesson-part="lessonPart" />
     </div>
     <div class="flex flex-row my-4">
-      <GenericButton :callback="() => {}" type="outline-dark" class="mr-2">
-        Add new from URL
-      </GenericButton>
-      <GenericButton :callback="() => {}" type="dark">
+      <CreateLessonPart :lesson="lessonPlan" />
+      <GenericButton :callback="() => { lessonPlanningStore.view = 'select-bookmarks' }" type="dark">
         Add new from library
       </GenericButton>
     </div>
