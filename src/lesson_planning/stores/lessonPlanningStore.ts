@@ -42,6 +42,28 @@ export const useLessonPlanningStore = defineStore('lessonPlanning', {
             } )
         },
 
+        updateLesson(id: string, lessonDto: createLessonDto) {
+            return axios.patch(apiBase + `/lesson/${id}`, lessonDto, {
+                headers: {
+                    // @ts-ignore
+                    Authorization: `Bearer ${getAuth().currentUser?.accessToken}`
+                }
+            }).then((response) => {
+                return response
+            } )
+        },
+
+        deleteLesson(id: string) {
+            return axios.delete(apiBase + `/lesson/${id}`, {
+                headers: {
+                    // @ts-ignore
+                    Authorization: `Bearer ${getAuth().currentUser?.accessToken}`
+                }
+            }).then((response) => {
+                return response
+            })
+        },
+
         loadBookmarks({ search, page }: { search: string, page: number }) {
             let query = '/bookmark'
             if (search !== null && search.length > 0) {
@@ -73,6 +95,28 @@ export const useLessonPlanningStore = defineStore('lessonPlanning', {
             } )
         },
 
+        updateBookmark(id: string, bookmarkDto: createBookmarkDto) {
+            return axios.patch(apiBase + `/bookmark/${id}`, bookmarkDto, {
+                headers: {
+                    // @ts-ignore
+                    Authorization: `Bearer ${getAuth().currentUser?.accessToken}`
+                }
+            }).then((response) => {
+                return response
+            })
+        },
+
+        deleteBookmark(id: string) {
+            return axios.delete(apiBase + `/bookmark/${id}`, {
+                headers: {
+                    // @ts-ignore
+                    Authorization: `Bearer ${getAuth().currentUser?.accessToken}`
+                }
+            }).then((response) => {
+                return response
+            })
+        },
+
         saveBookmarkAsLessonPart(lessonId: string, bookmarkId: string) {
             return axios.post(apiBase + `/lesson/${lessonId}/attach_bookmark/${bookmarkId}`, {}, {
                 headers: {
@@ -81,7 +125,7 @@ export const useLessonPlanningStore = defineStore('lessonPlanning', {
                 }
             }).then((response) => {
                 return response
-            } )
+            })
         },
 
         createLessonPart(lessonId: string, lessonPartDto: createLessonPartDto) {
@@ -93,6 +137,28 @@ export const useLessonPlanningStore = defineStore('lessonPlanning', {
             }).then((response) => {
                 return response
             } )
+        },
+
+        updateLessonPart(id: string, lessonPartDto: createLessonPartDto) {
+            return axios.patch(apiBase + `/lesson-part/${id}`, lessonPartDto, {
+                headers: {
+                    // @ts-ignore
+                    Authorization: `Bearer ${getAuth().currentUser?.accessToken}`
+                }
+            }).then((response) => {
+                return response
+            })
+        },
+
+        deleteLessonPart(id: string) {
+            return axios.delete(apiBase + `/lesson-part/${id}`, {
+                headers: {
+                    // @ts-ignore
+                    Authorization: `Bearer ${getAuth().currentUser?.accessToken}`
+                }
+            }).then((response) => {
+                return response
+            })
         },
 
         setView(view: string) {

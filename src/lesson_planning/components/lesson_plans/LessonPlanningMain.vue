@@ -7,6 +7,7 @@ import ViewLessonPlan from "./ViewLessonPlan.vue";
 import GenericButton from "../../../components/Buttons/GenericButton.vue";
 import CreateLessonPlan from "./CreateLessonPlan.vue";
 import SelectBookmarks from "./SelectBookmarks.vue";
+import EditLessonPlan from "./EditLessonPlan.vue";
 
 let lessonPlanningStore = useLessonPlanningStore()
 
@@ -38,8 +39,17 @@ onBeforeMount(() => {
       </div>
     </div>
     <div class="flex justify-center overflow-hidden">
-      <ViewLessonPlan v-if="lessonPlanningStore.view === 'lesson'" :lesson-plan="lessonBeingViewed"></ViewLessonPlan>
-      <CreateLessonPlan v-if="lessonPlanningStore.view === 'create-lesson'" :lesson-plan="lessonBeingViewed"></CreateLessonPlan>
+      <ViewLessonPlan
+          v-if="lessonPlanningStore.view === 'lesson'"
+          :lesson-plan="lessonBeingViewed"
+          @edit-lesson="(selectedLesson) => { this.lessonBeingViewed = selectedLesson; lessonPlanningStore.setView('edit-lesson')}"></ViewLessonPlan>
+      <CreateLessonPlan
+          v-if="lessonPlanningStore.view === 'create-lesson'"
+          :lesson-plan="lessonBeingViewed"></CreateLessonPlan>
+      <EditLessonPlan
+          v-if="lessonPlanningStore.view === 'edit-lesson'"
+          :lesson="lessonBeingViewed"
+      ></EditLessonPlan>
       <SelectBookmarks v-if="lessonPlanningStore.view === 'select-bookmarks'" :lesson="lessonBeingViewed"></SelectBookmarks>
     </div>
   </div>

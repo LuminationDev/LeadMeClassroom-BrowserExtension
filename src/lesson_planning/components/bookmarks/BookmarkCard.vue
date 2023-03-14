@@ -1,6 +1,10 @@
 <script setup lang="ts">
 import Tag from "../Tag.vue";
 import Bookmark from "../../models/bookmark";
+import EditBookmark from "./EditBookmark.vue";
+import {useLessonPlanningStore} from "../../stores/lessonPlanningStore";
+
+let lessonPlanningStore = useLessonPlanningStore()
 
 defineEmits<{
   (e: 'selectBookmark', bookmark: Bookmark): void
@@ -44,9 +48,15 @@ defineProps({
         <a :href="bookmark.action" target="_blank" class="mr-2 h-full w-auto">
           <img alt="link icon, for visiting bookmark" src="../../assets/external_link.svg" />
         </a>
+        <button @click="() => {
+          lessonPlanningStore.deleteBookmark(bookmark.id)
+        }" class="h-full w-auto mr-2">
+          <img alt="cross icon, to delete bookmark" src="../../assets/cross.svg" />
+        </button>
         <button class="h-full w-auto mr-2">
           <img alt="heart icon, to add lesson to favourites" src="../../assets/heart.svg" />
         </button>
+        <EditBookmark :bookmark="bookmark" />
       </div>
     </div>
   </div>

@@ -1,6 +1,10 @@
 <script setup lang="ts">
 import LessonPart from "../../models/lessonPart";
 import { formatTimeAsDigitalFromMinutes } from "../../utils/formatters";
+import {useLessonPlanningStore} from "../../stores/lessonPlanningStore";
+import EditLessonPart from "./EditLessonPart.vue";
+
+let lessonPlanningStore = useLessonPlanningStore()
 
 defineProps({
   lessonPart: {
@@ -19,6 +23,12 @@ defineProps({
         <h4 class="uppercase text-neutral-400 mt-8">Notes</h4>
         <p class="line-clamp-2 mt-1">{{ lessonPart.description }}</p>
       </div>
+      <EditLessonPart :lesson-part="lessonPart" />
+      <button @click="() => {
+          lessonPlanningStore.deleteLessonPart(lessonPart.id)
+        }" class="h-full w-auto mr-2">
+        <img alt="pencil icon, to edit lesson part" src="../../assets/stopwatch.svg" />
+      </button>
     </div>
     <div class="relative">
       <div class="absolute right-5 bottom-5 bg-zinc-800 text-white flex flex-row px-2 py-1 rounded-md">

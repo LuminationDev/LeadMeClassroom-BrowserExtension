@@ -9,6 +9,10 @@ import CreateLessonPart from "./CreateLessonPart.vue";
 
 let lessonPlanningStore = useLessonPlanningStore()
 
+defineEmits<{
+  (e: 'editLesson', lessonPlan: Lesson): void
+}>()
+
 defineProps({
   lessonPlan: {
     type: Lesson,
@@ -36,6 +40,12 @@ defineProps({
       <div class="flex flex-col justify-start">
         <GenericButton :callback="() => {}" type="purple">
           Start
+        </GenericButton>
+        <GenericButton :callback="() => { lessonPlanningStore.deleteLesson(lessonPlan.id) }" type="purple">
+          Delete
+        </GenericButton>
+        <GenericButton :callback="() => { $emit('editLesson', lessonPlan) }" type="purple">
+          Edit
         </GenericButton>
       </div>
     </div>
