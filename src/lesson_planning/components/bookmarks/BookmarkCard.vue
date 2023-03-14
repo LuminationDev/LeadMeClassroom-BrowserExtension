@@ -56,7 +56,21 @@ defineProps({
         <button class="h-full w-auto mr-2">
           <img alt="heart icon, to add lesson to favourites" src="../../assets/heart.svg" />
         </button>
-        <EditBookmark :bookmark="bookmark" />
+        <EditBookmark
+            :bookmark="bookmark"
+            :submit-callback="(updatedBookmark) => {
+               return lessonPlanningStore.updateBookmark(updatedBookmark.id, updatedBookmark)
+            }">
+          <template #button>
+            Edit Bookmark
+          </template>
+          <template #heading>
+            Edit Bookmark
+          </template>
+          <template #submitButton>
+            Save
+          </template>
+        </EditBookmark>
       </div>
     </div>
   </div>

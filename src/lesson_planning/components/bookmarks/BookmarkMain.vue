@@ -8,6 +8,7 @@ import Bookmark from "../../models/bookmark";
 import BookmarkCard from "./BookmarkCard.vue";
 import AddBookmark from "./AddBookmark.vue";
 import {useDebounce} from "../../composables/debounce";
+import EditBookmark from "./EditBookmark.vue";
 
 const { debounce } = useDebounce()
 
@@ -37,7 +38,20 @@ function debounceSearch() {
     <div class="flex flex-row justify-between">
       <div>
         <h1 class="text-2xl font-medium mb-4">Bookmarks</h1>
-        <AddBookmark />
+        <EditBookmark
+            :bookmark="new Bookmark('', '', '', '', '', 'link', null, null, [], [], [], [])"
+            :submit-callback="(newBookmark) => { return lessonPlanningStore.createBookmark(newBookmark) }"
+        >
+          <template #button>
+            New Bookmark
+          </template>
+          <template #heading>
+            New Bookmark
+          </template>
+          <template #submitButton>
+            Add to library
+          </template>
+        </EditBookmark>
       </div>
       <div>
         <input placeholder="Search"

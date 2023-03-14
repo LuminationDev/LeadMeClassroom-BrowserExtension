@@ -1,26 +1,27 @@
 <script setup lang="ts">
-// todo - unify with AddBookmark.vue
-import {ref} from "vue";
+import {reactive, ref} from "vue";
 import useVuelidate from "@vuelidate/core";
 import {helpers, required, url} from "@vuelidate/validators";
 import Modal from "../../../components/Modals/Modal.vue";
 import GenericButton from "../../../components/Buttons/GenericButton.vue";
 import {useLessonPlanningStore} from "../../stores/lessonPlanningStore";
 import TagSelection from "../TagSelection.vue";
-import tag from "../../models/tag";
-import Lesson from "../../models/lesson";
 import Bookmark from "../../models/bookmark";
 
 const props = defineProps({
   bookmark: {
     type: Bookmark,
-    required: true,
+    required: true
   },
+  submitCallback: {
+    type: Function,
+    required: true
+  }
 });
 
+const localBookmark = reactive<Bookmark>({ ...props.bookmark })
+
 const showModal = ref(false);
-const action = ref("");
-const localBookmark = ref<Bookmark>({ ...props.bookmark })
 
 let lessonPlanningStore = useLessonPlanningStore()
 
@@ -31,10 +32,13 @@ const rules = {
   },
   name: {
     required
-  }
+  },
+  tags: {}
 }
 
-const v$ = useVuelidate(rules, { name: localBookmark.value.name, action: localBookmark.value.action })
+const v$ = useVuelidate(rules,
+    localBookmark
+)
 
 async function validateAndSubmit() {
   const result = await v$.value.$validate();
@@ -45,8 +49,7 @@ async function validateAndSubmit() {
 
 function submit()
 {
-  lessonPlanningStore.updateBookmark(localBookmark.value.id, localBookmark.value).then((response) => {
-    console.log(response)
+  props.submitCallback(localBookmark).then(() => {
     closeModal();
   })
 }
@@ -58,7 +61,7 @@ function closeModal() {
 
 function openModal() {
   showModal.value = true
-  localBookmark.value = { ...props.bookmark }
+  Object.assign(localBookmark, props.bookmark)
 }
 </script>
 
@@ -71,8 +74,10 @@ function openModal() {
           v-on:click="openModal"
           id="share_button"
   >
-    <img src="../../assets/external_link.svg" alt="icon representing link" class="mr-2"/>
-    Edit bookmark
+    <slot name="button">
+      <img src="../../assets/external_link.svg" alt="icon representing link" class="mr-2"/>
+      New bookmark
+    </slot>
   </button>
 
   <!--Modal body using the Modal template, teleports the html to the bottom of the body tag-->
@@ -80,7 +85,11 @@ function openModal() {
     <Modal :show="showModal" @close="closeModal">
       <template v-slot:header>
         <header class="h-20 px-8 w-modal-width bg-white flex justify-between items-center rounded-t-lg">
-          <p class="text-2xl font-medium">Save a new link</p>
+          <p class="text-2xl font-medium">
+            <slot name="heading">
+              Save a new link
+            </slot>
+          </p>
 
           <img
               v-on:click="closeModal"
@@ -99,7 +108,7 @@ function openModal() {
                   class="h-11 ml-6 mr-6 px-4 flex-grow bg-panel-background text-base rounded-lg"
                   type="text"
                   placeholder="Enter a name"
-                  v-model="localBookmark.name"
+                  v-model="v$.name.$model"
               />
             </div>
             <div class="mt-1 ml-6" v-if="v$.name && v$.name.$error">
@@ -120,7 +129,7 @@ function openModal() {
             </div>
           </div>
           <div class="mx-14 mt-8 py-6 bg-white flex flex-col">
-            <TagSelection v-model="localBookmark.tags" class="mx-6" />
+            <TagSelection v-model="v$.tags.$model" class="mx-6" />
           </div>
         </div>
       </template>
@@ -133,7 +142,11 @@ function openModal() {
           <GenericButton
               class="w-52 h-12 text-white bg-blue-500 rounded-lg text-base hover:bg-blue-400 font-medium"
               :callback="validateAndSubmit"
-          >Update</GenericButton>
+          >
+            <slot name="submitButton">
+              Add to library
+            </slot>
+          </GenericButton>
         </footer>
       </template>
     </Modal>
