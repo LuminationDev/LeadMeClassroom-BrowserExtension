@@ -1,29 +1,53 @@
 <script setup lang="ts">
 import GenericButton from "../../../components/Buttons/GenericButton.vue";
+import {reactive} from "vue";
 import TagSelection from "../TagSelection.vue";
-import {useLessonPlanningStore} from "../../stores/lessonPlanningStore";
+import {required} from "@vuelidate/validators";
+import useVuelidate from "@vuelidate/core";
 import Lesson from "../../models/lesson";
-import {onMounted, ref} from "vue";
-const { updateLesson } = useLessonPlanningStore()
 
 const props = defineProps({
-  lesson: {
+  lessonPlan: {
     type: Lesson,
-    required: true,
+    required: true
   },
+  submitCallback: {
+    type: Function,
+    required: true
+  }
 });
 
-let localLesson = ref<Lesson>({ ...props.lesson })
+const localLessonPlan = reactive<Lesson>({ ...props.lessonPlan })
 
-onMounted(() => {
-  localLesson.value = { ...props.lesson }
-})
+const rules = {
+  name: {
+    required
+  },
+  description: {
+    required
+  },
+  yearLevels: {
+    required
+  },
+  tags: {}
+}
 
-function update() {
-  localLesson.value.lessonParts.forEach(lessonPart => {
-    lessonPart.lessonId = localLesson.value.id
+const v$ = useVuelidate(rules,
+    localLessonPlan
+)
+
+async function validateAndSubmit() {
+  const result = await v$.value.$validate();
+  if (!result) { return; }
+
+  submit();
+}
+
+function submit()
+{
+  localLessonPlan.lessonParts.forEach(lessonPart => lessonPart.lessonId = props.lessonPlan.id)
+  props.submitCallback(localLessonPlan).then(() => {
   })
-  updateLesson(localLesson.value.id, localLesson.value)
 }
 
 </script>
@@ -32,7 +56,11 @@ function update() {
       class="flex flex-col w-full bg-white rounded-md
       max-w-4xl mt-8 p-12 pb-4">
     <div class="flex flex-col">
-      <h2 class="font-medium text-lg">Edit lesson plan</h2>
+      <h2 class="font-medium text-lg">
+        <slot name="heading">
+          Save lesson plan
+        </slot>
+      </h2>
       <hr />
 
       <div class="mt-8 bg-white flex flex-col">
@@ -41,7 +69,7 @@ function update() {
               class="h-11 px-4 flex-grow bg-panel-background text-base rounded-lg"
               type="text"
               placeholder="Enter a name"
-              v-model="localLesson.name"
+              v-model="v$.name.$model"
           />
         </div>
       </div>
@@ -52,7 +80,7 @@ function update() {
               class="h-11 px-4 flex-grow bg-panel-background text-base rounded-lg"
               type="text"
               placeholder="Enter a description"
-              v-model="localLesson.description"
+              v-model="v$.description.$model"
           />
         </div>
       </div>
@@ -63,15 +91,15 @@ function update() {
               class="h-11 px-4 flex-grow bg-panel-background text-base rounded-lg"
               type="text"
               placeholder="Enter a year levels"
-              v-model="localLesson.yearLevels"
+              v-model="v$.yearLevels.$model"
           />
         </div>
       </div>
 
-      <TagSelection class="mt-8" v-model="localLesson.tags" />
+      <TagSelection class="mt-8" v-model="v$.tags.$model" />
 
       <div class="flex flex-col justify-start">
-        <GenericButton :callback="update" type="purple">
+        <GenericButton :callback="validateAndSubmit" type="purple">
           Save
         </GenericButton>
       </div>

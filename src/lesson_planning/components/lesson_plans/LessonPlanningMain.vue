@@ -43,13 +43,28 @@ onBeforeMount(() => {
           v-if="lessonPlanningStore.view === 'lesson'"
           :lesson-plan="lessonBeingViewed"
           @edit-lesson="(selectedLesson) => { this.lessonBeingViewed = selectedLesson; lessonPlanningStore.setView('edit-lesson')}"></ViewLessonPlan>
-      <CreateLessonPlan
+      <EditLessonPlan
           v-if="lessonPlanningStore.view === 'create-lesson'"
-          :lesson-plan="lessonBeingViewed"></CreateLessonPlan>
+          :lesson-plan="new Lesson('', '', '', '', null, null, [], [], [], [])"
+          :submit-callback="(lessonPlan) => {
+            return lessonPlanningStore.createLesson(lessonPlan)
+          }"
+      >
+        <template #heading>
+          Create new lesson plan
+        </template>
+      </EditLessonPlan>
       <EditLessonPlan
           v-if="lessonPlanningStore.view === 'edit-lesson'"
-          :lesson="lessonBeingViewed"
-      ></EditLessonPlan>
+          :lesson-plan="lessonBeingViewed"
+          :submit-callback="(lessonPlan) => {
+            return lessonPlanningStore.updateLesson(lessonPlan.id, lessonPlan)
+          }"
+      >
+        <template #heading>
+          Update lesson plan
+        </template>
+      </EditLessonPlan>
       <SelectBookmarks v-if="lessonPlanningStore.view === 'select-bookmarks'" :lesson="lessonBeingViewed"></SelectBookmarks>
     </div>
   </div>

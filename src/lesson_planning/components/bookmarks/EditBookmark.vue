@@ -4,7 +4,6 @@ import useVuelidate from "@vuelidate/core";
 import {helpers, required, url} from "@vuelidate/validators";
 import Modal from "../../../components/Modals/Modal.vue";
 import GenericButton from "../../../components/Buttons/GenericButton.vue";
-import {useLessonPlanningStore} from "../../stores/lessonPlanningStore";
 import TagSelection from "../TagSelection.vue";
 import Bookmark from "../../models/bookmark";
 
@@ -22,8 +21,6 @@ const props = defineProps({
 const localBookmark = reactive<Bookmark>({ ...props.bookmark })
 
 const showModal = ref(false);
-
-let lessonPlanningStore = useLessonPlanningStore()
 
 const rules = {
   action: {
