@@ -5,19 +5,14 @@ import TagSelection from "../TagSelection.vue";
 import {required} from "@vuelidate/validators";
 import useVuelidate from "@vuelidate/core";
 import Lesson from "../../models/lesson";
+import {useLessonPlanningStore} from "../../stores/lessonPlanningStore";
+import {useRoute} from "vue-router";
 
-const props = defineProps({
-  lessonPlan: {
-    type: Lesson,
-    required: true
-  },
-  submitCallback: {
-    type: Function,
-    required: true
-  }
-});
+let lessonPlanningStore = useLessonPlanningStore()
 
-const localLessonPlan = reactive<Lesson>({ ...props.lessonPlan })
+const localLessonPlan = reactive<Lesson>({ ...lessonPlanningStore.lessonBeingViewed })
+
+const route = useRoute()
 
 const rules = {
   name: {
@@ -43,11 +38,33 @@ async function validateAndSubmit() {
   submit();
 }
 
+const values = (): { heading: string, submit: Function } => {
+  switch (route.params.name) {
+    case 'edit-lesson':
+      return {
+        heading: 'Edit lesson',
+        submit: (lessonPlan: Lesson) => {
+          lessonPlanningStore.updateLesson(lessonPlan.id, lessonPlan)
+        }
+      }
+    case 'create-lesson':
+      return {
+        heading: 'Create lesson',
+        submit: (lessonPlan: Lesson) => {
+          lessonPlanningStore.createLesson(lessonPlan)
+        }
+      }
+  }
+  return {
+    heading: 'Save lesson',
+    submit: () => {}
+  }
+}
+
 function submit()
 {
-  localLessonPlan.lessonParts.forEach(lessonPart => lessonPart.lessonId = props.lessonPlan.id)
-  props.submitCallback(localLessonPlan).then(() => {
-  })
+  localLessonPlan.lessonParts.forEach(lessonPart => lessonPart.lessonId = localLessonPlan.id)
+  values().submit(localLessonPlan)
 }
 
 </script>
@@ -57,9 +74,7 @@ function submit()
       max-w-4xl mt-8 p-12 pb-4">
     <div class="flex flex-col">
       <h2 class="font-medium text-lg">
-        <slot name="heading">
-          Save lesson plan
-        </slot>
+        {{ values().heading }}
       </h2>
       <hr />
 

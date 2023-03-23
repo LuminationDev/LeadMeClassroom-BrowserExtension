@@ -2,16 +2,15 @@
 import DashboardOnboarding from "./DashboardOnboarding.vue";
 import DashboardSideMenu from "./DashboardSideMenu.vue";
 import DashboardTitleBar from "./DashboardTitleBar.vue";
-import DashboardMain from "./ClassControl/ClassControlMain.vue";
-import AccountMain from "./Account/AccountMain.vue";
-import { onMounted, ref} from "vue";
+import { onMounted, ref, onBeforeMount } from "vue";
 import { getAuth } from "@firebase/auth";
 import { useStorage } from "../../hooks/useStorage";
 
 import { useDashboardStore } from "../../stores/dashboardStore";
-import LessonPlanningMain from "../../lesson_planning/components/lesson_plans/LessonPlanningMain.vue";
-import BookmarkMain from "../../lesson_planning/components/bookmarks/BookmarkMain.vue";
+import {useRoute, useRouter} from "vue-router";
 const dashboardPinia = useDashboardStore();
+const router = useRouter()
+const routes = useRoute()
 
 const { getSyncStorage } = useStorage();
 const emailVerified = ref(false)
@@ -36,6 +35,13 @@ onMounted(() => {
     startOnboarding()
   });
 });
+
+onBeforeMount(() => {
+  router.push({
+    name: 'dashboard'
+  });
+})
+
 </script>
 
 <template>
@@ -49,11 +55,9 @@ onMounted(() => {
 
       <!--MainArea-->
       <div class="flex flex-col flex-grow bg-panel-background font-poppins overflow-hidden">
-        <DashboardMain v-show="dashboardPinia.view === 'dashboard'"/>
-        <AccountMain v-show="dashboardPinia.view === 'account'"/>
-        <LessonPlanningMain v-show="dashboardPinia.view === 'lessonPlanning'"/>
-        <BookmarkMain v-show="dashboardPinia.view === 'bookmark'"/>
+        <router-view />
       </div>
+      {{ router.currentRoute }}
     </div>
     <div v-else class="flex justify-center items-center w-full">
       Your email is not verified. Please verify it to continue.

@@ -21,6 +21,7 @@
     "v-onboarding": "^2.1.0",
     "vue": "^3.2.25",
     "vue-multiselect": "^3.0.0-beta.1",
+    "vue-router": "^4.1.6",
     "vue3-otp-input": "^0.3.6"
   },
   "devDependencies": {

@@ -16,16 +16,17 @@ const dashboardPinia = useDashboardStore();
 
     <!--Content options-->
     <div class="mt-28 child:mb-6">
-      <DashboardMenuItem icon="../../assets/img/menu-icon-dashboard.svg" view="dashboard">Dashboard</DashboardMenuItem>
-      <DashboardMenuItem icon="../../assets/img/menu-icon-dashboard.svg" view="bookmark">Bookmarks</DashboardMenuItem>
-      <DashboardMenuItem icon="../../assets/img/menu-icon-dashboard.svg" view="lessonPlanning">Lesson Plans</DashboardMenuItem>
-      <DashboardMenuItem icon="../../assets/img/menu-icon-account.svg" view="account">Account</DashboardMenuItem>
+      <DashboardMenuItem icon="../../assets/img/menu-icon-dashboard.svg" view="/">Dashboard</DashboardMenuItem>
+      <DashboardMenuItem icon="../../assets/img/menu-icon-dashboard.svg" view="/bookmarks">Bookmarks</DashboardMenuItem>
+      <DashboardMenuItem icon="../../assets/img/menu-icon-dashboard.svg" view="/lessons">Lesson Plans</DashboardMenuItem>
+      <DashboardMenuItem icon="../../assets/img/menu-icon-account.svg" view="/account">Account</DashboardMenuItem>
     </div>
 
     <!--End the active session and logout-->
     <DashboardMenuItem
         icon="../../assets/img/menu-icon-logout.svg" class="fixed bottom-12"
         v-on:click="dashboardPinia.endSession(); popupPinia.handleLogoutClick()"
+        view="/"
     >Log Out</DashboardMenuItem>
   </div>
 </template>
