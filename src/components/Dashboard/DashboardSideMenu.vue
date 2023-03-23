@@ -7,7 +7,7 @@ const dashboardPinia = useDashboardStore();
 </script>
 
 <template>
-  <div class="w-56 h-screen bg-navy-side-menu">
+  <div class="w-56 self-start h-screen sticky top-0 bg-navy-side-menu">
     <div>
       <img class="w-28 h-14 ml-6 pt-6 mb-4" src="@/assets/img/icon-dashboard-logo.svg" alt="LeadMe Icon"/>
 

@@ -57,7 +57,6 @@ onBeforeMount(() => {
       <div class="flex flex-col flex-grow bg-panel-background font-poppins overflow-hidden">
         <router-view />
       </div>
-      {{ router.currentRoute }}
     </div>
     <div v-else class="flex justify-center items-center w-full">
       Your email is not verified. Please verify it to continue.

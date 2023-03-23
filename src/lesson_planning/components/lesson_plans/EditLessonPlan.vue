@@ -1,12 +1,15 @@
 <script setup lang="ts">
 import GenericButton from "../../../components/Buttons/GenericButton.vue";
-import {reactive} from "vue";
+import {computed, reactive} from "vue";
 import TagSelection from "../TagSelection.vue";
 import {required} from "@vuelidate/validators";
 import useVuelidate from "@vuelidate/core";
 import Lesson from "../../models/lesson";
 import {useLessonPlanningStore} from "../../stores/lessonPlanningStore";
 import {useRoute} from "vue-router";
+import LessonPlanningBase from "./LessonPlanningBase.vue";
+import TextInput from "../TextInput.vue";
+import YearLevelInput from "../YearLevelInput.vue";
 
 let lessonPlanningStore = useLessonPlanningStore()
 
@@ -38,8 +41,8 @@ async function validateAndSubmit() {
   submit();
 }
 
-const values = (): { heading: string, submit: Function } => {
-  switch (route.params.name) {
+const values = computed((): { heading: string, submit: Function } => {
+  switch (route.name) {
     case 'edit-lesson':
       return {
         heading: 'Edit lesson',
@@ -49,7 +52,7 @@ const values = (): { heading: string, submit: Function } => {
       }
     case 'create-lesson':
       return {
-        heading: 'Create lesson',
+        heading: 'Create a new lesson plan',
         submit: (lessonPlan: Lesson) => {
           lessonPlanningStore.createLesson(lessonPlan)
         }
@@ -59,65 +62,62 @@ const values = (): { heading: string, submit: Function } => {
     heading: 'Save lesson',
     submit: () => {}
   }
-}
+})
 
 function submit()
 {
-  localLessonPlan.lessonParts.forEach(lessonPart => lessonPart.lessonId = localLessonPlan.id)
-  values().submit(localLessonPlan)
+  if (localLessonPlan.lessonParts && localLessonPlan.lessonParts.length) {
+    localLessonPlan.lessonParts.forEach(lessonPart => lessonPart.lessonId = localLessonPlan.id)
+  }
+  values.value.submit(localLessonPlan)
 }
 
 </script>
 <template>
-  <div
-      class="flex flex-col w-full bg-white rounded-md
+  <LessonPlanningBase>
+    <div class="flex justify-center w-full">
+      <div
+          class="flex flex-col w-full bg-white rounded-md
       max-w-4xl mt-8 p-12 pb-4">
-    <div class="flex flex-col">
-      <h2 class="font-medium text-lg">
-        {{ values().heading }}
-      </h2>
-      <hr />
+        <div class="flex flex-col">
+          <h2 class="font-medium text-lg">
+            {{ values.heading }}
+          </h2>
+          <hr />
 
-      <div class="mt-8 bg-white flex flex-col">
-        <div class="flex items-center justify-between">
-          <input
-              class="h-11 px-4 flex-grow bg-panel-background text-base rounded-lg"
-              type="text"
-              placeholder="Enter a name"
+          <TextInput
+              :v$="v$.name"
               v-model="v$.name.$model"
-          />
-        </div>
-      </div>
+              label="Lesson Plan Title"
+              class="my-8"
+              id="name"
+              placeholder="E.g. Maths Friday"/>
 
-      <div class="mt-8 bg-white flex flex-col">
-        <div class="flex items-center justify-between">
-          <input
-              class="h-11 px-4 flex-grow bg-panel-background text-base rounded-lg"
-              type="text"
-              placeholder="Enter a description"
+          <TextInput
+              :v$="v$.description"
               v-model="v$.description.$model"
-          />
-        </div>
-      </div>
+              label="Description"
+              id="description"
+              class="mb-8"
+              placeholder="E.g. A good plan for extension students"/>
 
-      <div class="mt-8 bg-white flex flex-col">
-        <div class="flex items-center justify-between">
-          <input
-              class="h-11 px-4 flex-grow bg-panel-background text-base rounded-lg"
-              type="text"
-              placeholder="Enter a year levels"
+          <YearLevelInput
+              label="Select year levels"
+              id="year-level"
+              :options="['R', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12']"
+              :v$="v$.yearLevels"
               v-model="v$.yearLevels.$model"
-          />
+            />
+
+          <TagSelection class="mt-8" v-model="v$.tags.$model" />
+
+          <div class="flex flex-col justify-start">
+            <GenericButton :callback="validateAndSubmit" type="purple">
+              Save
+            </GenericButton>
+          </div>
         </div>
-      </div>
-
-      <TagSelection class="mt-8" v-model="v$.tags.$model" />
-
-      <div class="flex flex-col justify-start">
-        <GenericButton :callback="validateAndSubmit" type="purple">
-          Save
-        </GenericButton>
       </div>
     </div>
-  </div>
+  </LessonPlanningBase>
 </template>

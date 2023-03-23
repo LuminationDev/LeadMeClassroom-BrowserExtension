@@ -12,7 +12,18 @@ export const useLessonPlanningStore = defineStore('lessonPlanning', {
     state: () => {
         return {
             lessons: <Lesson[]>([]),
-            lessonBeingViewed: <Lesson>{},
+            lessonBeingViewed: <Lesson>(new Lesson(
+                '',
+                '',
+                '',
+                '',
+                new Date(),
+                new Date(),
+                [],
+                [],
+                [],
+                []
+            )),
             bookmarks: <Bookmark[]>([]),
             bookmarksPagination: <any>{},
             view: 'lessons'

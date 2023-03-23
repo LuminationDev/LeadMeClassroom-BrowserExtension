@@ -20,7 +20,7 @@ async function screenControl() {
 </script>
 
 <template>
-  <div class="mt-14 mx-10">
+  <div class="mt-14 px-10 sticky top-0 w-full py-4 bg-panel-background">
     <div class="flex flex-row justify-between items-center">
       <p class="text-3xl font-medium">{{ dashboardPinia.leaderName }}'{{ dashboardPinia?.leaderName?.endsWith('s') ? '' : 's' }} Class</p>
       <ClassControlSessionArea />
