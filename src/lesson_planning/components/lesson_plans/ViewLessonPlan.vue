@@ -27,9 +27,6 @@ let lessonPlanningStore = useLessonPlanningStore()
         </div>
       </div>
       <div class="flex flex-col justify-start">
-        <GenericButton :callback="() => {}" type="purple">
-          Start
-        </GenericButton>
         <GenericButton :callback="() => { lessonPlanningStore.deleteLesson(lessonPlanningStore.lessonBeingViewed.id) }" type="purple">
           Delete
         </GenericButton>
@@ -46,12 +43,44 @@ let lessonPlanningStore = useLessonPlanningStore()
       </div>
     </div>
     <hr class="my-4"/>
-    <div class="-my-4 overflow-scroll gray-scrollbar">
+    <h3 class="text-lg font-medium">Insert bookmarks</h3>
+    <div v-if="lessonPlanningStore.lessonBeingViewed.lessonParts.length" class="-mb-4 overflow-scroll gray-scrollbar">
       <LessonPartListItem
           class="my-4"
           v-for="lessonPart in lessonPlanningStore.lessonBeingViewed.lessonParts"
           :id="lessonPart.id"
           :lesson-part="lessonPart" />
+    </div>
+    <div v-else class="relative">
+      <div class="absolute text-xl bg-slate-300 bg-opacity-80 z-10 w-full h-full rounded-xl">
+        <div class="flex flex-row my-4 justify-center items-center h-full">
+          <CreateLessonPart :lesson="lessonPlanningStore.lessonBeingViewed">
+            <template #button>
+              <GenericButton :callback="() => {}" type="outline-dark" class="mr-2">
+                Add new from URL
+              </GenericButton>
+            </template>
+          </CreateLessonPart>
+          <router-link :to="{
+          name: 'select-bookmarks',
+          params: {
+            id: lessonPlanningStore.lessonBeingViewed.id
+          }
+        }">
+            <GenericButton :callback="() => { }" type="dark" class="ml-2">
+              Add new from library
+            </GenericButton>
+          </router-link>
+        </div>
+      </div>
+      <LessonPartListItem :lesson-part="{
+        imageUrl: '../',
+        action: 'https://example.com',
+        actionType: 'link',
+        name: 'Bookmark Title',
+        description: 'Bookmark description',
+        timeAllocation: 10
+      }"/>
     </div>
     <div class="flex flex-row my-4">
       <CreateLessonPart :lesson="lessonPlanningStore.lessonBeingViewed" />

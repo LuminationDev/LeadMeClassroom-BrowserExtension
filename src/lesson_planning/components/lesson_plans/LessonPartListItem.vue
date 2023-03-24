@@ -23,14 +23,16 @@ defineProps({
         <h4 class="uppercase text-neutral-400 mt-8">Notes</h4>
         <p class="line-clamp-2 mt-1">{{ lessonPart.description }}</p>
       </div>
-      <EditLessonPart :lesson-part="lessonPart" />
-      <button @click="() => {
-          lessonPlanningStore.deleteLessonPart(lessonPart.id)
-        }" class="h-full w-auto mr-2">
-        <img alt="pencil icon, to edit lesson part" src="../../assets/stopwatch.svg" />
-      </button>
     </div>
     <div class="relative">
+      <div class="absolute top-8 right-5 flex flex-row">
+        <EditLessonPart :lesson-part="lessonPart" />
+        <button @click="() => {
+          lessonPlanningStore.deleteLessonPart(lessonPart.id)
+        }" class="h-full w-auto mx-2 hover:bg-slate-200 rounded-md">
+          <img alt="pencil icon, to edit lesson part" src="../../assets/bin.svg" />
+        </button>
+      </div>
       <div class="absolute right-5 bottom-5 bg-zinc-800 text-white flex flex-row px-2 py-1 rounded-md">
         <img alt="clock icon" src="../../assets/stopwatch_white.svg" class="mr-1" /><span>{{ formatTimeAsDigitalFromMinutes(lessonPart.timeAllocation) }}</span>
       </div>

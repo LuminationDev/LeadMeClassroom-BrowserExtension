@@ -15,7 +15,7 @@ const props = defineProps({
     default: 'text'
   },
   options: {
-    type: [],
+    type: Array,
     required: true
   },
   modelValue: {
@@ -33,7 +33,6 @@ const localModel = computed({
     return props.modelValue.split(',')
   },
   set(newValue: Array<String>) {
-    console.log(newValue)
     emit('update:modelValue', newValue.sort((a, b) => {
       if (a === 'R') {
         return -1
@@ -62,28 +61,28 @@ function handleOptionToggled(option: string) {
 
 <template>
   <div class="flex flex-col w-full">
-    {{ label }}
+    <div class="uppercase pl-2">{{ label }}</div>
     <ul class="flex flex-row w-full justify-between">
       <li v-for="(option, index) in options" :id="index"
-          class="uppercase w-12 h-12 border-gray-200 border-2
-           rounded-2xl flex justify-center items-center cursor-pointer
-            "
-          :class="{
-              'bg-blue-400 hover:bg-blue-500': localModel.includes(option),
-              'bg-gray-100 hover:bg-gray-200': !localModel.includes(option)
-            }"
-          @click="() => {handleOptionToggled(option)}">
+          >
         <label
             :for="`${id}-${option}`"
-        class="text-lg cursor-pointer">
+            class="uppercase w-12 h-12 border-gray-200 border-2
+           rounded-2xl flex justify-center items-center cursor-pointer
+            "
+            :class="{
+              'bg-blue-400 hover:bg-blue-500 focus-within:bg-blue-500': localModel.includes(option),
+              'bg-gray-100 hover:bg-gray-200 focus-within:bg-gray-200': !localModel.includes(option)
+            }">
+          <input
+              :id="`${id}-${option}`"
+              type="checkbox"
+              class="sr-only"
+              :checked="localModel.includes(option)"
+              @keydown.enter="() => {handleOptionToggled(option)}"
+              @input="() => {handleOptionToggled(option)}">
           {{ option }}
         </label>
-        <input
-            :id="`${id}-${option}`"
-            type="checkbox"
-            class="hidden"
-            :checked="localModel.includes(option)"
-            @change="() => {handleOptionToggled(option)}">
       </li>
     </ul>
     <div class="flex flex-col items-start" v-if="v$ && v$.$error">

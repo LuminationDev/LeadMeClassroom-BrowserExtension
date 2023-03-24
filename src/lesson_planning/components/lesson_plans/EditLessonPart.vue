@@ -61,15 +61,11 @@ function openModal() {
 
 <template>
   <!--Anchor button used to control the modal-->
-  <button class="
-    w-56 h-9 flex justify-center items-center
-    bg-blue-500 hover:bg-blue-400
-    text-white text-base font-medium"
+  <button class="hover:bg-slate-200 rounded-md"
           v-on:click="openModal"
           id="share_button"
   >
-    <img src="../../assets/external_link.svg" alt="icon representing link" class="mr-2"/>
-    Edit lessonPart
+    <img src="../../assets/pencil.svg" alt="pencil, for edit"/>
   </button>
 
   <!--Modal body using the Modal template, teleports the html to the bottom of the body tag-->

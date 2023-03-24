@@ -55,8 +55,8 @@ function handleAddTag(newTagName: string) {
 
 </script>
 <template>
-  <div class="flex flex-row justify-between items-center">
-    <span class="font-medium text-lg mr-4">Tags</span>
+  <div class="flex flex-col w-full">
+    <span class="uppercase pl-2">Tags</span>
     <VueMultiselect
         v-model="selectedTags"
         :loading="loading"
@@ -67,13 +67,12 @@ function handleAddTag(newTagName: string) {
         placeholder="Start typing to find tags"
         :options="reactiveOptions.tagOptions"
         @search-change="debounceRetrieveTags"
-        open-direction="bottom"
         label="name"
         track-by="id"
     >
       <template #selection="{ search, remove, values, isOpen }">
-        <div class="flex flex-row flex-wrap">
-          <Tag class="flex flex-row" v-for="tag in values" :tag="tag" :key="tag.id" @delete="() => { remove(tag) }" :can-delete="true"/>
+        <div class="flex flex-row flex-wrap -mx-2">
+          <Tag class="flex flex-row mx-2 mb-2" v-for="tag in values" :tag="tag" :key="tag.id" @delete="() => { remove(tag) }" :can-delete="true"/>
         </div>
       </template>
       <template #option="{ option, search }">

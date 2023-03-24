@@ -9,17 +9,11 @@ import Bookmark from "../../models/bookmark";
 import BookmarkCard from "../bookmarks/BookmarkCard.vue";
 import {useDebounce} from "../../composables/debounce";
 import Lesson from "../../models/lesson";
+import lesson from "../../models/lesson";
 
 const { debounce } = useDebounce()
 
 let lessonPlanningStore = useLessonPlanningStore()
-
-const props = defineProps({
-  lesson: {
-    type: Lesson,
-    required: true,
-  },
-});
 
 onBeforeMount(() => {
   lessonPlanningStore.loadBookmarks(bookmarksQuery.value)
@@ -41,7 +35,7 @@ function handleSelectedBookmarks(checked: boolean, id: string) {
 
 function saveSelection() {
   selectedBookmarks.value.forEach(id => {
-    lessonPlanningStore.saveBookmarkAsLessonPart(props.lesson.id, id)
+    lessonPlanningStore.saveBookmarkAsLessonPart(lessonPlanningStore.lessonBeingViewed.id, id)
   })
 }
 

@@ -111,7 +111,7 @@ function submit()
 
           <TagSelection class="mt-8" v-model="v$.tags.$model" />
 
-          <div class="flex flex-col justify-start">
+          <div class="flex flex-row justify-end mt-8">
             <GenericButton :callback="validateAndSubmit" type="purple">
               Save
             </GenericButton>
