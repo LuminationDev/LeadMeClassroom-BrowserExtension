@@ -16,7 +16,6 @@ const props = defineProps({
 });
 
 const showModal = ref(false);
-const action = ref("");
 const localLessonPart = ref<LessonPart>({ ...props.lessonPart })
 
 let lessonPlanningStore = useLessonPlanningStore()

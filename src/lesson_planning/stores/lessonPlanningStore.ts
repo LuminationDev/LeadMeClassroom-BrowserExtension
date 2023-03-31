@@ -209,7 +209,7 @@ type createBookmarkDto = {
 type createLessonPartDto = {
     name: string
     description: string
-    yearLevels: string;
+    timeAllocation: string
     action: string;
     actionType: string;
 }

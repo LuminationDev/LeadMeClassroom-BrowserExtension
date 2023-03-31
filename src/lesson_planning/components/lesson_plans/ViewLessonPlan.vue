@@ -54,7 +54,7 @@ let lessonPlanningStore = useLessonPlanningStore()
     <div v-else class="relative">
       <div class="absolute text-xl bg-slate-300 bg-opacity-80 z-10 w-full h-full rounded-xl">
         <div class="flex flex-row my-4 justify-center items-center h-full">
-          <CreateLessonPart :lesson="lessonPlanningStore.lessonBeingViewed">
+          <CreateLessonPart :lesson-id="lessonPlanningStore.lessonBeingViewed.id" action="create">
             <template #button>
               <GenericButton :callback="() => {}" type="outline-dark" class="mr-2">
                 Add new from URL
@@ -83,7 +83,7 @@ let lessonPlanningStore = useLessonPlanningStore()
       }"/>
     </div>
     <div class="flex flex-row my-4">
-      <CreateLessonPart :lesson="lessonPlanningStore.lessonBeingViewed" />
+      <CreateLessonPart :lesson-id="lessonPlanningStore.lessonBeingViewed.id" action="create" />
       <router-link :to="{
           name: 'select-bookmarks',
           params: {

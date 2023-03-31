@@ -3,6 +3,7 @@ import LessonPart from "../../models/lessonPart";
 import { formatTimeAsDigitalFromMinutes } from "../../utils/formatters";
 import {useLessonPlanningStore} from "../../stores/lessonPlanningStore";
 import EditLessonPart from "./EditLessonPart.vue";
+import CreateLessonPart from "./CreateLessonPart.vue";
 
 let lessonPlanningStore = useLessonPlanningStore()
 
@@ -26,7 +27,15 @@ defineProps({
     </div>
     <div class="relative">
       <div class="absolute top-8 right-5 flex flex-row">
-        <EditLessonPart :lesson-part="lessonPart" />
+        <CreateLessonPart :lesson-part="lessonPart" :lesson-id="lessonPlanningStore.lessonBeingViewed.id" action="edit">
+          <template #button>
+            <button class="hover:bg-slate-200 rounded-md"
+                    id="edit_button"
+            >
+              <img src="../../assets/pencil.svg" alt="pencil, for edit"/>
+            </button>
+          </template>
+        </CreateLessonPart>
         <button @click="() => {
           lessonPlanningStore.deleteLessonPart(lessonPart.id)
         }" class="h-full w-auto mx-2 hover:bg-slate-200 rounded-md">

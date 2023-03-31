@@ -1,61 +1,103 @@
 <script setup lang="ts">
-// todo - see if we can unify this with AddBookmark.vue somehow
-import {computed, ref} from "vue";
+import {reactive, ref} from "vue";
 import useVuelidate from "@vuelidate/core";
 import {helpers, required, url} from "@vuelidate/validators";
 import Modal from "../../../components/Modals/Modal.vue";
 import GenericButton from "../../../components/Buttons/GenericButton.vue";
 import {useLessonPlanningStore} from "../../stores/lessonPlanningStore";
 import TagSelection from "../TagSelection.vue";
-import tag from "../../models/tag";
+import LessonPart from "../../models/lessonPart";
+import TextInput from "../TextInput.vue";
 import Lesson from "../../models/lesson";
 
 const showModal = ref(false);
-const websiteLink = ref("");
-const name = ref("");
-const tags = ref<Array<tag>>([])
 
 let lessonPlanningStore = useLessonPlanningStore()
 
 const props = defineProps({
-  lesson: {
-    type: Lesson,
-    required: true,
+  lessonPart: {
+    type: LessonPart,
+    required: false,
   },
+  lessonId: {
+    type: String,
+    required: true
+  },
+  action: {
+    type: String,
+    required: true
+  }
 });
 
+type createLessonPartDto = {
+  name: string
+  description: string
+  timeAllocation: string
+  action: string;
+  actionType: string;
+}
+
+const localLessonPart = reactive<createLessonPartDto>(
+    props.lessonPart ?
+        { ...props.lessonPart } :
+        {
+          name: '',
+          description: '',
+          timeAllocation: '',
+          action: '',
+          actionType: 'link'
+        }
+)
+
 const rules = {
-  websiteLink: {
+  action: {
     required: helpers.withMessage("Website link is required", required),
     url: url
   },
   name: {
     required
+  },
+  timeAllocation: {
+    required
+  },
+  description: {
+    required
   }
 }
 
-const v$ = useVuelidate(rules, { name, websiteLink })
+const v$ = useVuelidate(rules, {
+  action: localLessonPart.action,
+  name: localLessonPart.name,
+  timeAllocation: localLessonPart.timeAllocation,
+  description: localLessonPart.description
+})
 
 async function validateAndSubmit() {
   const result = await v$.value.$validate();
   if (!result) { return; }
 
-  submit();
+  await submit();
 }
 
 function submit()
 {
-  lessonPlanningStore.createLessonPart(props.lesson.id, {
-    name: name.value,
-    action: websiteLink.value,
-    actionType: 'link',
-    yearLevels: '5,6',
-    description: 'Temp Description',
-    timeAllocation: 0
-  }).then((response) => {
-    console.log(response)
-    closeModal();
-  })
+  switch (props.action) {
+    case ('edit'):
+      if (!props.lessonPart) {
+        return
+      }
+      return lessonPlanningStore.updateLessonPart(
+          props.lessonPart.id,
+          localLessonPart).then((response) => {
+        console.log(response)
+        closeModal();
+      })
+    case ('create'):
+      return lessonPlanningStore.createLessonPart(props.lessonId, localLessonPart).then((response) => {
+        console.log(response)
+        closeModal();
+      })
+  }
 }
 
 function closeModal() {
@@ -85,7 +127,7 @@ function closeModal() {
     <Modal :show="showModal" @close="closeModal">
       <template v-slot:header>
         <header class="h-20 px-8 w-modal-width bg-white flex justify-between items-center rounded-t-lg">
-          <p class="text-2xl font-medium">Save a new link</p>
+          <p class="text-2xl font-medium">{{ action === 'edit' ? 'Edit lesson part' : 'Create lesson part' }}</p>
 
           <img
               v-on:click="closeModal"
@@ -98,36 +140,43 @@ function closeModal() {
 
       <template v-slot:content>
         <div class="w-modal-width">
-          <div class="mx-14 mt-8 py-6 bg-white flex flex-col">
-            <div class="flex items-center justify-between">
-              <input
-                  class="h-11 ml-6 mr-6 px-4 flex-grow bg-panel-background text-base rounded-lg"
-                  type="text"
-                  placeholder="Enter a name"
-                  v-model="v$.name.$model"
-              />
-            </div>
-            <div class="mt-1 ml-6" v-if="v$.name && v$.name.$error">
-              <span class="text-red-800" v-for="error in v$.name.$errors">{{ error.$message }}</span>
-            </div>
-          </div>
+          <TextInput
+              :v$="v$.name"
+              v-model="v$.name.$model"
+              label="Title"
+              class="my-8"
+              id="title"
+              placeholder="Visit maths website"/>
+
+          <TextInput
+              :v$="v$.description"
+              v-model="v$.description.$model"
+              label="Description"
+              class="my-8"
+              id="title"
+              placeholder="Spend 10 minutes reading fun maths facts"/>
+
+          <TextInput
+              :v$="v$.timeAllocation"
+              v-model="v$.timeAllocation.$model"
+              label="Allocated time"
+              class="my-8"
+              id="time_allocation"
+              placeholder="10 minutes"/>
+
           <div class="mx-14 mt-8 py-6 bg-white flex flex-col">
             <div class="flex items-center justify-between">
               <input
                   class="h-11 ml-6 mr-6 px-4 flex-grow bg-panel-background text-base rounded-lg"
                   type="text"
                   placeholder="Paste a URL..."
-                  v-model="v$.websiteLink.$model"
+                  v-model="v$.action.$model"
               />
             </div>
-            <div class="mt-1 ml-6" v-if="v$.websiteLink && v$.websiteLink.$error">
-              <span class="text-red-800" v-for="error in v$.websiteLink.$errors">{{ error.$message }}</span>
+            <div class="mt-1 ml-6" v-if="v$.action && v$.action.$error">
+              <span class="text-red-800" v-for="error in v$.action.$errors">{{ error.$message }}</span>
             </div>
           </div>
-          <div class="mx-14 mt-8 py-6 bg-white flex flex-col">
-            <TagSelection v-model="tags" class="mx-6" />
-          </div>
-          {{ tags }}
         </div>
       </template>
 
