@@ -179,7 +179,7 @@ const updateTabURL = (message: any) => {
             }
 
             //Convert the message into a website
-            const website = message.value.startsWith("https://") ? message.value : `https://${message.value}`;
+            const website = message.action.startsWith("https://") ? message.action : `https://${message.action}`;
             if (!activeTab) {
                 void chrome.windows.create({ url: website, focused: true, state: 'maximized' })
             } else {
