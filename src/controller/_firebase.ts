@@ -1,13 +1,11 @@
 import { devConfig, prodConfig } from './_service';
 import { initializeApp, FirebaseApp } from 'firebase/app';
-import { FirebaseStorage, getStorage, ref as storageRef, uploadString, getDownloadURL, deleteObject, listAll } from 'firebase/storage'
+import { FirebaseStorage, getStorage, ref as storageRef, uploadString } from 'firebase/storage'
 import {
     Database,
     getDatabase,
     ref,
     onChildAdded,
-    onChildChanged,
-    onChildRemoved,
     get,
     set,
     update,
@@ -16,18 +14,13 @@ import {
     remove,
     off
 } from 'firebase/database';
-import { browserLocalPersistence, getAuth, setPersistence, updateProfile, updatePassword, reauthenticateWithCredential, EmailAuthProvider } from "@firebase/auth";
 import * as REQUESTS from '../constants/_requests';
-import { Follower, Leader, Tab } from "../models";
+import { Follower, Tab } from "../models";
 import {
-    addedType,
     assistantCallbackFunction,
-    disconnectedType, generateType,
-    readIceCandidateType,
-    responseType, tabChangedType, tabRemovedType, tabsAddedType
 } from "../constants/_functionTypes";
 
-const config = process.env.NODE_ENV === 'production' ? prodConfig : devConfig;
+const config = process.env.NODE_ENV === 'production' ? prodConfig : prodConfig;
 
 class Firebase {
     private readonly callback: assistantCallbackFunction|null;
@@ -183,213 +176,6 @@ class Firebase {
         push(msgRef, { sender: senderId, message: data }).then(msg => remove(msg));
     }
 
-
-
-
-    //TODO LEADER FUNCTION DELETE
-    /**
-     * Get the display name and photoURL (used as marketing preference) of the currently active user.
-     * @returns {object} An object representing a users details.
-     */
-    getDisplayDetails = async () => {
-        await setPersistence(getAuth(), browserLocalPersistence);
-
-        const currentUser = getAuth().currentUser;
-        return {
-            name: currentUser?.displayName,
-            marketing: currentUser?.photoURL,
-        };
-    }
-
-    //TODO LEADER FUNCTION DELETE
-    /**
-     * Set a new password for the currently active user. Reauthenticate the user before attempting to change the current
-     * password.
-     * @param email
-     * @param currentPassword
-     * @param newPassword
-     */
-    setPassword = async (email: string, currentPassword: string, newPassword: string) => {
-        const user = getAuth().currentUser;
-        const credential = EmailAuthProvider.credential(email, currentPassword);
-
-        return reauthenticateWithCredential(user!, credential).then(async result => {
-            if(result) {
-                await updatePassword(user!, newPassword);
-            }
-
-            return "success";
-        }).catch(error => {
-            return error.code;
-        });
-    }
-
-    //TODO LEADER FUNCTION DELETE
-    /**
-     * Update the display name of the currently active user.
-     * @param name
-     */
-    setDisplayName = async (name: string) => {
-        await updateProfile(getAuth().currentUser!, {displayName: name})
-    }
-
-    //TODO LEADER FUNCTION DELETE
-    /**
-     * Update the marketing preference of the currently active user.
-     * @param preference
-     */
-    setMarketingPreference = async (preference: boolean) => {
-        await updateProfile(getAuth().currentUser!, { photoURL: preference ? Date.now().toString() : 'false' })
-        return preference ? Date.now().toString() : 'false';
-    }
-
-    //TODO LEADER FUNCTION DELETE
-    /**
-     * Update the Real Time Database with the pass object.
-     * @param {*} leader An object representing the current leader
-     * @param callback
-     */
-    connectAsLeader(leader: Leader, callback: generateType) {
-        this.generateRoom(leader, callback);
-    }
-
-    //TODO LEADER FUNCTION DELETE
-    /**
-     * Update the Real Time Database with the pass object.
-     * @param {*} leader A JSON structured object to be uploaded into the database.
-     * @param callback
-     */
-    generateRoom = (leader: Leader, callback: generateType) => {
-        let completedCount = 0
-        update(ref(this.db, `classCode`), leader.getClassroomObject()).then(() => {
-            completedCount++
-        });
-        update(ref(this.db, `followers`), leader.getDefaultFollowersObject()).then(() => {
-            completedCount++
-        });
-        update(ref(this.db, `followerMessages`), leader.getDefaultFollowerMessagesObject()).then(() => {
-            completedCount++
-        });
-        update(ref(this.db, `tabs`), leader.getDefaultTabsObject()).then(() => {
-            completedCount++
-        });
-        update(ref(this.db, `ice`), leader.getDefaultIceObject()).then(() => {
-            completedCount++
-        });
-        let runCallback = () => {
-            setTimeout(() => {
-                if (completedCount === 5) {
-                    callback()
-                } else {
-                    runCallback()
-                }
-            }, 100)
-        }
-        runCallback()
-    }
-
-    //TODO LEADER FUNCTION DELETE
-    /**
-     * Add listeners for followers being added and removed to the database
-     * @param classCode A string representing the class a teacher is currently controlling.
-     * @param followerResponse
-     * @param {*} followerDisconnected
-     * @param followerAdded
-     * @param readIceCandidate
-     */
-    followerListeners = (
-        classCode: string,
-        followerResponse: responseType,
-        followerDisconnected: disconnectedType,
-        followerAdded: addedType,
-        readIceCandidate: readIceCandidateType) => {
-
-        const followerRef = ref(this.db, `/followers/${classCode}`);
-
-        onChildAdded(followerRef, (snapshot) => {
-            followerAdded(snapshot.val(), snapshot.key!)
-            let name = snapshot.val().name
-            let id = snapshot.key
-
-            const individualRef = ref(this.db, `/followers/${classCode}/${id}`);
-            onChildChanged(individualRef, (snapshot) => {
-                if (snapshot.key === 'screenshot') {
-                    const screenshotRef = storageRef(this.storage, `${classCode}/${id}`);
-                    getDownloadURL(screenshotRef).then(url => {
-                        followerResponse(url, name, id!, snapshot.key!);
-                    })
-                } else {
-                    followerResponse(snapshot.val(), name, id!, snapshot.key!);
-                }
-            });
-
-            //Add ice listeners
-            const iceRef = ref(this.db, `ice/${classCode}/${id}`);
-            onChildAdded(iceRef, (snapshot) => {
-                readIceCandidate(snapshot, id!)
-            });
-        });
-
-        onChildRemoved(followerRef, (snapshot) => {
-            followerDisconnected(snapshot.key!);
-        });
-    }
-
-    //TODO LEADER FUNCTION DELETE
-    /**
-     * Add listeners for followers being added and removed to the database
-     * @param classCode A string representing the class a teacher is currently controlling.
-     * @param followerTabChanged
-     * @param followerTabRemoved
-     * @param followerTabsAdded
-     */
-    tabListeners = (classCode: string, followerTabChanged: tabChangedType, followerTabRemoved: tabRemovedType, followerTabsAdded: tabsAddedType) => {
-        const tabRef = ref(this.db, `/tabs/${classCode}`);
-
-        onChildAdded(tabRef, (snapshot) => {
-            followerTabsAdded(snapshot.val(), snapshot.key!);
-            let followerId = snapshot.key;
-
-            const individualTabRef = ref(this.db, `/tabs/${classCode}/${followerId}`);
-            onChildChanged(individualTabRef, (snapshot) => {
-                followerTabChanged(snapshot.val(), followerId!, snapshot.key!);
-            });
-
-            onChildRemoved(individualTabRef, (snapshot) => {
-                followerTabRemoved(followerId!, snapshot.key!);
-            });
-        });
-    }
-
-    //TODO LEADER FUNCTION DELETE
-    /**
-     * Run through all the student entries within the existing class entry and reattach the listeners that may have
-     * been severed when a page reload occurred, loading the students again to the dashboard as well.
-     * @param classCode A string representing the class a teacher is currently controlling.
-     * @param followerResponse
-     */
-    reloadFollowers = (classCode: string, followerResponse: responseType) => {
-        const followerRef = ref(this.db, `/followers/${classCode}`);
-        get(followerRef).then((snapshot) => {
-            snapshot.forEach(entry => {
-                followerResponse(entry.val().screenshot, entry.val().name, entry.key!, null);
-            });
-        });
-    }
-
-    //TODO LEADER FUNCTION DELETE
-    /**
-     * Update a follower's data entry in firebase. Only the fields present in the details object will be updated.
-     * @param classCode A string representing the class a user is registered to.
-     * @param uuid A string representing the unique ID of a follower.
-     * @param details An object holding the fields to update on the follower.
-     */
-    updateFollower = (classCode: string, uuid: string, details: object) => {
-        const followerRef = ref(this.db, `/followers/${classCode}/${uuid}`);
-        update(followerRef, details).then(() => console.log("Follower updated"));
-    }
-
-    //TODO LEADER FUNCTION DELETE
     /**
      * Remove an entry from firebase at the specified location.
      * @param {*} classCode A string representing the class a user is registered to.
@@ -403,79 +189,6 @@ class Firebase {
             console.log(error);
             return false;
         });
-    }
-
-    //TODO LEADER FUNCTION DELETE
-    /**
-     * Sent from a leader, push an action request to all followers. This could be a video_permission, muteTab etc.
-     * @param classCode A string representing the class a user is registered to.
-     * @param {*} type
-     */
-    requestAction = async (classCode: string, type: object) => {
-        const msg = push(ref(this.db, `classCode/${classCode}/request`), type);
-        await remove(msg);
-    }
-
-    //TODO LEADER FUNCTION DELETE
-    /**
-     * Sent from a leader, push an action request to a particular follower. This could be a video_permission, muteTab etc.
-     * @param classCode A string representing the class a user is registered to.
-     * @param uuid A string representing the unique ID of a follower.
-     * @param {*} type
-     */
-    requestIndividualAction = async (classCode: string, uuid: string, type: object) => {
-        const msg = push(ref(this.db, `followerMessages/${classCode}/${uuid}/request`), type);
-        await remove(msg);
-    }
-
-    //TODO LEADER FUNCTION DELETE
-    /**
-     * Remove the entity of a class entry, at the end of a session the details of the connects will be erased.
-     * @param {*} classCode A string representing the class a teacher is currently controlling.
-     */
-    removeClass = (classCode: string) => {
-        const classRef = ref(this.db, `classCode/${classCode}`);
-        const followersRef = ref(this.db, `followers/${classCode}`);
-        const followerMessagesRef = ref(this.db, `followerMessages/${classCode}`);
-        const tabsRef = ref(this.db, `tabs/${classCode}`);
-        const iceRef = ref(this.db, `ice/${classCode}`);
-        const screenshotsRef = storageRef(this.storage, `${classCode}`);
-
-        off(classRef);
-        off(followersRef);
-        off(followerMessagesRef);
-        off(tabsRef);
-        off(iceRef);
-
-        remove(followersRef)
-            .then(function () { console.log("Removed followers succeeded.") })
-            .catch(function (error) { console.log("Remove failed: " + error.message) });
-
-        remove(followerMessagesRef)
-            .then(function () { console.log("Removed followers messages succeeded.") })
-            .catch(function (error) { console.log("Remove failed: " + error.message) });
-
-        remove(tabsRef)
-            .then(function () { console.log("Removed tabs succeeded.") })
-            .catch(function (error) { console.log("Remove failed: " + error.message) });
-
-        remove(iceRef)
-            .then(function () { console.log("Removed ice succeeded.") })
-            .catch(function (error) { console.log("Remove failed: " + error.message) });
-
-        remove(classRef)
-            .then(function () { console.log("Removed class succeeded.") })
-            .catch(function (error) { console.log("Remove failed: " + error.message) });
-
-        // unfortunately we can't just delete the directory, we have to delete each item within it individually
-        listAll(screenshotsRef).then((res) => {
-            res.items.forEach(screenshotRef => {
-                deleteObject(screenshotRef)
-                    .then(function () { console.log("Removed screenshots succeeded.") })
-                    .catch(function (error) { console.log("Remove failed: " + error.message) });
-            })
-        })
-
     }
 }
 

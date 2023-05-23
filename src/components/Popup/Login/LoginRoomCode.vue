@@ -66,6 +66,10 @@ onMounted(() => {
     }
   }
 })
+
+const changeToTeacher = () => {
+  console.log("GO TO CLASSROOM WEBSITE")
+}
 </script>
 
 <template>
@@ -105,6 +109,6 @@ onMounted(() => {
     </GenericButton>
     <p class="text-red-400">{{ popupPinia.error }}</p>
 
-    <p class="mt-14 text-gray-separator cursor-pointer" v-on:click="popupPinia.changeView('loginTeacher')">Teacher Login</p>
+    <p class="mt-14 text-gray-separator cursor-pointer" v-on:click="changeToTeacher">Teacher Login</p>
   </form>
 </template>

@@ -133,32 +133,6 @@ export let useWebRTCStore = defineStore("webRTC", {
         },
 
         /**
-         * Create an offer to send to a specific follower.
-         */
-        async startFollowerStream(UUID: string) {
-            return new Promise((resolve) => {
-                const connection = this.connections.get(UUID);
-                if(connection == null) { return; }
-
-                //Attach the video element - wait for it to render first
-                setTimeout(() => {
-                    const videoElement = <HTMLVideoElement>document.getElementById(`video_${UUID}`);
-                    connection.peerConnection.ontrack = (e: RTCTrackEvent) => {
-                        videoElement.srcObject = e.streams[0];
-                        return false;
-                    }
-
-                    //Create offer for one way connection
-                    connection.peerConnection.createOffer({ offerToReceiveVideo: true })
-                        .then(offer => connection.peerConnection.setLocalDescription(offer))
-                        .then(() => callbackFunction(this.connectionDetails.uniqueId, UUID, JSON.stringify({ 'sdp': connection.peerConnection.localDescription })));
-
-                    resolve("Success");
-                }, 500);
-            });
-        },
-
-        /**
          * Close any tracks that a follower has open to a WebRTC connection.
          */
         stopTracks(UUID: string) {
