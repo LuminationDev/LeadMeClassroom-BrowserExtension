@@ -3,11 +3,11 @@ import { usePopupStore } from "../../../stores/popupStore";
 import GenericButton from "../../Buttons/GenericButton.vue";
 const popupPinia = usePopupStore();
 
-function changeToTeacher() {
-  popupPinia.changeView('loginTeacher')
+const changeToTeacher = () => {
+  console.log("GO TO CLASSROOM WEBSITE")
 }
 
-function changeToStudent() {
+const changeToStudent = () => {
   popupPinia.changeView('loginStudent')
 }
 </script>

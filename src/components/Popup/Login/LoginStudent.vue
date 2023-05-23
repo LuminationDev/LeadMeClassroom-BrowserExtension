@@ -27,6 +27,10 @@ async function validateAndSubmit() {
 
   await popupPinia.changeView('roomCode');
 }
+
+const changeToTeacher = () => {
+  console.log("GO TO CLASSROOM WEBSITE")
+}
 </script>
 
 <template>
@@ -38,6 +42,6 @@ async function validateAndSubmit() {
 
     <GenericButton :type="'secondary'" :callback="validateAndSubmit">Confirm</GenericButton>
 
-    <p class="mt-24 text-gray-separator cursor-pointer" v-on:click="popupPinia.changeView('loginTeacher')">Teacher Login</p>
+    <p class="mt-24 text-gray-separator cursor-pointer" v-on:click="changeToTeacher">Teacher Login</p>
   </form>
 </template>
