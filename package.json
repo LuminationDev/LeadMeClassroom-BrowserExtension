@@ -16,7 +16,7 @@
     "firebaseui": "^6.0.1",
     "pinia": "^2.0.23",
     "uuid": "^9.0.0",
-    "v-onboarding": "^2.1.0",
+    "v-onboarding": "^2.5.1",
     "vue": "^3.2.25",
     "vue3-otp-input": "^0.3.6"
   },
