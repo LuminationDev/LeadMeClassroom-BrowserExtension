@@ -123,8 +123,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
             break;
 
         case REQUESTS.MUTETAB:
-        case REQUESTS.UNMUTETAB:
-            muteTab(request, request.type === REQUESTS.MUTETAB);
+            muteTab(request, request.action === REQUESTS.MUTETAB);
             break;
 
         case REQUESTS.YOUTUBE:
