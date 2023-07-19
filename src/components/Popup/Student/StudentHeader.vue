@@ -37,17 +37,19 @@ const goBack = computed(() => {
     </div>
 
     <div>
-      <SettingsCogIcon
-          v-if="popupPinia.view === 'sessionStudent'"
-          v-on:click="popupPinia.changeView('sessionSettings')"
-          class="w-6 cursor-pointer" :colour="'black'"/>
+      <Transition name="fade" mode="out-in">
+        <SettingsCogIcon
+            v-if="popupPinia.view === 'sessionStudent'"
+            v-on:click="popupPinia.changeView('sessionSettings')"
+            class="w-6 cursor-pointer" :colour="'black'"/>
 
-      <div
-          v-else-if="popupPinia.view === 'sessionQuestion' || popupPinia.view === 'sessionSettings'"
-          v-on:click="popupPinia.changeView('sessionStudent')"
-          class="cursor-pointer text-gray-500 font-semibold">
-        {{goBack}}
-      </div>
+        <div
+            v-else-if="popupPinia.view === 'sessionQuestion' || popupPinia.view === 'sessionSettings'"
+            v-on:click="popupPinia.changeView('sessionStudent')"
+            class="cursor-pointer text-gray-500 font-semibold">
+          {{goBack}}
+        </div>
+      </Transition>
     </div>
   </div>
 </template>

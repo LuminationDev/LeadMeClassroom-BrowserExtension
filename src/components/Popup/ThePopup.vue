@@ -57,8 +57,7 @@ onBeforeMount(() => {
     :class="{'bg-[#182B50] pt-9': popupPinia.view === 'login' || popupPinia.view === 'nameInput'}"
     :show-header="popupPinia.view !== 'login' && popupPinia.view !== 'nameInput' && popupPinia.view !== 'loading'"
   >
-<!--TODO transition not working correctly-->
-<!--    <Transition name="fade" mode="out-in">-->
+    <Transition name="fade" mode="out-in">
       <!--Entry point-->
       <!--Room Code-->
       <PopupLoading v-if="popupPinia.view === 'loading'"/>
@@ -80,6 +79,6 @@ onBeforeMount(() => {
 
       <!--Student Permissions-->
       <StudentPermissions v-else-if="popupPinia.view === 'sessionPermissions'"/>
-<!--    </Transition>-->
+    </Transition>
   </PopupPanel>
 </template>
