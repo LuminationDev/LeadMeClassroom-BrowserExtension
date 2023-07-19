@@ -3,10 +3,12 @@ import '../../styles.css'
 import { ref } from 'vue'
 import ConnectionManager from '../../controller/_connectionManager'
 import * as REQUESTS from '../../constants/_requests.js'
-import Tab from "../../models/_tab";
-import Follower from "../../models/_follower";
+import { Tab, Follower, Task } from "../../models";
+import { taskData } from "../../constants/_dataTypes";
+import { useWebRTCStore } from "../../stores/webRTCStore";
+import { useStorage } from "../../hooks/useStorage";
 
-import {useWebRTCStore} from "../../stores/webRTCStore";
+const { getSyncStorage, setSyncStorage, removeSyncStorage } = useStorage();
 const webRTCPinia = useWebRTCStore();
 
 const assistantListener = (data: any) => {
@@ -72,10 +74,71 @@ const assistantListener = (data: any) => {
       chrome.runtime.sendMessage(data);
       break;
 
+    case REQUESTS.TASK:
+      setAndPassTask(data);
+      break;
+
     default:
       console.log("Unknown command");
       break;
   }
+}
+
+/**
+ * Save the new task information to sync storage and then pass the data onto the background script for
+ * further processing.
+ * @param data An object containing updated task information.
+ */
+const setAndPassTask = async (data: any) => {
+  if(data.tasks.length === 0) { return; }
+
+  //List for new incoming tasks - Create the new task from the supplied data
+  let newTaskList = <Task[]>[];
+  data.tasks.forEach((item: string) => {
+    const info = item.split("|");
+    if(info.length !== 3) { return; }
+    const task: Task = new Task(info[0], info[1], info[2]);
+    newTaskList.push(task);
+  });
+
+  //List for any current tasks
+  let taskList = <Task[]>[];
+
+  //Get the current list of tasks
+  const savedData: string | undefined = await getSyncStorage("tasks");
+
+  if(savedData !== undefined) {
+    const savedTaskList: taskData[] = JSON.parse(savedData);
+    const convertedData: Task[] = savedTaskList.map((savedTaskList: taskData) => new Task(savedTaskList.name, savedTaskList.packageName, savedTaskList.type));
+
+    if(convertedData.length !== 0) {
+      taskList = convertedData;
+
+      //Update the task list - checking it does not already exist
+      newTaskList.forEach(task => {
+        if(data.action === "added") {
+            const exists = taskList.filter(currentTask => currentTask.packageName === task.packageName);
+            if(exists.length === 0) { taskList.push(task); }
+        } else if (data.action === "removed") {
+            taskList = taskList.filter(currentTask => currentTask.packageName !== task.packageName);
+        }
+      });
+    }
+    else {
+      taskList = newTaskList;
+    }
+  } else {
+    taskList = newTaskList;
+  }
+
+  //Set sync storage
+  await setSyncStorage({"tasks": JSON.stringify(taskList)});
+
+  //Change the data type, as to avoid an infinite loop (assistant -> background -> assistant)
+  data.type = REQUESTS.NEWTASK;
+
+  //Pass to background.ts (Only for live updates if the popup is open
+  void await chrome.runtime.sendMessage(data);
 }
 
 chrome.runtime.onMessage.addListener(
@@ -99,7 +162,7 @@ const followerData = {
 
 //Start the connection manager on page load
 chrome.storage.sync.get("follower", async (data) => {
-  let f = new Follower(data.follower.code, data.follower.name)
+  let f = new Follower(data.follower.code, data.follower.name, data.follower.teacherName, data.follower.uuid)
   setupWebRTCConnection(f.getUniqueId(), data.follower.code);
 
   //Collect a students tabs, filtering out the assistant page
@@ -174,9 +237,11 @@ const endSession = (notification: string) => {
   chrome.runtime.sendMessage({type: REQUESTS.SCREENCONTROL, action: "unblock"})
       .then(result => console.log(result));
 
-  chrome.storage.sync.remove("follower", () => {
-    console.log("Data removed");
-  });
+  removeSyncStorage("follower")
+      .then(() => console.log("Follower data removed"));
+
+  removeSyncStorage("tasks")
+      .then(() => console.log("Task data removed"));
 
   let count = 3;
   let countDown = setInterval(() => {
@@ -198,7 +263,7 @@ const closeAssistant = () => {
   });
 }
 
-function minimise() {
+const minimise = () => {
   chrome.tabs.query({ url: REQUESTS.ASSISTANT_MATCH_URL }, ([tab]) => {
     if (tab && tab.windowId) {
       chrome.windows.update(tab.windowId, { state: 'minimized' });

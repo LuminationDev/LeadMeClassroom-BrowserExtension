@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import {nextTick, onMounted, ref} from "vue";
+
 defineProps({
   placeholder: {
     type: String,
@@ -18,12 +20,20 @@ defineProps({
   }
 });
 defineEmits(['update:modelValue'])
+
+const nameInput = ref<HTMLInputElement | null>(null)
+onMounted(() => {
+  nextTick(() => {
+    nameInput.value!.focus();
+  });
+})
 </script>
 
 <template>
   <div>
     <input
         v-if="v$"
+        ref="nameInput"
         class="w-64 h-12 rounded-lg border-2 px-3 text-sm"
         :class="v$.$error ? 'border-red-800 focus:border-red-900' : ''"
         :type='type'

@@ -28,8 +28,10 @@ class ConnectionManager {
 
         await setSyncStorage({
             "follower": {
-                "code": this.follower.classCode,
+                "code": this.follower.getClassCode(),
+                "name": this.follower.getName(),
                 "uuid": this.follower.getUniqueId(),
+                "teacherName": this.follower.getTeacherName(),
                 "monitoring": false
             }
         });
@@ -68,8 +70,10 @@ class ConnectionManager {
     enableMonitoring = (enable: boolean) => {
         void setSyncStorage({
             "follower": {
-                "code": this.follower.classCode,
+                "code": this.follower.getClassCode(),
+                "name": this.follower.getName(),
                 "uuid": this.follower.getUniqueId(),
+                "teacherName": this.follower.getTeacherName(),
                 "monitoring": enable
             }
         });

@@ -1,13 +1,10 @@
 import * as REQUESTS from "../constants/_requests";
 import { Tab } from "../models";
 import { useStorage } from "../hooks/useStorage";
-const { getSyncStorage, removeSyncStorage } = useStorage();
+import { storageFollower } from "../constants/_dataTypes";
+import {NEWTASK} from "../constants/_requests";
 
-interface storageFollower {
-    code: string,
-    uuid: string,
-    monitoring: boolean
-}
+const { getSyncStorage, removeSyncStorage } = useStorage();
 
 //===========================================
 //RUNTIME LISTENERS
@@ -126,12 +123,13 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
             muteTab(request, request.action === REQUESTS.MUTETAB);
             break;
 
+        case REQUESTS.NEWTASK:
         case REQUESTS.YOUTUBE:
-            youtubeAction(request); //Send to the content script
+            contentAction(request); //Send to the content script
             break;
 
         case REQUESTS.SCREENCONTROL:
-            contentAction(request); //Send to the content script
+            allContentActions(request); //Send to all content scripts (every open tab)
             break;
 
         default:
@@ -216,11 +214,13 @@ const muteTab = (request: any, mute: boolean) => {
 }
 
 /**
- * Send a YouTube action to the active tab.
+ * Send new task information to the content script for further processing.
  */
-const youtubeAction = (request: object) => {
+const contentAction = (request: object) => {
     chrome.tabs.query({ currentWindow: true, active: true }, function (tabs) {
-        console.log(tabs);
+        if(tabs.length === 0) {
+            return;
+        }
         const activeTab = tabs[0];
         void chrome.tabs.sendMessage(<number>activeTab.id, request);
     });
@@ -230,7 +230,7 @@ const youtubeAction = (request: object) => {
  * Send an action to all currently open tabs except the assistant tab
  * @param request
  */
-const contentAction = (request: any) => {
+const allContentActions = (request: any) => {
     request.tabs = REQUESTS.MULTITAB
     muteTab(request, request.action === "block");
 

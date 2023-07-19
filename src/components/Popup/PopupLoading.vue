@@ -7,6 +7,7 @@
     <div class="h-56 flex flex-col items-center">
       <p class="pt-6 lds-dual-ring-lg" />
     </div>
+    <p class="text-base">Loading please wait!</p>
   </div>
 </template>
 
