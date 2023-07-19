@@ -57,13 +57,13 @@ onBeforeMount(() => {
     :class="{'bg-[#182B50] pt-9': popupPinia.view === 'login' || popupPinia.view === 'nameInput'}"
     :show-header="popupPinia.view !== 'login' && popupPinia.view !== 'nameInput' && popupPinia.view !== 'loading'"
   >
+    <!--Don't fade the load-->
+    <PopupLoading v-if="popupPinia.view === 'loading'"/>
+
     <Transition name="fade" mode="out-in">
       <!--Entry point-->
       <!--Room Code-->
-      <PopupLoading v-if="popupPinia.view === 'loading'"/>
-
-      <!--Name Input-->
-      <LoginRoomCode v-else-if="popupPinia.view === 'login'"/>
+      <LoginRoomCode v-if="popupPinia.view === 'login'"/>
 
       <!--Name Input-->
       <LoginStudent v-else-if="popupPinia.view === 'nameInput'"/>
