@@ -6,6 +6,8 @@ import {
     getDatabase,
     ref,
     onChildAdded,
+    onChildRemoved,
+    onChildChanged,
     get,
     set,
     update,
@@ -48,12 +50,41 @@ class Firebase {
     }
 
     /**
+     * Attempt to collect the data associated with a teacher's class.
+     * @param inputCode
+     */
+    async collectClassDetails(inputCode: string) {
+        const classRef = ref(this.db, `/classCode/${inputCode}/name`);
+        return await get(classRef).then((snapshot) => {
+            return snapshot.val();
+        }).catch((error) => {
+            console.log(error);
+            return null;
+        });
+    }
+
+    /**
      * Attempt to find a class code matching the input, return whether the attempt was successful or not
      */
     async checkForClassroom(inputCode: string) {
         const classRef = ref(this.db, `/classCode/${inputCode}/classCode`);
         return await get(classRef).then((snapshot) => {
             return snapshot.val() === inputCode;
+        }).catch((error) => {
+            console.log(error);
+            return false;
+        });
+    }
+
+    /**
+     * Attempt to find the UUID of a follower, checking if they are still a part of the class.
+     * @param classCode A string representing the class a user is registered to.
+     * @param uuid A string representing the unique ID of a follower.
+     */
+    async checkForWebFollower(classCode: string, uuid: string) {
+        const classRef = ref(this.db, `/webFollowers/${classCode}/${uuid}`);
+        return await get(classRef).then((snapshot) => {
+            return snapshot.exists();
         }).catch((error) => {
             console.log(error);
             return false;
@@ -99,9 +130,44 @@ class Firebase {
         const groupRef = ref(this.db, `classCode/${classCode}/request/${this.webMessageRef}`);
         onChildAdded(groupRef, (snapshot) => this.callback?.(snapshot.val()));
 
-        //Listen for individual actions
+        //Listen for individual action requests
         const individualRef = ref(this.db, `${this.webFollowerRef}/${classCode}/${uuid}/request`);
         onChildAdded(individualRef, (snapshot) => this.callback?.(snapshot.val()));
+
+        //Listen for changes on the follower object
+        const taskRef = ref(this.db, `${this.webFollowerRef}/${classCode}/${uuid}`);
+        onChildAdded(taskRef, (snapshot) => {
+            switch(snapshot.key) {
+                case "tasks":
+                    const message = {type: "tasks", action: 'added', tasks: snapshot.val()}
+                    this.callback?.(message);
+                    break;
+                default:
+                    console.log("Unknown action requested");
+            }
+        });
+
+        //TODO currently there is no way to remove a single task - EXPAND THIS IN THE FUTURE
+        onChildChanged(taskRef, (snapshot) => {
+            switch(snapshot.key) {
+                case "tasks":
+                    const message = {type: "tasks", action: 'added', tasks: snapshot.val()}
+                    this.callback?.(message);
+                    break;
+                default:
+                    console.log("Unknown action requested");
+            }
+        });
+        onChildRemoved(taskRef, (snapshot) => {
+            switch(snapshot.key) {
+                case "tasks":
+                    const message = {type: "tasks", action: 'removed', tasks: snapshot.val()}
+                    this.callback?.(message);
+                    break;
+                default:
+                    console.log("Unknown action requested");
+            }
+        });
 
         //Listen for ice candidates
         const iceRef = ref(this.db, `ice/${classCode}/${uuid}`);
@@ -115,36 +181,47 @@ class Firebase {
     /**
      * Unregister any listeners that may be active.
      * @param {*} inputCode A string representing the class a user is registered to.
-     * @param uuid A string representing the unique ID of a follower.
+     * @param UUID A string representing the unique ID of a follower.
      */
-    unregisterListeners = (inputCode: string, uuid: string) => {
+    unregisterListeners = (inputCode: string, UUID: string) => {
         off(ref(this.db, `classCode/${inputCode}/request/${this.webMessageRef}`));
-        off(ref(this.db, `${this.webFollowerRef}/${inputCode}/${uuid}/request`))
-        off(ref(this.db, `ice/${inputCode}/${uuid}`));
+        off(ref(this.db, `${this.webFollowerRef}/${inputCode}/${UUID}/request`))
+        off(ref(this.db, `${this.webFollowerRef}/${inputCode}/${UUID}/tasks`))
+        off(ref(this.db, `ice/${inputCode}/${UUID}`));
+    }
+
+    /**
+     * Update the users name
+     * @param {*} classCode A string representing the class a user is registered to.
+     * @param UUID A string representing the unique ID of a follower.
+     * @param name A
+     */
+    updateName = async (classCode: string, UUID: string, name: string) => {
+        await update(ref(this.db, `webFollowers/${classCode}/${UUID}`), {name});
     }
 
     /**
      * Update the database entry of a follower, adding/updating the latest tab that have been opened or an action has been
      * performed on.
-     * @param {*} inputCode A string representing the class a user is registered to.
-     * @param {*} inputUUID A string representing the unique ID of a follower.
+     * @param {*} classCode A string representing the class a user is registered to.
+     * @param {*} UUID A string representing the unique ID of a follower.
      * @param tab A tab object containing the details of a new tab.
      */
-    updateTab = (inputCode: string, inputUUID: string, tab: Tab) => {
-        update(ref(this.db, `tabs/${inputCode}/${inputUUID}/${tab.id}`), tab)
+    updateTab = (classCode: string, UUID: string, tab: Tab) => {
+        update(ref(this.db, `tabs/${classCode}/${UUID}/${tab.id}`), tab)
             .then(() => console.log("Tab updated"));
     }
 
-    updateActiveTab = (inputCode: string, inputUUID: string, tab: Tab) => {
-        update(ref(this.db, `tabs/${inputCode}/${inputUUID}/${tab.id}`), {
+    updateActiveTab = (classCode: string, UUID: string, tab: Tab) => {
+        update(ref(this.db, `tabs/${classCode}/${UUID}/${tab.id}`), {
             index: tab.index,
             windowId: tab.windowId,
             lastActivated: Date.now()
         }).then(() => console.log("Active tab updated"));
     }
 
-    removeTab = (inputCode: string, inputUUID: string, tabId: string) => {
-        remove(ref(this.db, `tabs/${inputCode}/${inputUUID}/${tabId}`))
+    removeTab = (classCode: string, UUID: string, tabId: string) => {
+        remove(ref(this.db, `tabs/${classCode}/${UUID}/${tabId}`))
             .then(() => console.log("Remove tab"));
     }
 

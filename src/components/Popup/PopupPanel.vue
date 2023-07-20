@@ -1,23 +1,18 @@
 <script setup lang="ts">
-import { usePopupStore } from "../../stores/popupStore";
-let popupPinia = usePopupStore();
+import StudentHeader from "./Student/StudentHeader.vue";
+
+defineProps({
+  showHeader: {
+    type: Boolean,
+    require: false,
+    default: false
+  }
+})
 </script>
 
 <template>
-  <main class="bg-panel-background pt-9 text-center font-poppins w-panel-width">
-    <div
-        :class="{
-          'px-12': true,
-          'px-6': popupPinia.view === 'permissions',
-        }"
-    >
-      <div class="text-base font-medium text-black-form-border">
-        <slot name="header"></slot>
-      </div>
-
-      <slot name="content"></slot>
-    </div>
-
-    <slot name="footer"></slot>
+  <main class="flex flex-col h-96 w-80 bg-panel-background pt-4 text-center font-poppins">
+    <StudentHeader v-if="showHeader"/>
+    <slot></slot>
   </main>
 </template>

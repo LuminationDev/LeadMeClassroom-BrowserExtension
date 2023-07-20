@@ -3,17 +3,12 @@ import { useStorage } from "../hooks/useStorage";
 import Firebase from "../controller/_firebase";
 import * as REQUESTS from "../constants/_requests";
 import Follower from "../models/_follower";
+import { Task } from "../models";
+import {followerData, taskData} from "../constants/_dataTypes";
 
 const { getSyncStorage, setSyncStorage, removeSyncStorage } = useStorage();
 const firebase = new Firebase();
 
-interface followerData {
-    code: string,
-    uuid: string,
-    monitoring?: boolean
-}
-
-//name - object
 export let usePopupStore = defineStore("popup", {
     //Data
     state: () => {
@@ -24,8 +19,9 @@ export let usePopupStore = defineStore("popup", {
             classCode: "",
             error: "",
             name: "",
-            previousViews: <string[]>([]),
-            justCreatedAccount: false
+            justCreatedAccount: false,
+            teacherName: <string>'',
+            tasks: <Task[]>[]
         };
     },
 
@@ -34,13 +30,7 @@ export let usePopupStore = defineStore("popup", {
         /**
          * Change the current panel to the supplied one.
          */
-        changeView(panel: string, addToHistory: boolean = true) {
-            if (addToHistory) {
-                this.previousViews.push(this.view)
-            }
-            if (panel === 'login' || panel === 'sessionTeacher' || panel === 'sessionStudent') {
-                this.previousViews = []
-            }
+        changeView(panel: string) {
             this.resetStateFields();
             this.view = panel;
         },
@@ -51,37 +41,6 @@ export let usePopupStore = defineStore("popup", {
         resetStateFields() {
             this.error = "";
             this.name = "";
-        },
-
-        popPreviousView(): string
-        {
-            if (this.previousViews.length) {
-                return <string>this.previousViews.pop()
-            }
-            if (this.follower.name != "") {
-                return "sessionStudent"
-            }
-            if (this.name) {
-                return "sessionTeacher"
-            }
-            return "login"
-        },
-
-        back() {
-            console.log(this.previousViews)
-            this.changeView(this.popPreviousView(), false)
-        },
-
-        /**
-         * Determine whether the top right icon should be visible
-         */
-        showHeaderIcon() {
-            return (
-                this.view !== 'loading'
-                && this.view !== 'login'
-                && this.view !== 'sessionStudent'
-                && this.view !== 'sessionTeacher'
-            );
         },
 
         /**
@@ -97,6 +56,7 @@ export let usePopupStore = defineStore("popup", {
                 if (granted) {
                     console.log("Checking for follower");
                     await this.checkForFollower();
+                    await this.checkForLocalTasks();
                 } else {
                     console.log("Storage permission is not enabled.");
                 }
@@ -109,9 +69,14 @@ export let usePopupStore = defineStore("popup", {
         async checkForFollower() {
             const follower = <followerData>await getSyncStorage("follower");
             if(follower != null) {
-                const session = await firebase.checkForClassroom(follower.code);
+                console.log(follower);
+
+                //Update the follower object to the saved one
+                this.follower = new Follower(follower.code, follower.name, follower.teacherName, follower.uuid);
+                const session = await firebase.checkForWebFollower(follower.code, follower.uuid);
 
                 if(session) {
+                    this.teacherName = follower.teacherName;
                     this.view = "sessionStudent";
                     return;
                 } else {
@@ -123,15 +88,47 @@ export let usePopupStore = defineStore("popup", {
         },
 
         /**
-         * Begin the connection process for a student, ask for permissions to be granted at this stage.
+         * Check the sync storage for saved tasks and populate the local tasks array if found.
          */
-        async connect() {
+        async checkForLocalTasks() {
+            const savedData: string | undefined = await getSyncStorage("tasks");
+            console.log(savedData);
+            if(savedData !== undefined) {
+                const savedTaskList: taskData[] = JSON.parse(savedData);
+                const convertedData: Task[] = savedTaskList.map((savedTaskList: taskData) => new Task(savedTaskList.name, savedTaskList.packageName, savedTaskList.type));
+
+                if(convertedData.length !== 0) {
+                    this.tasks = convertedData;
+                }
+            }
+        },
+
+        /**
+         * Collect the details of a class (I.e. Teachers name) from firebase that is linked to the supplied class
+         * code.
+         */
+        async collectClassroomDetails(): Promise<boolean> {
+            const result = await firebase.collectClassDetails(this.classCode);
+
+            if(result === null) {
+                return false;
+            } else {
+                this.teacherName = result;
+                return true;
+            }
+        },
+
+        /**
+         * Begin the connection process for a follower, ask for permissions to be granted at this stage.
+         * @param name A string of the name inputted by the follower.
+         */
+        async connect(name: string) {
             return await new Promise((resolve, reject) => {
                 chrome.permissions.request({
                     permissions: ["tabs", "scripting"]
                 }, async (granted: boolean) => {
                     if (granted) {
-                        await this.connectToClass(resolve)
+                        await this.connectToClass(name, resolve)
                     } else {
                         this.error = "Please accept the permissions when prompted";
                         reject()
@@ -144,14 +141,15 @@ export let usePopupStore = defineStore("popup", {
          * Using the inputted code values check to see if there is a classroom matching these details and then
          * add the student to the class.
          */
-        async connectToClass(resolver: any) {
-            const userCode = this.classCode;
-            const follower = this.follower;
+        async connectToClass(name: string, resolver: any) {
+            this.follower.name = name;
+            this.follower.classCode = this.classCode;
+            this.follower.teacherName = this.teacherName;
 
             //Queries the currently open tab and sends a message to it
             localStorage.removeItem("firebase:previous_websocket_failure")
             
-            const result = await firebase.checkForClassroom(userCode);
+            const result = await firebase.checkForClassroom(this.classCode);
 
             if (!result) {
                 this.error = "No Class found";
@@ -161,8 +159,10 @@ export let usePopupStore = defineStore("popup", {
 
             void await setSyncStorage({
                 "follower": {
-                    "code": userCode,
-                    "name": follower.name,
+                    "code": this.follower.getClassCode(),
+                    "name": this.follower.getName(),
+                    "uuid": this.follower.getUniqueId(),
+                    "teacherName": this.follower.getTeacherName(),
                     "monitoring": false
                 }
             });
@@ -190,11 +190,37 @@ export let usePopupStore = defineStore("popup", {
         },
 
         /**
+         * Change the followers name, changes it in firebase and updates the Leader's data.
+         */
+        async changeName(name: string) {
+            const userData:followerData = await getSyncStorage("follower");
+            if (userData == null) { return; }
+
+            await firebase.updateName(userData.code, userData.uuid, name);
+
+            this.follower.name = name;
+
+            void await setSyncStorage({
+                "follower": {
+                    "code": this.follower.getClassCode(),
+                    "name": this.follower.getName(),
+                    "uuid": this.follower.getUniqueId(),
+                    "teacherName": this.follower.getTeacherName(),
+                    "monitoring": false
+                }
+            });
+        },
+
+        /**
          * Handle ending a session for a student, this manages removing the details from the local storage and
          * alerting a teacher that the student has disconnected.
          */
         async handleEndSessionClick() {
             localStorage.removeItem("firebase:previous_websocket_failure");
+
+            removeSyncStorage("tasks")
+                .then(() => console.log("Task data removed"));
+
             const userData:followerData = await getSyncStorage("follower");
             if (userData == null) { return; }
 
@@ -221,7 +247,7 @@ export let usePopupStore = defineStore("popup", {
             this.view = 'login';
 
             removeSyncStorage("follower")
-                .then(() => console.log("Data removed"));
+                .then(() => console.log("Follower data removed"));
 
             chrome.tabs.query({ url: REQUESTS.ASSISTANT_MATCH_URL }, ([tab]) => {
                 if (!tab) { return }
@@ -239,12 +265,5 @@ export let usePopupStore = defineStore("popup", {
             chrome.runtime.sendMessage({type: REQUESTS.SCREENCONTROL, action: "unblock"})
                 .then(result => console.log(result));
         },
-    },
-
-    //Computed properties
-    getters: {
-        test() {
-            return 10;
-        },
-    },
+    }
 });

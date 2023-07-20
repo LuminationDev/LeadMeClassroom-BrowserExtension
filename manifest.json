@@ -45,7 +45,6 @@
       "resources": [
         "src/content/content.styles.css",
         "src/pages/assistant/assistant.html",
-        "src/pages/dashboard/dashboard.html",
         "src/assets/img/*",
         "src/assets/img/**/*"
       ],

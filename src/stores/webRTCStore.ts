@@ -1,4 +1,5 @@
 import { defineStore } from "pinia";
+import { IConnectionDetails, IRTCConnection } from "../constants/_dataTypes";
 
 /**
  * Configure the stun or turn servers used to communicate between the separate accounts
@@ -10,15 +11,15 @@ const configuration = {
     ]
 }
 
-interface IConnectionDetails {
-    classCode: string,
-    uniqueId: string
-}
-
-interface IRTCConnection {
-    peerConnection: RTCPeerConnection;
-    stream: MediaStream;
-}
+// interface IConnectionDetails {
+//     classCode: string,
+//     uniqueId: string
+// }
+//
+// interface IRTCConnection {
+//     peerConnection: RTCPeerConnection;
+//     stream: MediaStream;
+// }
 
 //NOTE: Must not use the basic typescript Function type parameter as it uses eval() which is blocked by chromes CSP. We
 //can use a separate variable which can be overridden within the store code to work around this issue.

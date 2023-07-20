@@ -1,4 +1,5 @@
 import Firebase from '../controller/_firebase';
+import * as REQUESTS from "../constants/_requests";
 import YoutubeController from "./modules/YoutubeController";
 import ScreenController from "./modules/ScreenController";
 import { useStorage } from "../hooks/useStorage";
@@ -36,16 +37,24 @@ chrome.runtime.onMessage.addListener(
                 AsyncProcessing(request, request.code, request.uuid).then(sendResponse);
                 return true;
 
-            case "screenControl":
+            case REQUESTS.SCREENCONTROL:
                 console.log("Screen Controller --- setting action: " + request.action);
                 screenController.determineAction(request.action);
                 return true;
 
-            case "youtube":
+            case REQUESTS.YOUTUBE:
                 if(location.href.includes("youtube")) {
                     console.log("Youtube Controller --- setting action: " + request.action);
                     youtubeController?.determineAction(request.action);
                 }
+                break;
+
+            case REQUESTS.TASK:
+                void chrome.runtime.sendMessage(request);
+                break;
+
+            case REQUESTS.POPUPTABCONTROL:
+                window.open(request.url, '_blank')?.focus();
                 break;
 
             default:

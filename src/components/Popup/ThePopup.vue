@@ -1,92 +1,84 @@
 <script setup lang="ts">
-import LeadMeHeader from "./PopupHeader.vue";
 import PopupPanel from "./PopupPanel.vue";
 import PopupLoading from "./PopupLoading.vue";
-import PopupFooter from "./PopupFooter.vue";
-import LoginContent from "../../components/Popup/Login/LoginInitial.vue";
-import LoginStudent from "../../components/Popup/Login/LoginStudent.vue";
+import LoginStudent from "./Login/LoginNameInput.vue";
 import LoginRoomCode from "../../components/Popup/Login/LoginRoomCode.vue";
 import StudentSession from "../../components/Popup/Student/StudentSession.vue";
-import StudentFooter from "../../components/Popup/Student/StudentFooter.vue";
-import StudentOptions from "../../components/Popup/Student/StudentOptions.vue";
-import StudentPermissions from "../../components/Popup/Student/StudentPermissions.vue";
-import StudentSessionLeave from "../../components/Popup/Student/StudentSessionLeave.vue";
+import StudentSettings from "./Student/StudentSettings.vue";
+import StudentQuestion from "./Student/StudentQuestion.vue";
 import { onBeforeMount } from "vue";
-
 import { usePopupStore } from "../../stores/popupStore";
+import StudentPermissions from "./Student/StudentPermissions.vue";
+import { Task } from "../../models";
+import * as REQUESTS from "../../constants/_requests";
+
 const popupPinia = usePopupStore();
 
-onBeforeMount(() => popupPinia.onOpen());
+const loadTasks = (message: any) => {
+   if(message.tasks.length === 0) { return; }
+
+  //List for new incoming tasks - Create the new task from the supplied data
+  let newTaskList = <Task[]>[];
+  message.tasks.forEach((item: string) => {
+    const info = item.split("|");
+    if(info.length !== 3) { return; }
+    const task: Task = new Task(info[0], info[1], info[2]);
+    newTaskList.push(task);
+  });
+
+  newTaskList.forEach(task => {
+    if(message.action === "added") {
+      const exists = popupPinia.tasks.filter(currentTask => currentTask.packageName === task.packageName);
+      if (exists.length === 0) {
+        popupPinia.tasks.push(task);
+      }
+    } else if (message.action === "removed") { //Remove the task from the list
+      popupPinia.tasks = popupPinia.tasks.filter(currentTask => currentTask.packageName === task.packageName);
+    }
+  });
+}
+
+onBeforeMount(() => {
+  //Add an incoming tasks to the popupPinia task list
+  chrome.runtime.onMessage.addListener(function(message){
+    switch(message.type) {
+      case REQUESTS.NEWTASK:
+        loadTasks(message);
+    }
+  });
+
+  popupPinia.onOpen();
+});
 </script>
 
 <template>
-  <LeadMeHeader />
+  <!--Default loading panel-->
+  <PopupPanel
+    :class="{'bg-[#182B50] pt-9': popupPinia.view === 'login' || popupPinia.view === 'nameInput'}"
+    :show-header="popupPinia.view !== 'login' && popupPinia.view !== 'nameInput' && popupPinia.view !== 'loading'"
+  >
+    <!--Don't fade the load-->
+    <PopupLoading v-if="popupPinia.view === 'loading'"/>
 
-  <div class="bg-panel-background">
     <Transition name="fade" mode="out-in">
-      <!-- Loading panel -->
-      <PopupPanel v-if="popupPinia.view === 'loading'">
-        <template v-slot:header><span class="font-semibold">Loading please wait!</span></template>
-        <template v-slot:content><PopupLoading /></template>
-        <template v-slot:footer><PopupFooter /></template>
-      </PopupPanel>
+      <!--Entry point-->
+      <!--Room Code-->
+      <LoginRoomCode v-if="popupPinia.view === 'login'"/>
 
-      <!-- Basic login panel to start with -->
-      <PopupPanel v-else-if="popupPinia.view === 'login'">
-        <template v-slot:header><span class="font-semibold">Welcome to LeadMe!</span></template>
-        <template v-slot:content><LoginContent /></template>
-      </PopupPanel>
+      <!--Name Input-->
+      <LoginStudent v-else-if="popupPinia.view === 'nameInput'"/>
 
-      <!-- Student login -->
-      <PopupPanel v-else-if="popupPinia.view === 'loginStudent'">
-        <template v-slot:header>Student Login</template>
-        <template v-slot:content><LoginStudent /></template>
-      </PopupPanel>
+      <!--Student Session-->
+      <StudentSession v-else-if="popupPinia.view === 'sessionStudent'"/>
 
-      <!-- Room code -->
-      <PopupPanel v-else-if="popupPinia.view === 'roomCode'">
-        <template v-slot:header>Room Code</template>
-        <template v-slot:content><LoginRoomCode /></template>
-      </PopupPanel>
+      <!--Ask a Question Input-->
+      <StudentQuestion v-else-if="popupPinia.view === 'sessionQuestion'"/>
 
-      <!-- Active Student Session -->
-      <PopupPanel v-else-if="popupPinia.view === 'sessionStudent'">
-        <template v-slot:content><StudentSession /></template>
-        <template v-slot:footer><StudentFooter /></template>
-      </PopupPanel>
+      <!--Student Settings-->
+      <StudentSettings v-else-if="popupPinia.view === 'sessionSettings'"/>
 
-      <!-- Options menu (Active Student session) -->
-      <PopupPanel v-else-if="popupPinia.view === 'options'">
-        <template v-slot:header>Options</template>
-        <template v-slot:content><StudentOptions /></template>
-        <template v-slot:footer><StudentFooter /></template>
-      </PopupPanel>
-
-      <!-- Permissions menu (Active Student session) -->
-      <PopupPanel v-else-if="popupPinia.view === 'permissions'">
-        <template v-slot:header>Permissions</template>
-        <template v-slot:content><StudentPermissions /></template>
-        <template v-slot:footer><StudentFooter /></template>
-      </PopupPanel>
-
-      <!-- Leave session (Active Student session) -->
-      <PopupPanel v-else-if="popupPinia.view === 'leave'">
-        <template v-slot:header>Confirmation</template>
-        <template v-slot:content><StudentSessionLeave /></template>
-        <template v-slot:footer><StudentFooter /></template>
-      </PopupPanel>
+      <!--Student Permissions-->
+      <StudentPermissions v-else-if="popupPinia.view === 'sessionPermissions'"/>
     </Transition>
-  </div>
+  </PopupPanel>
 </template>
-
-<style>
-.fade-enter-active,
-.fade-leave-active {
-  transition: opacity 0.15s ease;
-}
-
-.fade-enter-from,
-.fade-leave-to {
-  opacity: 0;
-}
-</style>

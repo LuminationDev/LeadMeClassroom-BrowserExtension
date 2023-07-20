@@ -9,39 +9,20 @@ import Tab from "./_tab";
 class Follower {
     classCode: string;
     name: string;
+    teacherName: string
     uniqueId: string;
     tabs: Tab[];
     webRTC: any;
     UUID: any;
-    imageBase64: string|null|undefined;
-    collectingScreenshotFailed: boolean|null|undefined;
-    monitoring: boolean|null|undefined;
     permission: string|null|undefined;
-    muted: boolean|null|undefined;
-    muteAll: boolean|null|undefined;
-    offTask: boolean|null|undefined;
-    disconnected: boolean = false;
 
-    constructor(classCode = "", name = "", uniqueId = uuidv4()) {
+    constructor(classCode = "", name = "", teacherName = "", uniqueId = uuidv4()) {
         this.classCode = classCode;
         this.uniqueId = uniqueId;
         this.name = name;
+        this.teacherName = teacherName;
         this.tabs = [];
         this.permission = null;
-    }
-
-    updateIndividualTab(id: string, newTab: Tab)
-    {
-        const index = this.tabs.findIndex(tab => (tab.id + "") === id)
-        if (index !== -1) {
-            const obj = <Tab>this.tabs[index];
-            Object.keys(obj).forEach(key => {
-                // @ts-ignore
-                obj[key] = newTab[key];
-            });
-        } else {
-            this.tabs.push(newTab)
-        }
     }
 
     removeTab(id: string)
@@ -54,6 +35,14 @@ class Follower {
 
     getClassCode = () => {
         return this.classCode;
+    }
+
+    getName = () => {
+        return this.name;
+    }
+
+    getTeacherName = () => {
+        return this.teacherName;
     }
 
     getUniqueId = () => {

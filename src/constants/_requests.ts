@@ -1,5 +1,4 @@
 //General controls
-
 export const ENDSESSION = "end_session";
 export const REMOVED = "removedByLeader";
 
@@ -11,6 +10,8 @@ export const REMOVE_TAB = "removeTab";
 export const DELETE_TAB = "deleteTab";
 export const WEBSITE = "website";
 export const ASSISTANT_MATCH_URL = "chrome-extension://*/*/assistant.html";
+export const NEWTASK = "new_tasks";
+export const TASK = "tasks";
 
 //Web RTC controls
 export const MONITORPERMISSION = "videoPermission";
@@ -19,6 +20,7 @@ export const MONITORSTARTED = "enableMonitoring";
 export const MONITORENDED = "disableMonitoring";
 
 //Tab controls
+export const POPUPTABCONTROL = "popup_tab";
 export const FORCEACTIVETAB = "force_active_tab";
 export const MAXIMIZE = "maximize";
 export const MINIMIZE = "minimize";
