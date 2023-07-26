@@ -111,6 +111,7 @@ export let usePopupStore = defineStore("popup", {
             const result = await firebase.collectClassDetails(this.classCode);
 
             if(result === null) {
+                this.error = "Could not find class. Check the room code and try again."
                 return false;
             } else {
                 this.teacherName = result;

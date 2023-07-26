@@ -7,7 +7,7 @@ let popupPinia = usePopupStore();
 const title = computed(() => {
   switch(popupPinia.view) {
     case "sessionStudent":
-      return `${popupPinia.teacherName}${popupPinia.teacherName.endsWith('s') ? '' : 's' } Class`;
+      return `${popupPinia.teacherName}${popupPinia.teacherName.endsWith('s') ? '\'' : '\'s' } Class`;
     case "sessionQuestion":
       return "Ask a Question"
     case "sessionSettings":

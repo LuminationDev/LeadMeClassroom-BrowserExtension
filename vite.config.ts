@@ -21,7 +21,6 @@ export default defineConfig({
     target: 'esnext',
     rollupOptions: {
       input: {
-        dashboard: 'src\\pages\\dashboard\\dashboard.html',
         options: 'src\\pages\\options\\options.html',
         assistant: 'src\\pages\\assistant\\assistant.html'
       },

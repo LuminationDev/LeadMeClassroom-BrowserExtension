@@ -11,7 +11,7 @@ import GenericButton from "../../Buttons/GenericButton.vue";
     <GenericButton
         class="flex flex-row justify-center items-center w-full h-9 font-normal text-white bg-blue-500 hover:bg-blue-300"
         :type="'primary'"
-        :callback="() => console.log('done something')"
+        :callback="() => {}"
     >
       <div class="text-sm">Submit Question</div>
     </GenericButton>

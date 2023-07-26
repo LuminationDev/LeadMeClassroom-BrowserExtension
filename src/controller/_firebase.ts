@@ -232,7 +232,7 @@ class Firebase {
      * @param followerId A string representing the unique ID of a follower.
      */
     uploadScreenshot = (base64: string, classCode: string, followerId: string) => {
-        const screenshotRef = storageRef(this.storage, `${classCode}/${followerId}`);
+        const screenshotRef = storageRef(this.storage, `${this.webFollowerRef}/${classCode}/${followerId}`);
         const followerRef = ref(this.db, `${this.webFollowerRef}/${classCode}/${followerId}/screenshot`);
 
         uploadString(screenshotRef, base64, 'data_url', {contentType:`image/jpg`})
