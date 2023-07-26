@@ -11,7 +11,7 @@
   </div>
 </template>
 
-<style>
+<style scoped>
 .lds-dual-ring-lg {
   display: inline-block;
   width: 150px;
