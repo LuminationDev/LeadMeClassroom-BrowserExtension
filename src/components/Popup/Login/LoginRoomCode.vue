@@ -80,12 +80,12 @@ const changeToTeacher = () => {
         </div>
       </div>
 
-      <div class="flex justify-center">
+      <div class="flex justify-center flex-col items-center">
         <GenericButton class="flex justify-center items-center w-32" :type="'secondary'" :callback="validateAndSubmit">
           <img v-if="classFound" class="w-8 h-8" src="@/assets/img/tick.svg" alt="Icon"/>
           <p v-else class="text-sm">Join</p>
         </GenericButton>
-        <p class="text-red-400">{{ popupPinia.error }}</p>
+        <p class="text-red-400 px-6 mt-2">{{ popupPinia.error }}</p>
       </div>
 
       <p class="mt-14 text-blue-400 cursor-pointer" v-on:click="changeToTeacher">Login as Teacher</p>
