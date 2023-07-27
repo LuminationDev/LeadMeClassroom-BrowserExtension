@@ -53,10 +53,6 @@ chrome.runtime.onMessage.addListener(
                 void chrome.runtime.sendMessage(request);
                 break;
 
-            case REQUESTS.POPUPTABCONTROL:
-                window.open(request.url, '_blank')?.focus();
-                break;
-
             default:
                 console.log("Unknown command: " + JSON.stringify(request));
         }

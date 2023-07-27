@@ -29,13 +29,7 @@ const sendMessageToOpenTab = (url: string) => {
   chrome.tabs.query({ currentWindow: true, active: true }, function (tabs) {
     let activeTab = tabs[0];
     if (activeTab.id == null) { return; }
-
-    chrome.tabs.sendMessage(activeTab.id,
-        {
-          "type": REQUESTS.POPUPTABCONTROL,
-          "url": url
-        }
-    );
+    window.open(url, '_blank')?.focus();
   });
 }
 </script>
@@ -50,7 +44,7 @@ const sendMessageToOpenTab = (url: string) => {
 
     <!--Task list-->
     <div v-else class="flex flex-col flex-grow mx-6">
-      <div class="text-xsm text-gray-400 text-left font-semibold mt-4 mb-2">LESSON CONTENT</div>
+      <div class="text-xsm text-gray-400 text-left font-semibold mt-4 mb-2 uppercase">Lesson Content</div>
 
       <div class="h-36 overflow-y-auto">
         <div v-for="task in popupPinia.tasks" v-on:click="sendMessageToOpenTab(task.getPackageName())"
