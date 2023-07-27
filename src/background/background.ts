@@ -22,7 +22,6 @@ chrome.tabs.onActivated.addListener(async () => {
     if (data == null) { return; }
     if (data.monitoring) { captureScreen(); }
 
-    //Need to collect the current tab details for the index number
     chrome.tabs.query({ active: true, lastFocusedWindow: true }, ([currentTab]) => {
         chrome.tabs.query({ url: REQUESTS.ASSISTANT_MATCH_URL }, async ([assistantTab]) => {
             if(assistantTab == null) {
@@ -33,6 +32,22 @@ chrome.tabs.onActivated.addListener(async () => {
         });
     });
 });
+
+chrome.windows.onFocusChanged.addListener(async () => {
+    const data = <storageFollower>await getSyncStorage("follower");
+    if (data == null) { return; }
+    if (data.monitoring) { captureScreen(); }
+
+    chrome.tabs.query({ active: true, lastFocusedWindow: true }, ([currentTab]) => {
+        chrome.tabs.query({ url: REQUESTS.ASSISTANT_MATCH_URL }, async ([assistantTab]) => {
+            if(assistantTab == null) {
+                await removeSyncStorage("follower");
+                return;
+            }
+            return void await chrome.tabs.sendMessage(<number>assistantTab.id, { type: REQUESTS.UPDATE_ACTIVE_TAB, tab: currentTab });
+        });
+    });
+})
 
 chrome.tabs.onRemoved.addListener(async (tabId) => {
     const data = <storageFollower>await getSyncStorage("follower");
@@ -65,6 +80,10 @@ chrome.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
 
         //if tab action is only mute/unmute
         if(changeInfo.mutedInfo !== undefined) {
+            delete newTab.lastActivated;
+        }
+        //if tab action is only title change
+        if(changeInfo.title !== undefined) {
             delete newTab.lastActivated;
         }
         //Tab was opened in background or right click -> new tab

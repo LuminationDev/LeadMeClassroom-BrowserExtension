@@ -19,8 +19,6 @@ export const MONITORDATA = "iceCandidates";
 export const MONITORSTARTED = "enableMonitoring";
 export const MONITORENDED = "disableMonitoring";
 
-//Tab controls
-export const POPUPTABCONTROL = "popup_tab";
 export const FORCEACTIVETAB = "force_active_tab";
 export const MAXIMIZE = "maximize";
 export const MINIMIZE = "minimize";
