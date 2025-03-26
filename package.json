@@ -1,0 +1,34 @@
+{
+  "name": "test",
+  "private": true,
+  "version": "0.0.0",
+  "scripts": {
+    "dev": "vite",
+    "build": "vue-tsc --noEmit && vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@crxjs/vite-plugin": "^1.0.14",
+    "@types/chrome": "^0.0.197",
+    "@vuelidate/core": "^2.0.0",
+    "@vuelidate/validators": "^2.0.0",
+    "firebase": "^9.10.0",
+    "firebaseui": "^6.0.1",
+    "pinia": "^2.0.23",
+    "uuid": "^9.0.0",
+    "v-onboarding": "^2.1.0",
+    "vue": "^3.2.25",
+    "vue3-otp-input": "^0.3.6"
+  },
+  "devDependencies": {
+    "@types/uuid": "^8.3.4",
+    "@vitejs/plugin-vue": "^2.3.4",
+    "autoprefixer": "^10.4.12",
+    "postcss": "^8.4.17",
+    "postcss-loader": "^7.0.1",
+    "tailwindcss": "^3.1.8",
+    "typescript": "^4.5.4",
+    "vite": "^2.9.15",
+    "vue-tsc": "^0.34.7"
+  }
+}
